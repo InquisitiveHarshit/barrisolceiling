@@ -67,7 +67,7 @@ export default function BlogsPage() {
                   transition={{
                     duration: 0.6,
                     delay: 0.3 + (i * 0.15),
-                    ease: [0.16, 1, 0.3, 1],
+                    ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
                   }}
                   className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10"
                 >

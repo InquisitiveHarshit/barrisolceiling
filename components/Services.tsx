@@ -40,7 +40,7 @@ export default function Services() {
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="font-headline-lg text-3xl md:text-4xl lg:text-5xl text-[#202124] leading-tight"
           >
             Transforming Spaces with Elegant Designs
@@ -49,7 +49,7 @@ export default function Services() {
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
             className="font-body-md text-body-md text-on-surface-variant max-w-prose"
           >
             We provide premium stretch ceiling installations and custom lighting solutions,
@@ -68,7 +68,7 @@ export default function Services() {
                 initial={{ opacity: 0, y: 32 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.7, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
                 className={`grid grid-cols-1 md:grid-cols-2 gap-0 group ${reversed ? "md:[direction:rtl]" : ""}`}
               >
                 {/* Image */}

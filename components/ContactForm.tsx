@@ -11,7 +11,7 @@ export default function ContactForm() {
           initial={{ opacity: 0, x: -32 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
         >
           <h2 className="font-headline-lg text-3xl md:text-4xl lg:text-5xl text-[#202124] mb-6 leading-tight">
             Get a Free Consultation
@@ -63,7 +63,7 @@ export default function ContactForm() {
           initial={{ opacity: 0, x: 32 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
           className="bg-luminary-white p-10 shadow-lg"
         >
           <h3 className="font-headline-md text-headline-md mb-8 text-[#202124]">

@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { authenticateAdmin } from "@/lib/auth";
 
-cloudinary.config({
-  cloudinary_url: process.env.CLOUDINARY_URL,
-});
-
 export async function POST(req: NextRequest) {
   try {
+    cloudinary.config({
+      cloudinary_url: process.env.CLOUDINARY_URL,
+    });
+
     const authResult = await authenticateAdmin(req);
     if (authResult.error) {
       return NextResponse.json(

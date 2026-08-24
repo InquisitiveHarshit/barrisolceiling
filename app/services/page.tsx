@@ -83,7 +83,7 @@ export default function ServicesPage() {
                   key={service._id || service.title}
                   initial={{ opacity: 0, y: 32 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.4 + i * 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.7, delay: 0.4 + i * 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
                   className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10"
                 >
                   <div className="h-[220px] overflow-hidden">
