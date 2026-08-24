@@ -1,0 +1,271 @@
+"use client";
+import { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2 } from "lucide-react";
+import Link from "next/link";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+
+export default function EditBlog({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [tags, setTags] = useState("");
+  const [isPublished, setIsPublished] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: '',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      setContent(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[200px] px-4 py-4',
+      },
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      if (editor) {
+        editor.destroy();
+      }
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const res = await fetch(`/api/blogs/${slug}`);
+        const data = await res.json();
+        if (data.success) {
+          setTitle(data.data.title);
+          setContent(data.data.content);
+          setExcerpt(data.data.excerpt || "");
+          setTags(data.data.tags?.join(", ") || "");
+          setIsPublished(data.data.isPublished);
+          if (editor && editor.getHTML() !== data.data.content) {
+            editor.commands.setContent(data.data.content);
+          }
+        } else {
+          setError(data.message || "Failed to load blog");
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setPageLoading(false);
+      }
+    };
+    if (editor) {
+      fetchBlog();
+    }
+  }, [slug, editor]);
+
+  const handleImageUpload = async () => {
+    if (!file) return null;
+    const formData = new FormData();
+    formData.append("file", file);
+    const token = localStorage.getItem("admin_token");
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    const data = await res.json();
+    if (data.success) return data.url;
+    throw new Error(data.message || "Failed to upload image");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const textContent = content.replace(/<[^>]*>/g, "").trim();
+    if (!textContent) {
+      setError("Please add some content before saving.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      if (!token) throw new Error("You must be logged in to update a post.");
+
+      let coverImage = undefined;
+      if (file) {
+        coverImage = await handleImageUpload();
+      }
+
+      const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
+
+      const payload: any = { title, content, excerpt, tags: tagsArray, isPublished };
+      if (coverImage) payload.coverImage = coverImage;
+
+      const res = await fetch(`/api/blogs/${slug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        router.push("/admin/blogs");
+      } else {
+        setError(data.message || `Server error (${res.status})`);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (pageLoading) {
+    return <div className="min-h-screen bg-surface-bright pt-32 px-5 text-center text-on-surface-variant font-label-caps">Loading...</div>;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#FAFAFA] pt-32 px-5 md:px-16 pb-24 font-body-md">
+      <div className="max-w-3xl mx-auto">
+        <Link
+          href="/admin/blogs"
+          className="group inline-flex items-center gap-2 text-on-surface-variant hover:text-[#202124] transition-colors mb-12 text-sm font-medium tracking-wide"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+          Back to Blogs
+        </Link>
+
+        <h1 className="font-headline-lg text-4xl text-[#202124] mb-10 tracking-tight">
+          Edit Post
+        </h1>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              Title
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-3 bg-white border border-black/10 rounded-xl focus:outline-none focus:border-brand-vibrancy focus:ring-1 focus:ring-brand-vibrancy transition-shadow text-lg text-[#202124]"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              Excerpt <span className="normal-case tracking-normal font-normal opacity-70">(Short description)</span>
+            </label>
+            <textarea
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              rows={2}
+              className="w-full px-4 py-3 bg-white border border-black/10 rounded-xl focus:outline-none focus:border-brand-vibrancy focus:ring-1 focus:ring-brand-vibrancy transition-shadow text-[#202124] resize-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              Cover Image <span className="normal-case tracking-normal font-normal opacity-70">(Leave empty to keep current)</span>
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              className="w-full px-4 py-3 bg-white border border-black/10 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              Content
+            </label>
+            <div className="bg-white rounded-xl border border-black/10 overflow-hidden focus-within:border-brand-vibrancy focus-within:ring-1 focus-within:ring-brand-vibrancy transition-shadow">
+              {/* TipTap Toolbar */}
+              {editor && (
+                <div className="flex items-center gap-1 border-b border-black/5 p-2 bg-[#FAFAFA]">
+                  {[
+                    { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive('bold') },
+                    { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive('italic') },
+                    { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }) },
+                    { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive('bulletList') },
+                    { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive('orderedList') },
+                  ].map((btn, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={btn.action}
+                      className={`p-2 rounded-lg transition-colors ${btn.active ? 'bg-black/5 text-[#202124]' : 'text-on-surface-variant hover:bg-black/5 hover:text-[#202124]'}`}
+                    >
+                      <btn.icon size={16} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {/* TipTap Editor */}
+              <EditorContent editor={editor} className="min-h-[300px] p-2" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+              Tags <span className="normal-case tracking-normal font-normal opacity-70">(Comma separated)</span>
+            </label>
+            <input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g. stretch ceilings, lighting, design"
+              className="w-full px-4 py-3 bg-white border border-black/10 rounded-xl focus:outline-none focus:border-brand-vibrancy focus:ring-1 focus:ring-brand-vibrancy transition-shadow text-[#202124]"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <input
+              type="checkbox"
+              id="isPublished"
+              checked={isPublished}
+              onChange={(e) => setIsPublished(e.target.checked)}
+              className="w-5 h-5 accent-brand-vibrancy rounded border-black/20 focus:ring-brand-vibrancy"
+            />
+            <label
+              htmlFor="isPublished"
+              className="text-sm font-medium text-[#202124] select-none cursor-pointer"
+            >
+              Publish Immediately
+            </label>
+          </div>
+
+          <div className="pt-8 border-t border-black/10 mt-4 flex flex-col gap-4">
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 rounded-xl px-4 py-3 text-sm font-medium">
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[#202124] text-white text-sm font-semibold tracking-wide px-8 py-3.5 rounded-full hover:bg-black transition-all active:scale-[0.98] active:translate-y-[1px] disabled:opacity-50 disabled:pointer-events-none w-fit"
+            >
+              {loading ? "Saving changes..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
