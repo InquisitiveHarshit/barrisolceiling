@@ -1,10 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2 } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
 
 export default function CreateBlog() {
   const [title, setTitle] = useState("");
@@ -13,6 +17,7 @@ export default function CreateBlog() {
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -20,6 +25,10 @@ export default function CreateBlog() {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: '',
     immediatelyRender: false,
@@ -47,6 +56,7 @@ export default function CreateBlog() {
 
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("blackAndWhite", String(blackAndWhite));
 
     const token = localStorage.getItem("admin_token");
     const res = await fetch("/api/upload", {
@@ -59,7 +69,11 @@ export default function CreateBlog() {
 
     const data = await res.json();
     if (data.success) {
-      return data.url;
+      let url = data.url;
+      if (blackAndWhite) {
+        url = url.replace("/upload/", "/upload/e_grayscale/");
+      }
+      return url;
     } else {
       throw new Error(data.message || "Failed to upload image");
     }
@@ -161,16 +175,29 @@ export default function CreateBlog() {
               />
             </div>
 
-            <div>
+            <div className="space-y-2">
               <label className="block font-label-caps text-on-surface-variant mb-2">
                 Cover Image
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="w-full px-4 py-3 border border-outline/20 rounded-lg"
-              />
+              <div className="flex items-center gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setFile(e.target.files?.[0] || null)}
+                  className="flex-1 px-4 py-3 border border-outline/20 rounded-lg"
+                />
+                <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
+                  <div
+                    onClick={() => setBlackAndWhite((v) => !v)}
+                    className={`relative w-9 h-5 rounded-full transition-colors ${blackAndWhite ? "bg-brand-vibrancy" : "bg-outline/20"}`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-on-surface-variant">B&W</span>
+                </label>
+              </div>
             </div>
 
             <div>
@@ -215,6 +242,13 @@ export default function CreateBlog() {
                       className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-outline/20' : 'hover:bg-outline/10'}`}
                     >
                       <ListOrdered size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                      className={`p-2 rounded ${editor.isActive('table') ? 'bg-outline/20' : 'hover:bg-outline/10'}`}
+                    >
+                      <TableIcon size={16} />
                     </button>
                   </div>
                 )}

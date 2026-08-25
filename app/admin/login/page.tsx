@@ -22,7 +22,7 @@ export default function AdminLogin() {
       const data = await res.json();
       if (data.success) {
         localStorage.setItem("admin_token", data.token);
-        router.push("/admin/blogs");
+        router.push("/admin");
       } else {
         setError(data.message || "Login failed");
       }

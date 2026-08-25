@@ -1,10 +1,14 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2 } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
 
 export default function EditBlog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -15,13 +19,20 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
     content: '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -74,6 +85,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
     if (!file) return null;
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("blackAndWhite", String(blackAndWhite));
     const token = localStorage.getItem("admin_token");
     const res = await fetch("/api/upload", {
       method: "POST",
@@ -81,7 +93,13 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
       body: formData,
     });
     const data = await res.json();
-    if (data.success) return data.url;
+    if (data.success) {
+      let url = data.url;
+      if (blackAndWhite) {
+        url = url.replace("/upload/", "/upload/e_grayscale/");
+      }
+      return url;
+    }
     throw new Error(data.message || "Failed to upload image");
   };
 
@@ -178,16 +196,29 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 flex flex-col justify-end">
             <label className="block text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
               Cover Image <span className="normal-case tracking-normal font-normal opacity-70">(Leave empty to keep current)</span>
             </label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full px-4 py-3 bg-white border border-black/10 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
-            />
+            <div className="flex items-center gap-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                className="flex-1 px-4 py-3 bg-white border border-black/10 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
+              />
+              <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
+                <div
+                  onClick={() => setBlackAndWhite((v) => !v)}
+                  className={`relative w-8 h-4 rounded-full transition-colors ${blackAndWhite ? "bg-[#202124]" : "bg-black/10"}`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
+                  />
+                </div>
+                <span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">B&W</span>
+              </label>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -204,6 +235,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                     { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }) },
                     { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive('bulletList') },
                     { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive('orderedList') },
+                    { icon: TableIcon, action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), active: editor.isActive('table') },
                   ].map((btn, i) => (
                     <button
                       key={i}
