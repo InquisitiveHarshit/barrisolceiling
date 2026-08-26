@@ -4,6 +4,7 @@ export interface IGalleryImage extends Document {
   url: string;
   publicId: string;
   title?: string;
+  location?: string;
   createdAt: Date;
 }
 
@@ -18,6 +19,10 @@ const GalleryImageSchema = new Schema<IGalleryImage>(
       required: true,
     },
     title: {
+      type: String,
+      default: "",
+    },
+    location: {
       type: String,
       default: "",
     },

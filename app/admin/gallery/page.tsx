@@ -2,13 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Upload, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, Loader2, Image as ImageIcon, Trash2, Pencil, Check, X } from "lucide-react";
 import Image from "next/image";
 
+interface GalleryImg {
+  _id: string;
+  url: string;
+  title?: string;
+  location?: string;
+}
+
 export default function GalleryPage() {
-  const [images, setImages] = useState<any[]>([]);
+  const [images, setImages] = useState<GalleryImg[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState({ title: "", location: "" });
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const reduce = useReducedMotion();
 
@@ -28,20 +39,15 @@ export default function GalleryPage() {
     }
   };
 
-  /**
-   * Applies Cloudinary's e_grayscale transformation to a Cloudinary URL.
-   * e.g. .../upload/v123/... → .../upload/e_grayscale/v123/...
-   */
-  const applyGrayscale = (url: string) => {
-    return url.replace("/upload/", "/upload/e_grayscale/");
-  };
+  const applyGrayscale = (url: string) =>
+    url.replace("/upload/", "/upload/e_grayscale/");
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("title", file.name);
+    formData.append("title", file.name.replace(/\.[^/.]+$/, ""));
     formData.append("blackAndWhite", String(blackAndWhite));
 
     setIsUploading(true);
@@ -54,11 +60,8 @@ export default function GalleryPage() {
       });
       const data = await res.json();
       if (data.success) {
-        // If B&W was selected, transform the stored URL to use grayscale
         const image = data.image;
-        if (blackAndWhite) {
-          image.url = applyGrayscale(image.url);
-        }
+        if (blackAndWhite) image.url = applyGrayscale(image.url);
         setImages((prev) => [image, ...prev]);
       }
     } catch (err) {
@@ -69,15 +72,68 @@ export default function GalleryPage() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this image? This cannot be undone.")) return;
+    setDeletingId(id);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch("/api/gallery", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (data.success) setImages((prev) => prev.filter((img) => img._id !== id));
+    } catch (err) {
+      console.error("Delete failed", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const startEdit = (img: GalleryImg) => {
+    setEditingId(img._id);
+    setEditDraft({ title: img.title || "", location: img.location || "" });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft({ title: "", location: "" });
+  };
+
+  const saveEdit = async (id: string) => {
+    setSavingId(id);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch("/api/gallery", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ id, title: editDraft.title, location: editDraft.location }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImages((prev) =>
+          prev.map((img) =>
+            img._id === id ? { ...img, title: editDraft.title, location: editDraft.location } : img
+          )
+        );
+        setEditingId(null);
+      }
+    } catch (err) {
+      console.error("Save failed", err);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto w-full">
       <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-medium tracking-tight text-zinc-900">Gallery</h2>
-          <p className="text-sm text-zinc-500 mt-1">Manage your image gallery assets.</p>
+          <p className="text-sm text-zinc-500 mt-1">Manage your image gallery assets. Hover an image to edit its label.</p>
         </div>
 
-        {/* Upload controls */}
         <div className="flex items-center gap-3">
           {/* B&W Toggle */}
           <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -95,19 +151,9 @@ export default function GalleryPage() {
           </label>
 
           <label className="relative flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg cursor-pointer hover:bg-zinc-800 transition-colors">
-            {isUploading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Upload className="w-4 h-4" />
-            )}
+            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {isUploading ? "Uploading..." : "Upload Image"}
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleUpload}
-              disabled={isUploading}
-            />
+            <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={isUploading} />
           </label>
         </div>
       </header>
@@ -139,11 +185,93 @@ export default function GalleryPage() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                <p className="text-white text-xs truncate font-medium">{img.title}</p>
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
+                {/* Top: action buttons */}
+                <div className="flex justify-end gap-1.5">
+                  <button
+                    onClick={() => startEdit(img)}
+                    className="bg-white/20 hover:bg-white/40 text-white p-1.5 rounded-lg transition-colors backdrop-blur-sm"
+                    title="Edit label"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(img._id)}
+                    disabled={deletingId === img._id}
+                    className="bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-lg transition-colors disabled:opacity-50"
+                    title="Delete image"
+                  >
+                    {deletingId === img._id
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Trash2 className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                {/* Bottom: title + location */}
+                <div>
+                  <p className="text-white text-xs font-semibold truncate">{img.title || "Untitled"}</p>
+                  {img.location && (
+                    <p className="text-white/70 text-[10px] truncate">{img.location}</p>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+          >
+            <h3 className="text-base font-semibold text-zinc-900 mb-4">Edit Image Label</h3>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">Title</label>
+                <input
+                  type="text"
+                  value={editDraft.title}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
+                  placeholder="e.g. Grid Translucent Stretch Ceiling"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">Location</label>
+                <input
+                  type="text"
+                  value={editDraft.location}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, location: e.target.value }))}
+                  placeholder="e.g. Gurugram, India"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={cancelEdit}
+                className="flex-1 flex items-center justify-center gap-1.5 border border-zinc-200 text-zinc-600 text-sm font-medium py-2 rounded-lg hover:bg-zinc-50 transition-colors"
+              >
+                <X className="w-4 h-4" /> Cancel
+              </button>
+              <button
+                onClick={() => saveEdit(editingId)}
+                disabled={!!savingId}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-zinc-900 text-white text-sm font-medium py-2 rounded-lg hover:bg-zinc-800 transition-colors disabled:opacity-60"
+              >
+                {savingId ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                Save
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
     </div>

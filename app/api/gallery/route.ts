@@ -19,8 +19,19 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Parse CLOUDINARY_URL: cloudinary://api_key:api_secret@cloud_name
+    const cloudinaryUrl = process.env.CLOUDINARY_URL || "";
+    const match = cloudinaryUrl.match(/cloudinary:\/\/(\d+):([^@]+)@(.+)/);
+    if (!match) {
+      return NextResponse.json(
+        { success: false, message: "Cloudinary is not configured correctly." },
+        { status: 500 }
+      );
+    }
     cloudinary.config({
-      cloudinary_url: process.env.CLOUDINARY_URL,
+      api_key: match[1],
+      api_secret: match[2],
+      cloud_name: match[3],
     });
 
     const authResult = await authenticateAdmin(req);
@@ -70,6 +81,102 @@ export async function POST(req: NextRequest) {
       { success: true, image: newImage },
       { status: 201 }
     );
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const authResult = await authenticateAdmin(req);
+    if (authResult.error) {
+      return NextResponse.json(
+        { success: false, message: authResult.error },
+        { status: authResult.status }
+      );
+    }
+
+    // Parse CLOUDINARY_URL: cloudinary://api_key:api_secret@cloud_name
+    const cloudinaryUrl = process.env.CLOUDINARY_URL || "";
+    const match = cloudinaryUrl.match(/cloudinary:\/\/(\d+):([^@]+)@(.+)/);
+    if (match) {
+      cloudinary.config({
+        api_key: match[1],
+        api_secret: match[2],
+        cloud_name: match[3],
+      });
+    }
+
+    const { id } = await req.json();
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Image ID is required." },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const image = await GalleryImage.findById(id);
+    if (!image) {
+      return NextResponse.json(
+        { success: false, message: "Image not found." },
+        { status: 404 }
+      );
+    }
+
+    // Delete from Cloudinary first
+    if (image.publicId) {
+      await cloudinary.uploader.destroy(image.publicId);
+    }
+
+    // Then delete from MongoDB
+    await GalleryImage.findByIdAndDelete(id);
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const authResult = await authenticateAdmin(req);
+    if (authResult.error) {
+      return NextResponse.json(
+        { success: false, message: authResult.error },
+        { status: authResult.status }
+      );
+    }
+
+    const { id, title, location } = await req.json();
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "Image ID is required." },
+        { status: 400 }
+      );
+    }
+
+    await connectDB();
+    const updated = await GalleryImage.findByIdAndUpdate(
+      id,
+      { title, location },
+      { new: true }
+    );
+
+    if (!updated) {
+      return NextResponse.json(
+        { success: false, message: "Image not found." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, image: updated }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
       { success: false, message: error.message },

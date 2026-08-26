@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export default function Hero() {
@@ -39,9 +40,15 @@ export default function Hero() {
       <section className="relative w-full min-h-screen lg:min-h-[90dvh] flex items-center pt-32 pb-16 lg:pt-20 lg:pb-0 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
-          <div
-            className="w-full h-full bg-cover bg-center scale-105"
-            style={{ backgroundImage: "url('/heroimage.webp')" }}
+          <Image
+            src="/heroimage.webp"
+            alt="Premium Stretch Ceiling Installation"
+            fill
+            priority
+            fetchPriority="high"
+            quality={90}
+            className="object-cover scale-105"
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/65 to-primary/50" />
           <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-transparent to-primary/60" />
