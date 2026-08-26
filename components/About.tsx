@@ -21,7 +21,7 @@ export default function About() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-          className="relative h-[560px] w-full overflow-hidden"
+          className="relative h-[400px] md:h-[480px] lg:h-[560px] w-full overflow-hidden"
         >
           <img
             alt="Professional installing a premium stretch ceiling"
@@ -29,9 +29,9 @@ export default function About() {
             src="/hero-stretch-ceiling.jpg"
           />
           {/* Accent block */}
-          <div className="absolute bottom-8 left-8 bg-brand-gradient text-luminary-white px-6 py-5 max-w-[200px]">
-            <p className="font-display-lg-mobile text-3xl font-bold mb-1">10+</p>
-            <p className="font-label-caps text-label-caps text-[10px] text-primary-fixed-dim">
+          <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8 bg-brand-gradient text-luminary-white px-5 py-4 md:px-6 md:py-5 max-w-[160px] md:max-w-[200px]">
+            <p className="font-display-lg-mobile text-2xl md:text-3xl font-bold mb-1">10+</p>
+            <p className="font-label-caps text-label-caps text-[9px] md:text-[10px] text-primary-fixed-dim">
               Years of Industry Experience
             </p>
           </div>

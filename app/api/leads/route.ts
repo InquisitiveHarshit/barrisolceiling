@@ -14,3 +14,26 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+export async function POST(req: NextRequest) {
+  try {
+    await connectDB();
+    const body = await req.json();
+    const { name, email, phone, message } = body;
+
+    if (!name || !email) {
+      return NextResponse.json(
+        { success: false, message: "Name and email are required." },
+        { status: 400 }
+      );
+    }
+
+    const lead = await ContactLead.create({ name, email, phone, message });
+    return NextResponse.json({ success: true, lead }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  }
+}
