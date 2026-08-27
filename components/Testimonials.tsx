@@ -28,8 +28,8 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="py-section-gap px-5 md:px-16 bg-primary">
-      <div className="max-w-container-max mx-auto">
+    <section className="py-section-gap bg-primary">
+      <div className="w-full px-5 md:px-16">
         {/* Split header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 mb-14">
           <h2 className="font-headline-lg text-3xl md:text-4xl text-luminary-white max-w-sm leading-tight">

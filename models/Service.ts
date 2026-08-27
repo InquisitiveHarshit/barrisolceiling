@@ -7,6 +7,8 @@ export interface IService extends Document {
   category: string;
   shortDescription: string;
   content: string;
+  metaTitle?: string;
+  metaDescription?: string;
   coverImage?: string;
   tags?: string[];
   isPublished: boolean;
@@ -38,6 +40,12 @@ const ServiceSchema = new Schema<IService>(
     content: {
       type: String,
       default: "",
+    },
+    metaTitle: {
+      type: String,
+    },
+    metaDescription: {
+      type: String,
     },
     coverImage: {
       type: String,

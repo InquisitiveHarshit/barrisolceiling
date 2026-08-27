@@ -9,11 +9,17 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
+import slugify from "slugify";
 
 export default function CreateBlog() {
   const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [category, setCategory] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -21,6 +27,13 @@ export default function CreateBlog() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  // Auto-derive slug from title unless manually edited
+  useEffect(() => {
+    if (!slugManuallyEdited) {
+      setSlug(slugify(title, { lower: true, strict: true }));
+    }
+  }, [title, slugManuallyEdited]);
 
   const editor = useEditor({
     extensions: [
@@ -105,7 +118,7 @@ export default function CreateBlog() {
 
       const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
 
-      const payload = { title, content, excerpt, tags: tagsArray, isPublished, coverImage };
+      const payload = { title, slug: slug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage };
       console.log("[CreateBlog] Submitting payload:", payload);
 
       const res = await fetch("/api/blogs", {
@@ -160,6 +173,40 @@ export default function CreateBlog() {
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-4 py-3 border border-outline/20 rounded-lg focus:outline-none focus:border-brand-vibrancy text-lg"
                 required
+              />
+            </div>
+
+            {/* Slug */}
+            <div>
+              <label className="block font-label-caps text-on-surface-variant mb-2">
+                URL Slug
+              </label>
+              <div className="flex items-center border border-outline/20 rounded-lg overflow-hidden focus-within:border-brand-vibrancy">
+                <span className="px-3 py-3 text-sm text-on-surface-variant bg-surface-container-lowest border-r border-outline/20 whitespace-nowrap">/blog-details/</span>
+                <input
+                  type="text"
+                  value={slug}
+                  onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
+                  className="flex-1 px-3 py-3 focus:outline-none text-sm"
+                  placeholder="auto-generated-from-title"
+                />
+              </div>
+              {slug && (
+                <p className="text-xs text-on-surface-variant mt-1">Preview: <span className="text-brand-vibrancy">/blog-details/{slug}</span></p>
+              )}
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block font-label-caps text-on-surface-variant mb-2">
+                Category
+              </label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="e.g. Stretch Ceilings, LED Lighting, Design Tips"
+                className="w-full px-4 py-3 border border-outline/20 rounded-lg focus:outline-none focus:border-brand-vibrancy"
               />
             </div>
 
@@ -267,6 +314,34 @@ export default function CreateBlog() {
                 onChange={(e) => setTags(e.target.value)}
                 placeholder="e.g. stretch ceilings, lighting, design"
                 className="w-full px-4 py-3 border border-outline/20 rounded-lg focus:outline-none focus:border-brand-vibrancy"
+              />
+            </div>
+
+            {/* Meta Title */}
+            <div>
+              <label className="block font-label-caps text-on-surface-variant mb-1">
+                Meta Title <span className={`text-xs font-normal ${metaTitle.length > 60 ? 'text-red-500' : 'text-on-surface-variant'}`}>({metaTitle.length}/60)</span>
+              </label>
+              <input
+                type="text"
+                value={metaTitle}
+                onChange={(e) => setMetaTitle(e.target.value)}
+                placeholder="SEO title shown in Google results (≤60 chars)"
+                className="w-full px-4 py-3 border border-outline/20 rounded-lg focus:outline-none focus:border-brand-vibrancy"
+              />
+            </div>
+
+            {/* Meta Description */}
+            <div>
+              <label className="block font-label-caps text-on-surface-variant mb-1">
+                Meta Description <span className={`text-xs font-normal ${metaDescription.length > 160 ? 'text-red-500' : 'text-on-surface-variant'}`}>({metaDescription.length}/160)</span>
+              </label>
+              <textarea
+                value={metaDescription}
+                onChange={(e) => setMetaDescription(e.target.value)}
+                rows={3}
+                placeholder="SEO description shown in Google results (≤160 chars)"
+                className="w-full px-4 py-3 border border-outline/20 rounded-lg focus:outline-none focus:border-brand-vibrancy resize-none"
               />
             </div>
 

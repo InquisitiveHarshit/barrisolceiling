@@ -34,8 +34,8 @@ const blogPosts = [
 
 export default function Blogs() {
   return (
-    <section id="blogs" className="py-section-gap px-5 md:px-16 bg-surface-bright">
-      <div className="max-w-container-max mx-auto">
+    <section id="blogs" className="py-section-gap bg-surface-bright">
+      <div className="w-full px-5 md:px-16">
         <div className="flex justify-between items-end mb-12">
           <h2 className="font-headline-lg text-3xl md:text-4xl text-[#202124]">
             Latest from the Blog

@@ -52,7 +52,8 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
   const displayImages = showViewAll ? images.slice(0, 4) : images;
 
   return (
-    <section id="gallery" className="py-section-gap px-5 md:px-16 max-w-container-max mx-auto">
+    <section id="gallery" className="py-section-gap">
+      <div className="w-full px-5 md:px-16">
       <div className="flex justify-between items-end mb-12">
         <h2 className="font-headline-lg text-3xl md:text-5xl text-[#202124]">
           Craftsmanship Portfolio
@@ -154,6 +155,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
           ))}
         </div>
       )}
+      </div>
     </section>
   );
 }

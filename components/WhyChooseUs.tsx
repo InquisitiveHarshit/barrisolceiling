@@ -14,7 +14,8 @@ const trustItems = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-section-gap px-5 md:px-16 max-w-container-max mx-auto">
+    <section className="py-section-gap">
+      <div className="w-full px-5 md:px-16">
       {/* Header */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 items-end mb-16">
         <div>
@@ -64,6 +65,7 @@ export default function WhyChooseUs() {
             Book Free Site Visit
           </Link>
         </motion.div>
+      </div>
       </div>
     </section>
   );

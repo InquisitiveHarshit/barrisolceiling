@@ -13,7 +13,8 @@ const fadeUp = {
 
 export default function About() {
   return (
-    <section id="about" className="py-section-gap px-5 md:px-16 max-w-container-max mx-auto">
+    <section id="about" className="py-section-gap">
+      <div className="w-full px-5 md:px-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         {/* Image — leads the section */}
         <motion.div
@@ -102,6 +103,7 @@ export default function About() {
             </motion.button>
           </motion.div>
         </div>
+      </div>
       </div>
     </section>
   );

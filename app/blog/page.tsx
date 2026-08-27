@@ -79,7 +79,7 @@ export default function BlogsPage() {
                     />
                   </div>
                   <div className="p-7 flex flex-col flex-1">
-                    <div className="flex items-center gap-3 mb-4 text-on-surface-variant">
+                    <div className="flex items-center gap-3 mb-2 text-on-surface-variant">
                       <span className="font-label-caps text-label-caps text-[10px]">
                         {new Date(post.createdAt).toLocaleDateString()}
                       </span>
@@ -88,6 +88,11 @@ export default function BlogsPage() {
                         5 min read
                       </span>
                     </div>
+                    {post.category && (
+                      <span className="font-label-caps text-label-caps text-brand-vibrancy mb-2 block">
+                        {post.category}
+                      </span>
+                    )}
                     <h3 className="font-headline-md text-xl text-[#202124] mb-3 leading-snug">
                       {post.title}
                     </h3>
@@ -95,7 +100,7 @@ export default function BlogsPage() {
                       {post.excerpt}
                     </p>
                     <Link
-                      href={`/blogs/${post.slug}`}
+                      href={`/blog-details/${post.slug}`}
                       className="font-label-caps text-label-caps text-brand-vibrancy inline-flex items-center gap-2 hover:gap-3 transition-all mt-auto"
                     >
                       READ MORE

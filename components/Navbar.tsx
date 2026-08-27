@@ -21,9 +21,9 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "About", path: "/about" },
-    { name: "Services", path: "/services" },
+    { name: "Services", path: "/service" },
     { name: "Gallery", path: "/gallery" },
-    { name: "Blogs", path: "/blogs" },
+    { name: "Blogs", path: "/blog" },
     { name: "Contact", path: "/contact" }
   ];
 
@@ -34,12 +34,7 @@ export default function Navbar() {
 
   return (
     <>
-      <motion.nav
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
-        className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-5 md:px-16 h-20 bg-luminary-white/90 backdrop-blur-md border-b border-outline/10"
-      >
+      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-5 md:px-16 h-20 bg-luminary-white/90 backdrop-blur-md border-b border-outline/10">
         <Link href="/" className="flex items-center gap-3 relative z-50">
           <img
             alt="Berrisol & Illusion Decors Logo"
@@ -85,7 +80,7 @@ export default function Navbar() {
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
-      </motion.nav>
+      </nav>
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>

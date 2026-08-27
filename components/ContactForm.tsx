@@ -174,7 +174,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
   /* ─── Full page layout ─── */
   return (
     <section id="contact" className="py-section-gap px-5 md:px-16 bg-surface-container-low">
-      <div className="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Left: value props */}
         <motion.div
           initial={{ opacity: 0, x: -32 }}

@@ -14,9 +14,12 @@ export default function EditService({ params }: { params: Promise<{ slug: string
   const { slug } = use(params);
 
   const [title, setTitle] = useState("");
+  const [editSlug, setEditSlug] = useState("");
   const [category, setCategory] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [content, setContent] = useState("");
+  const [metaTitle, setMetaTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [file, setFile] = useState<File | null>(null);
@@ -57,9 +60,12 @@ export default function EditService({ params }: { params: Promise<{ slug: string
         const data = await res.json();
         if (data.success) {
           setTitle(data.data.title);
+          setEditSlug(data.data.slug || "");
           setCategory(data.data.category || "");
           setShortDescription(data.data.shortDescription || "");
           setContent(data.data.content || "");
+          setMetaTitle(data.data.metaTitle || "");
+          setMetaDescription(data.data.metaDescription || "");
           setTags(data.data.tags?.join(", ") || "");
           setIsPublished(data.data.isPublished);
           if (editor && data.data.content) {
@@ -112,7 +118,7 @@ export default function EditService({ params }: { params: Promise<{ slug: string
       if (file) coverImage = await handleImageUpload();
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      const payload: any = { title, category, shortDescription, content, tags: tagsArray, isPublished };
+      const payload: any = { title, slug: editSlug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished };
       if (coverImage) payload.coverImage = coverImage;
 
       const res = await fetch(`/api/services/${slug}`, {
@@ -166,6 +172,24 @@ export default function EditService({ params }: { params: Promise<{ slug: string
               className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-lg text-zinc-900 transition-colors"
               required
             />
+          </div>
+
+          {/* Slug */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">URL Slug</label>
+            <div className="flex items-center bg-white border border-zinc-200 rounded-xl overflow-hidden focus-within:border-zinc-900 transition-colors">
+              <span className="px-3 py-3 text-sm text-zinc-500 bg-zinc-50 border-r border-zinc-200 whitespace-nowrap">/service-detail/</span>
+              <input
+                type="text"
+                value={editSlug}
+                onChange={(e) => setEditSlug(e.target.value)}
+                className="flex-1 px-3 py-3 focus:outline-none text-sm text-zinc-900"
+                placeholder="my-service-slug"
+              />
+            </div>
+            {editSlug && (
+              <p className="text-xs text-zinc-500">Preview: <span className="text-brand-vibrancy">/service-detail/{editSlug}</span></p>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -254,6 +278,34 @@ export default function EditService({ params }: { params: Promise<{ slug: string
               onChange={(e) => setTags(e.target.value)}
               placeholder="e.g. stretch ceilings, commercial, design"
               className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+            />
+          </div>
+
+          {/* Meta Title */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Meta Title <span className={`normal-case tracking-normal font-normal ${metaTitle.length > 60 ? 'text-red-500' : 'opacity-70'}`}>({metaTitle.length}/60 chars)</span>
+            </label>
+            <input
+              type="text"
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              placeholder="SEO title shown in Google results (≤60 chars)"
+              className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+            />
+          </div>
+
+          {/* Meta Description */}
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+              Meta Description <span className={`normal-case tracking-normal font-normal ${metaDescription.length > 160 ? 'text-red-500' : 'opacity-70'}`}>({metaDescription.length}/160 chars)</span>
+            </label>
+            <textarea
+              value={metaDescription}
+              onChange={(e) => setMetaDescription(e.target.value)}
+              rows={3}
+              placeholder="SEO description shown in Google results (≤160 chars)"
+              className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 resize-none transition-colors"
             />
           </div>
 

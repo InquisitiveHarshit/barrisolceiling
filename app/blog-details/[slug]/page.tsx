@@ -3,21 +3,31 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CheckCircle, Tag } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 
-/* ─── Particles ───────────────────────────────────── */
+/* ─── helpers ─────────────────────────────────────── */
+const formatDate = (iso: string) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 const PARTICLES = [
-  { s: 5, l: "8%",  dl: "0s",   du: "8s"  },
+  { s: 5, l: "8%", dl: "0s", du: "8s" },
   { s: 3, l: "22%", dl: "1.8s", du: "10s" },
-  { s: 6, l: "48%", dl: "0.4s", du: "7s"  },
-  { s: 4, l: "70%", dl: "2.2s", du: "9s"  },
+  { s: 6, l: "48%", dl: "0.4s", du: "7s" },
+  { s: 4, l: "70%", dl: "2.2s", du: "9s" },
   { s: 3, l: "88%", dl: "1.1s", du: "11s" },
 ];
 
-/* ─── Skeleton shimmer ─────────────────────────────── */
+/* ─── Skeleton components ──────────────────────────── */
 function Shimmer() {
   return (
     <span
@@ -32,13 +42,13 @@ function Shimmer() {
   );
 }
 
-function ServiceSkeleton() {
+function ArticleSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div
         style={{
           width: "100%",
-          height: 380,
+          height: 340,
           borderRadius: 20,
           background: "#f3edf7",
           position: "relative",
@@ -53,12 +63,12 @@ function ServiceSkeleton() {
         style={{
           background: "#fff",
           borderRadius: 24,
+          boxShadow: "0 4px 32px rgba(163,51,142,0.08)",
+          border: "1px solid rgba(163,51,142,0.10)",
           padding: "36px 40px 48px",
           display: "flex",
           flexDirection: "column",
           gap: 16,
-          boxShadow: "0 4px 32px rgba(163,51,142,0.08)",
-          border: "1px solid rgba(163,51,142,0.10)",
         }}
       >
         {[100, 80, 95, 70, 85, 60, 90].map((w, i) => (
@@ -81,25 +91,59 @@ function ServiceSkeleton() {
   );
 }
 
-function SidebarServicesSkeleton() {
+function SidebarRecentSkeleton() {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {[1, 2, 3, 4].map((i) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      {[1, 2, 3].map((i) => (
         <div
           key={i}
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "10px 14px",
-            borderRadius: 12,
-            background: "#f3edf7",
-            position: "relative",
-            overflow: "hidden",
-            height: 48,
+            gap: 12,
+            alignItems: "flex-start",
+            padding: "12px 8px",
+            borderBottom:
+              i < 3 ? "1px solid rgba(163,51,142,0.10)" : "none",
           }}
         >
-          <Shimmer />
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 12,
+              background: "#f3edf7",
+              flexShrink: 0,
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <Shimmer />
+          </div>
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              paddingTop: 4,
+            }}
+          >
+            {["90%", "65%", "45%"].map((w, j) => (
+              <div
+                key={j}
+                style={{
+                  height: j === 2 ? 10 : 12,
+                  borderRadius: 6,
+                  background: "#f3edf7",
+                  width: w,
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <Shimmer />
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>
@@ -107,12 +151,12 @@ function SidebarServicesSkeleton() {
 }
 
 /* ─── Main Page ────────────────────────────────────── */
-export default function ServiceDetailPage() {
+export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const contactRef = useRef<HTMLDivElement>(null);
 
-  const [service, setService] = useState<any>(null);    // null = loading
-  const [allServices, setAllServices] = useState<any>(null);
+  const [blog, setBlog] = useState<any>(null);       // null = loading
+  const [recent, setRecent] = useState<any>(null);   // null = loading
   const [heroReady, setHeroReady] = useState(false);
   const [error, setError] = useState("");
 
@@ -125,21 +169,23 @@ export default function ServiceDetailPage() {
   useEffect(() => {
     if (!slug) return;
 
-    fetch(`/api/services/${slug}`)
+    // Fetch this blog
+    fetch(`/api/blogs/${slug}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setService(d.data);
-        else { setService({}); setError(d.message || "Service not found"); }
+        if (d.success) setBlog(d.data);
+        else { setBlog({}); setError(d.message || "Blog not found"); }
       })
-      .catch(() => { setService({}); setError("Failed to load service"); });
+      .catch(() => { setBlog({}); setError("Failed to load blog"); });
 
-    fetch("/api/services")
+    // Fetch recent (for sidebar)
+    fetch("/api/blogs")
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setAllServices(d.data);
-        else setAllServices([]);
+        if (d.success) setRecent(d.data.slice(0, 4));
+        else setRecent([]);
       })
-      .catch(() => setAllServices([]));
+      .catch(() => setRecent([]));
   }, [slug]);
 
   const scrollToContact = () => {
@@ -150,6 +196,7 @@ export default function ServiceDetailPage() {
     }
   };
 
+  /* ─── Error state ─── */
   if (error) {
     return (
       <main className="bg-surface-bright min-h-screen pt-32">
@@ -157,8 +204,8 @@ export default function ServiceDetailPage() {
         <div className="max-w-3xl mx-auto px-5 text-center">
           <h1 className="font-headline-lg text-4xl text-[#202124] mb-4">Oops!</h1>
           <p className="text-on-surface-variant mb-6">{error}</p>
-          <Link href="/services" className="text-brand-vibrancy hover:underline font-label-caps">
-            ← Back to Services
+          <Link href="/blogs" className="text-brand-vibrancy hover:underline font-label-caps">
+            ← Back to Insights
           </Link>
         </div>
       </main>
@@ -167,31 +214,37 @@ export default function ServiceDetailPage() {
 
   return (
     <>
+      {blog && (
+        <>
+          <title>{blog.metaTitle || blog.title}</title>
+          {blog.metaDescription && <meta name="description" content={blog.metaDescription} />}
+        </>
+      )}
       <style>{`
         @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
         @keyframes float { 0%{transform:translateY(0) scale(1);opacity:.5} 100%{transform:translateY(-120px) scale(0);opacity:0} }
-        .sd-hero-bg {
+        .bd-hero-bg {
           position:absolute; inset:0;
           background-image:url('/heroimage.webp');
           background-size:cover; background-position:center;
           transition:transform 8s ease;
         }
-        .sd-particle { position:absolute; border-radius:50%; background:rgba(163,51,142,0.30); animation:float linear infinite; pointer-events:none; z-index:2; }
-        .sd-service-link { transition:background .2s, border-color .2s; }
-        .sd-service-link:hover { background:rgba(163,51,142,0.08) !important; border-color:rgba(163,51,142,0.25) !important; }
-        .sd-article-body h1,.sd-article-body h2 { font-size:1.45rem; font-weight:700; color:#202124; margin:2rem 0 .75rem; line-height:1.3; }
-        .sd-article-body h3 { font-size:1.15rem; font-weight:700; color:#202124; margin:1.5rem 0 .6rem; }
-        .sd-article-body p { font-size:1.02rem; color:#46474a; line-height:1.9; margin:0 0 1.1rem; }
-        .sd-article-body ul,.sd-article-body ol { padding-left:1.5rem; margin:0 0 1.1rem; color:#46474a; line-height:1.85; font-size:1rem; }
-        .sd-article-body li { margin-bottom:.4rem; }
-        .sd-article-body blockquote { border-left:4px solid #A3338E; padding:14px 22px; margin:1.5rem 0; background:rgba(163,51,142,0.06); border-radius:0 14px 14px 0; font-style:italic; color:#46474a; }
-        .sd-article-body a { color:#A3338E; text-decoration:underline; }
-        .sd-article-body strong { color:#202124; }
-        .sd-article-body img { max-width:100%; border-radius:12px; }
+        .bd-particle { position:absolute; border-radius:50%; background:rgba(163,51,142,0.30); animation:float linear infinite; pointer-events:none; z-index:2; }
+        .bd-recent-link { transition:background .2s; }
+        .bd-recent-link:hover { background:rgba(163,51,142,0.06) !important; }
+        .bd-article-body h1,.bd-article-body h2 { font-size:1.45rem; font-weight:700; color:#202124; margin:2rem 0 .75rem; line-height:1.3; }
+        .bd-article-body h3 { font-size:1.15rem; font-weight:700; color:#202124; margin:1.5rem 0 .6rem; }
+        .bd-article-body p { font-size:1.02rem; color:#46474a; line-height:1.9; margin:0 0 1.1rem; }
+        .bd-article-body ul,.bd-article-body ol { padding-left:1.5rem; margin:0 0 1.1rem; color:#46474a; line-height:1.85; font-size:1rem; }
+        .bd-article-body li { margin-bottom:.4rem; }
+        .bd-article-body blockquote { border-left:4px solid #A3338E; padding:14px 22px; margin:1.5rem 0; background:rgba(163,51,142,0.06); border-radius:0 14px 14px 0; font-style:italic; color:#46474a; }
+        .bd-article-body a { color:#A3338E; text-decoration:underline; }
+        .bd-article-body strong { color:#202124; }
+        .bd-article-body img { max-width:100%; border-radius:12px; }
         @media(max-width:768px){
-          .sd-sidebar { display:none !important; }
-          .sd-layout { flex-direction:column !important; }
-          .sd-article-card { padding:20px !important; border-radius:16px !important; }
+          .bd-sidebar { display:none !important; }
+          .bd-layout { flex-direction:column !important; }
+          .bd-article-card { padding:20px !important; border-radius:16px !important; }
         }
       `}</style>
 
@@ -208,20 +261,8 @@ export default function ServiceDetailPage() {
           flexDirection: "column",
         }}
       >
-        {/* Background — use service's cover image if available */}
-        {service?.coverImage ? (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage: `url('${service.coverImage}')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-        ) : (
-          <div className="sd-hero-bg" />
-        )}
+        <div className="bd-hero-bg" />
+        {/* Overlays */}
         <div
           style={{
             position: "absolute",
@@ -238,10 +279,11 @@ export default function ServiceDetailPage() {
               "linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)",
           }}
         />
+        {/* Particles */}
         {PARTICLES.map((p, i) => (
           <span
             key={i}
-            className="sd-particle"
+            className="bd-particle"
             style={{
               width: p.s,
               height: p.s,
@@ -266,6 +308,7 @@ export default function ServiceDetailPage() {
             flexDirection: "column",
           }}
         >
+          {/* Eyebrow */}
           <motion.p
             style={{
               fontSize: 11,
@@ -279,38 +322,10 @@ export default function ServiceDetailPage() {
             animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 12 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            Berrisol & Illusion · Our Services
+            {blog?.category ? `Berrisol & Illusion · ${blog.category}` : "Berrisol & Illusion · Insights"}
           </motion.p>
 
-          {service?.category && (
-            <motion.span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                fontSize: 11,
-                color: "#f0abda",
-                background: "rgba(163,51,142,0.35)",
-                backdropFilter: "blur(8px)",
-                borderRadius: 20,
-                padding: "5px 14px",
-                border: "1px solid rgba(163,51,142,0.35)",
-                fontFamily: "Montserrat,sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: "0.12em",
-                fontWeight: 700,
-                marginBottom: 14,
-                width: "fit-content",
-              }}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 8 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-              <Tag size={9} />
-              {service.category}
-            </motion.span>
-          )}
-
+          {/* Title */}
           <motion.h1
             style={{
               fontSize: "clamp(1.4rem,3.5vw,2.4rem)",
@@ -326,11 +341,11 @@ export default function ServiceDetailPage() {
             animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 22 }}
             transition={{ duration: 0.75, delay: 0.2 }}
           >
-            {service === null ? (
+            {blog === null ? (
               <span
                 style={{
                   display: "inline-block",
-                  width: "55%",
+                  width: "60%",
                   height: "1em",
                   borderRadius: 8,
                   background: "rgba(255,255,255,0.18)",
@@ -342,27 +357,68 @@ export default function ServiceDetailPage() {
                 <Shimmer />
               </span>
             ) : (
-              service?.title || "Service"
+              blog?.title || "Blog Article"
             )}
           </motion.h1>
 
-          {service?.shortDescription && (
-            <motion.p
-              style={{
-                maxWidth: 580,
-                fontSize: "clamp(0.9rem,1.4vw,1.05rem)",
-                color: "rgba(255,255,255,0.75)",
-                lineHeight: 1.7,
-                margin: "0 0 18px",
-                fontFamily: "Montserrat,sans-serif",
-              }}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 14 }}
-              transition={{ duration: 0.65, delay: 0.3 }}
-            >
-              {service.shortDescription}
-            </motion.p>
-          )}
+          {/* Meta row */}
+          <motion.div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 22,
+            }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 14 }}
+            transition={{ duration: 0.65, delay: 0.35 }}
+          >
+            {blog?.createdAt && (
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  color: "rgba(255,255,255,0.65)",
+                  background: "rgba(255,255,255,0.10)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: 20,
+                  padding: "5px 12px",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  fontFamily: "Montserrat,sans-serif",
+                }}
+              >
+                <Calendar size={11} />
+                {formatDate(blog.createdAt)}
+              </span>
+            )}
+            {blog?.tags?.map((tag: string) => (
+              <span
+                key={tag}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 11,
+                  color: "#f0abda",
+                  background: "rgba(163,51,142,0.35)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: 20,
+                  padding: "5px 12px",
+                  border: "1px solid rgba(163,51,142,0.35)",
+                  fontFamily: "Montserrat,sans-serif",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  fontWeight: 600,
+                }}
+              >
+                <Tag size={9} />
+                {tag}
+              </span>
+            ))}
+          </motion.div>
 
           {/* Breadcrumb */}
           <motion.div
@@ -378,17 +434,23 @@ export default function ServiceDetailPage() {
             animate={{ opacity: heroReady ? 1 : 0 }}
             transition={{ duration: 0.6, delay: 0.7 }}
           >
-            <Link href="/" style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}>
+            <Link
+              href="/"
+              style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}
+            >
               Home
             </Link>
             <span>/</span>
-            <Link href="/services" style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}>
-              Services
+            <Link
+              href="/blogs"
+              style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}
+            >
+              Insights
             </Link>
           </motion.div>
         </div>
 
-        {/* CTA */}
+        {/* CTA bottom-right */}
         <div
           style={{
             position: "relative",
@@ -427,7 +489,7 @@ export default function ServiceDetailPage() {
                   fontFamily: "Montserrat,sans-serif",
                 }}
               >
-                Interested in this service?
+                Transform your space today?
               </p>
               <button
                 onClick={scrollToContact}
@@ -462,13 +524,13 @@ export default function ServiceDetailPage() {
       >
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
           <div
-            className="sd-layout"
+            className="bd-layout"
             style={{ display: "flex", gap: 32, alignItems: "flex-start" }}
           >
-            {/* ── LEFT: Content ── */}
+            {/* ── LEFT: Article ── */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <Link
-                href="/services"
+                href="/blogs"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -484,14 +546,14 @@ export default function ServiceDetailPage() {
                 }}
               >
                 <ArrowLeft size={15} />
-                Back to Services
+                Back to Insights
               </Link>
 
-              {service === null ? (
-                <ServiceSkeleton />
+              {blog === null ? (
+                <ArticleSkeleton />
               ) : (
                 <>
-                  {service?.coverImage && (
+                  {blog?.coverImage && (
                     <div
                       style={{
                         width: "100%",
@@ -502,10 +564,11 @@ export default function ServiceDetailPage() {
                       }}
                     >
                       <img
-                        src={service.coverImage}
-                        alt={service.title}
+                        src={blog.coverImage}
+                        alt={blog.title}
                         style={{
                           width: "100%",
+                          height: "auto",
                           display: "block",
                           objectFit: "cover",
                           maxHeight: 480,
@@ -515,7 +578,7 @@ export default function ServiceDetailPage() {
                   )}
 
                   <div
-                    className="sd-article-card"
+                    className="bd-article-card"
                     style={{
                       background: "#fff",
                       borderRadius: 24,
@@ -524,83 +587,18 @@ export default function ServiceDetailPage() {
                       padding: "36px 40px 52px",
                     }}
                   >
-                    {/* Short description lead */}
-                    {service?.shortDescription && (
-                      <p
-                        style={{
-                          fontSize: "1.1rem",
-                          fontWeight: 600,
-                          color: "#A3338E",
-                          marginBottom: 24,
-                          lineHeight: 1.7,
-                          fontFamily: "Montserrat,sans-serif",
-                          borderLeft: "3px solid #A3338E",
-                          paddingLeft: 16,
-                        }}
-                      >
-                        {service.shortDescription}
-                      </p>
-                    )}
-
-                    {/* Rich content */}
-                    {service?.content ? (
-                      <div
-                        className="sd-article-body"
-                        dangerouslySetInnerHTML={{ __html: service.content }}
-                      />
-                    ) : (
-                      <p
-                        style={{
-                          color: "#9e9e9e",
-                          fontFamily: "Montserrat,sans-serif",
-                          fontSize: 14,
-                        }}
-                      >
-                        Detailed content coming soon. Contact us to learn more.
-                      </p>
-                    )}
-
-                    {/* Tags */}
-                    {service?.tags && service.tags.length > 0 && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 8,
-                          marginTop: 32,
-                          paddingTop: 24,
-                          borderTop: "1px solid rgba(163,51,142,0.10)",
-                        }}
-                      >
-                        {service.tags.map((tag: string) => (
-                          <span
-                            key={tag}
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 600,
-                              color: "#A3338E",
-                              background: "rgba(163,51,142,0.08)",
-                              border: "1px solid rgba(163,51,142,0.18)",
-                              borderRadius: 20,
-                              padding: "4px 12px",
-                              letterSpacing: "0.08em",
-                              textTransform: "uppercase",
-                              fontFamily: "Montserrat,sans-serif",
-                            }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <div
+                      className="bd-article-body"
+                      dangerouslySetInnerHTML={{ __html: blog?.content || "" }}
+                    />
                   </div>
                 </>
               )}
             </div>
 
             {/* ── RIGHT: Sidebar ── */}
-            <div className="sd-sidebar" style={{ width: 300, flexShrink: 0 }}>
-              {/* Other Services */}
+            <div className="bd-sidebar" style={{ width: 300, flexShrink: 0 }}>
+              {/* Recent Posts */}
               <div
                 style={{
                   background: "#fff",
@@ -608,7 +606,6 @@ export default function ServiceDetailPage() {
                   padding: 24,
                   boxShadow: "0 4px 24px rgba(163,51,142,0.09)",
                   border: "1px solid rgba(163,51,142,0.12)",
-                  marginBottom: 24,
                 }}
               >
                 <div
@@ -624,7 +621,8 @@ export default function ServiceDetailPage() {
                       width: 4,
                       height: 22,
                       borderRadius: 4,
-                      background: "linear-gradient(180deg,#A3338E,#7a2169)",
+                      background:
+                        "linear-gradient(180deg,#A3338E,#7a2169)",
                     }}
                   />
                   <h3
@@ -636,61 +634,102 @@ export default function ServiceDetailPage() {
                       fontFamily: "Playfair Display,serif",
                     }}
                   >
-                    Other Services
+                    Latest Posts
                   </h3>
                 </div>
 
-                {allServices === null ? (
-                  <SidebarServicesSkeleton />
-                ) : allServices.filter((s: any) => s.slug !== slug).length > 0 ? (
+                {recent === null ? (
+                  <SidebarRecentSkeleton />
+                ) : recent.length > 0 ? (
                   <div
-                    style={{ display: "flex", flexDirection: "column", gap: 6 }}
+                    style={{ display: "flex", flexDirection: "column", gap: 0 }}
                   >
-                    {allServices
-                      .filter((s: any) => s.slug !== slug)
-                      .map((s: any) => (
-                        <Link
-                          key={s._id}
-                          href={`/services/${s.slug}`}
-                          className="sd-service-link"
+                    {recent.map((item: any, i: number) => (
+                      <Link
+                        key={item._id}
+                        href={`/blog-details/${item.slug}`}
+                        className="bd-recent-link"
+                        style={{
+                          display: "flex",
+                          gap: 12,
+                          alignItems: "flex-start",
+                          padding: "12px 8px",
+                          borderRadius: 12,
+                          textDecoration: "none",
+                          color: "inherit",
+                          borderBottom:
+                            i < recent.length - 1
+                              ? "1px solid rgba(163,51,142,0.10)"
+                              : "none",
+                        }}
+                      >
+                        <div
                           style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 10,
-                            padding: "10px 14px",
+                            width: 64,
+                            height: 64,
                             borderRadius: 12,
-                            background:
-                              "linear-gradient(135deg,rgba(163,51,142,0.05),rgba(122,33,105,0.03))",
-                            border: "1px solid rgba(163,51,142,0.10)",
-                            textDecoration: "none",
-                            color: "#202124",
-                            fontSize: 13,
-                            fontWeight: 600,
-                            fontFamily: "Montserrat,sans-serif",
+                            overflow: "hidden",
+                            flexShrink: 0,
+                            boxShadow: "0 4px 14px rgba(163,51,142,0.12)",
+                            background: "#f3edf7",
                           }}
                         >
-                          <span
+                          {item.coverImage && (
+                            <img
+                              src={item.coverImage}
+                              alt={item.title}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          )}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p
                             style={{
-                              width: 28,
-                              height: 28,
-                              borderRadius: 8,
-                              background:
-                                "linear-gradient(135deg,rgba(163,51,142,0.12),rgba(122,33,105,0.08))",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              flexShrink: 0,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: "#202124",
+                              margin: "0 0 4px",
+                              lineHeight: 1.4,
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical" as const,
+                              overflow: "hidden",
+                              fontFamily: "Montserrat,sans-serif",
                             }}
                           >
-                            <CheckCircle size={13} color="#A3338E" />
+                            {item.title}
+                          </p>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: "#9e9e9e",
+                              letterSpacing: "0.03em",
+                              fontFamily: "Montserrat,sans-serif",
+                            }}
+                          >
+                            {formatDate(item.createdAt)}
                           </span>
-                          {s.title}
-                        </Link>
-                      ))}
+                          <div
+                            style={{
+                              width: 20,
+                              height: 2,
+                              borderRadius: 2,
+                              background:
+                                "linear-gradient(90deg,#f0abda,#A3338E)",
+                              marginTop: 6,
+                            }}
+                          />
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 ) : (
                   <p style={{ fontSize: 13, color: "#9e9e9e", margin: 0 }}>
-                    No other services yet.
+                    No recent posts.
                   </p>
                 )}
               </div>
@@ -698,7 +737,9 @@ export default function ServiceDetailPage() {
               {/* CTA card */}
               <div
                 style={{
-                  background: "linear-gradient(135deg,#A3338E 0%,#7a2169 100%)",
+                  marginTop: 24,
+                  background:
+                    "linear-gradient(135deg,#A3338E 0%,#7a2169 100%)",
                   borderRadius: 20,
                   padding: 24,
                   boxShadow: "0 8px 32px rgba(163,51,142,0.28)",
@@ -713,7 +754,7 @@ export default function ServiceDetailPage() {
                     fontFamily: "Playfair Display,serif",
                   }}
                 >
-                  Ready to get started?
+                  Ready to upgrade your space?
                 </p>
                 <p
                   style={{
@@ -724,8 +765,7 @@ export default function ServiceDetailPage() {
                     fontFamily: "Montserrat,sans-serif",
                   }}
                 >
-                  Our experts will visit your space and design the perfect
-                  ceiling solution.
+                  Get a free site visit and custom quote from our experts.
                 </p>
                 <button
                   onClick={scrollToContact}

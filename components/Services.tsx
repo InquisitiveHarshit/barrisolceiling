@@ -31,11 +31,11 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="py-section-gap px-5 md:px-16 bg-surface-container-low">
-      <div className="max-w-container-max mx-auto">
+    <section id="services" className="py-section-gap bg-surface-container-low">
+      <div className="w-full">
 
         {/* Section header */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 items-end px-5 md:px-16">
           <motion.h2
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -58,7 +58,7 @@ export default function Services() {
         </div>
 
         {/* Linear rows */}
-        <div className="flex flex-col divide-y divide-outline/10">
+        <div className="flex flex-col divide-y divide-outline/10 px-5 md:px-16">
           {services.map((service, i) => {
             const Icon = service.icon;
             const reversed = i % 2 !== 0;

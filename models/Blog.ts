@@ -4,8 +4,11 @@ import slugify from "slugify";
 export interface IBlog extends Document {
   title: string;
   slug: string;
+  category?: string;
   content: string;
   excerpt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
   coverImage?: string;
   tags?: string[];
   isPublished: boolean;
@@ -26,11 +29,21 @@ const BlogSchema = new Schema<IBlog>(
       sparse: true,
       index: true,
     },
+    category: {
+      type: String,
+      trim: true,
+    },
     content: {
       type: String,
       required: [true, "Please provide the content of the blog post."],
     },
     excerpt: {
+      type: String,
+    },
+    metaTitle: {
+      type: String,
+    },
+    metaDescription: {
       type: String,
     },
     coverImage: {

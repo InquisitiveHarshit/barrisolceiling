@@ -104,7 +104,7 @@ export default function ServicesPage() {
                       {service.shortDescription}
                     </p>
                     <Link
-                      href={`/services/${service.slug}`}
+                      href={`/service-detail/${service.slug}`}
                       className="font-label-caps text-label-caps text-brand-vibrancy inline-flex items-center gap-2 hover:gap-3 transition-all mt-auto"
                     >
                       LEARN MORE

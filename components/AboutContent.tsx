@@ -6,7 +6,7 @@ export default function AboutContent() {
   return (
     <div className="pb-24">
       {/* 1. HERO SECTION */}
-      <section className="relative px-5 md:px-16 max-w-container-max mx-auto py-16 md:py-24">
+      <section className="relative px-5 md:px-16 max-w-7xl mx-auto py-16 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-12 lg:gap-20 items-center">
           <div>
             <h1 className="font-display-lg text-5xl md:text-6xl lg:text-7xl text-[#202124] mb-8 leading-[1.05] tracking-tight">
@@ -39,7 +39,7 @@ export default function AboutContent() {
       </section>
 
       {/* 2. EXPERTISE & VISION BENTO GRID */}
-      <section className="px-5 md:px-16 max-w-container-max mx-auto py-16 bg-surface-container-low rounded-3xl my-12">
+      <section className="px-5 md:px-16 max-w-7xl mx-auto py-16 bg-surface-container-low rounded-3xl my-12">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="font-headline-lg text-4xl text-[#202124] mb-4">Our Expertise</h2>
           <p className="font-body-md text-on-surface-variant text-lg">Delivering innovative ceiling solutions with quality and precision.</p>
@@ -93,7 +93,7 @@ export default function AboutContent() {
       </section>
 
       {/* 3. TRUST FACTORS */}
-      <section className="px-5 md:px-16 max-w-container-max mx-auto py-16">
+      <section className="px-5 md:px-16 max-w-7xl mx-auto py-16">
         <div className="text-center mb-16 max-w-2xl mx-auto">
           <h2 className="font-headline-lg text-4xl text-[#202124] mb-4">Why Clients Trust Us</h2>
           <p className="font-body-md text-on-surface-variant text-lg">Building long-term relationships through transparency and unmatched quality.</p>
@@ -117,7 +117,7 @@ export default function AboutContent() {
       </section>
 
       {/* 4. COMMITMENT SPLIT */}
-      <section className="px-5 md:px-16 max-w-container-max mx-auto py-16">
+      <section className="px-5 md:px-16 max-w-7xl mx-auto py-16">
         <div className="bg-[#202124] rounded-3xl overflow-hidden flex flex-col md:flex-row">
           <div className="p-10 md:p-16 lg:p-24 flex-1 flex flex-col justify-center">
             <h2 className="font-display-lg text-3xl md:text-5xl text-luminary-white mb-6">
