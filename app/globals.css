@@ -287,3 +287,27 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* ── Hero "Elegant Ceilings" shimmer animation ── */
+@keyframes hero-text-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.hero-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    #800080 0%,
+    #800080 30%,
+    #c084fc 45%,
+    #f0e6ff 50%,
+    #c084fc 55%,
+    #800080 70%,
+    #800080 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hero-text-shimmer 3s linear infinite;
+}
