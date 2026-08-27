@@ -14,11 +14,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  // Detect when user scrolls past the hero section
+  // Detect when user scrolls slightly
   useEffect(() => {
     if (!isHome) return;
     const onScroll = () => {
-      setScrolled(window.scrollY > window.innerHeight * 0.65);
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll(); // run once on mount
@@ -72,15 +72,12 @@ export default function Navbar() {
             >
             {/* LEFT 55% — transparent, all nav content here */}
             <div className="w-[55%] flex items-center justify-between px-5 md:px-16 h-full pointer-events-auto gap-4">
-              <Link href="/" className="flex items-center gap-2 lg:gap-3 relative z-50 shrink-0">
+              <Link href="/" className="flex items-center relative z-50 shrink-0">
                 <img
                   alt="Berrisol & Illusion Decors Logo"
-                  className="h-10 md:h-12 w-auto object-contain"
+                  className="h-14 md:h-16 w-auto object-contain"
                   src="/logo.png"
                 />
-                <span className="hidden sm:block lg:hidden 2xl:block font-headline-md text-base md:text-lg tracking-tight text-primary font-semibold whitespace-nowrap">
-                  BERRISOL &amp; ILLUSION
-                </span>
               </Link>
 
               {/* Desktop nav links */}
@@ -121,15 +118,12 @@ export default function Navbar() {
               className="w-full flex justify-between items-center h-full"
             >
               {/* STANDARD — white fixed bar */}
-              <Link href="/" className="flex items-center gap-3 relative z-50">
+              <Link href="/" className="flex items-center relative z-50">
               <img
                 alt="Berrisol & Illusion Decors Logo"
-                className="h-12 md:h-14 w-auto object-contain"
+                className="h-14 md:h-16 w-auto object-contain"
                 src="/logo.png"
               />
-              <span className="font-headline-md text-lg md:text-xl tracking-tight text-primary font-semibold">
-                BERRISOL &amp; ILLUSION
-              </span>
             </Link>
 
             <ul className="hidden lg:flex space-x-8 items-center font-label-caps text-label-caps">
