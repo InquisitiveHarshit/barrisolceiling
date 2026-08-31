@@ -59,16 +59,9 @@ export default function BlogsPage() {
             <div className="text-center py-20 text-on-surface-variant">Loading blogs...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {blogs.map((post, i) => (
-                <motion.article
+              {blogs.map((post) => (
+                <article
                   key={post._id}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: 0.3 + (i * 0.15),
-                    ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-                  }}
                   className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10"
                 >
                   <div className="h-[220px] overflow-hidden">
@@ -107,7 +100,7 @@ export default function BlogsPage() {
                       <ArrowRight size={14} />
                     </Link>
                   </div>
-                </motion.article>
+                </article>
               ))}
               
               {blogs.length === 0 && (

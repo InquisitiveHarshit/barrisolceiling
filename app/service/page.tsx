@@ -78,12 +78,9 @@ export default function ServicesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {services.map((service, i) => (
-                <motion.div
+              {services.map((service) => (
+                <div
                   key={service._id || service.title}
-                  initial={{ opacity: 0, y: 32 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.4 + i * 0.15, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] }}
                   className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10"
                 >
                   <div className="h-[220px] overflow-hidden">
@@ -111,7 +108,7 @@ export default function ServicesPage() {
                       <ArrowRight size={14} />
                     </Link>
                   </div>
-                </motion.div>
+                </div>
               ))}
               {services.length === 0 && (
                 <div className="col-span-3 text-center py-20 text-on-surface-variant">
