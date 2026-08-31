@@ -60,7 +60,7 @@ export default function WhyChooseUs() {
         >
           <Link
             href="/contact"
-            className="inline-block bg-luminary-white text-[#202124] px-8 py-4 rounded-full font-label-caps text-label-caps whitespace-nowrap"
+            className="inline-block bg-luminary-white text-[#202124] px-8 py-4 font-label-caps text-label-caps whitespace-nowrap border-2 border-luminary-white shadow-[4px_4px_0px_rgba(255,255,255,0.3)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150"
           >
             Book Free Site Visit
           </Link>

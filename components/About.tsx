@@ -95,9 +95,11 @@ export default function About() {
             viewport={{ once: true, amount: 0.4 }}
           >
             <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.97, y: 1 }}
-              className="border border-primary text-primary px-8 py-4 font-label-caps text-label-caps hover:bg-primary hover:text-luminary-white transition-all duration-300"
+              whileHover={{ x: 4, y: 4, boxShadow: "none" }}
+              whileTap={{ x: 4, y: 4, boxShadow: "none" }}
+              style={{ boxShadow: "4px 4px 0px #202124" }}
+              transition={{ type: "tween", duration: 0.15 }}
+              className="border-2 border-[#202124] text-[#202124] px-8 py-4 font-label-caps text-label-caps bg-luminary-white hover:bg-[#202124] hover:text-luminary-white transition-colors duration-150"
             >
               Learn More About Us
             </motion.button>

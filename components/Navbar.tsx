@@ -145,7 +145,7 @@ export default function Navbar() {
                 onClick={openModal}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97, y: 1 }}
-                className="bg-brand-gradient text-luminary-white px-6 py-3 font-label-caps text-label-caps transition-all shadow-sm hover:shadow-md"
+                className="bg-brand-vibrancy text-luminary-white px-6 py-3 font-label-caps text-label-caps border-2 border-[#202124] shadow-[3px_3px_0px_#202124] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all duration-150"
               >
                 Book a Free Site Visit
               </motion.button>
@@ -200,7 +200,7 @@ export default function Navbar() {
             >
               <button
                 onClick={openModal}
-                className="w-full bg-brand-gradient text-luminary-white px-6 py-4 font-label-caps text-label-caps transition-all shadow-sm"
+                className="w-full bg-brand-vibrancy text-luminary-white px-6 py-4 font-label-caps text-label-caps border-2 border-[#202124] shadow-[3px_3px_0px_#202124] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all duration-150"
               >
                 Book a Free Site Visit
               </button>

@@ -145,7 +145,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
               whileHover={{ scale: 1.01, y: -1 }}
               whileTap={{ scale: 0.96, y: 1 }}
               transition={{ type: "spring", duration: 0.15, bounce: 0 }}
-              className="w-full bg-brand-gradient text-luminary-white px-6 py-4 font-label-caps text-label-caps mt-4 shadow-sm hover:shadow-md transition-shadow flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-brand-vibrancy text-luminary-white px-6 py-4 font-label-caps text-label-caps mt-4 border-2 border-[#202124] shadow-[4px_4px_0px_#202124] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-[4px_4px_0px_#202124]"
               type="submit"
               disabled={status === "loading"}
             >

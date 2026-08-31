@@ -55,7 +55,7 @@ export default function Hero() {
                   </ShimmerButton>
                 </Link>
                 <Link href="/service">
-                  <button className="bg-transparent border border-black/20 text-zinc-900 px-8 h-14 rounded-full font-label-caps text-xs tracking-[0.18em] uppercase hover:bg-black/5 transition-colors">
+                  <button className="bg-transparent border-2 border-[#202124] text-zinc-900 px-8 h-14 font-label-caps text-xs tracking-[0.18em] uppercase shadow-[4px_4px_0px_#202124] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150">
                     Our Services
                   </button>
                 </Link>
@@ -131,7 +131,7 @@ export default function Hero() {
                   </ShimmerButton>
                 </Link>
                 <Link href="/service" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto bg-transparent border border-black/20 text-zinc-900 px-6 h-12 rounded-full font-label-caps text-xs tracking-[0.18em] uppercase hover:bg-black/5 transition-colors">
+                  <button className="w-full sm:w-auto bg-transparent border-2 border-[#202124] text-zinc-900 px-6 h-12 font-label-caps text-xs tracking-[0.18em] uppercase shadow-[4px_4px_0px_#202124] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150">
                     Our Services
                   </button>
                 </Link>

@@ -8,7 +8,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-luminary-white/10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <img src="/logo.png" alt="Berrisol & Illusion Decors" className="h-10 w-auto mb-4 object-contain" />
+            <div className="inline-flex bg-white px-3 py-2 mb-4">
+              <img src="/logo.png" alt="Berrisol & Illusion Decors" className="h-10 w-auto object-contain" />
+            </div>
             <p className="font-body-md text-sm text-secondary-fixed-dim leading-relaxed">
               Premium stretch ceiling and false ceiling contractors in Delhi,
               delivering modern designs with European-grade materials.

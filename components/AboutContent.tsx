@@ -127,7 +127,7 @@ export default function AboutContent() {
               Whether it’s a modern home or a commercial project, our goal is to deliver excellence in every detail. Let's create something extraordinary together.
             </p>
             <div>
-              <Link href="/contact" className="inline-flex items-center gap-2 bg-luminary-white text-[#202124] px-8 py-4 rounded-full font-label-caps text-label-caps active:scale-95 transition-transform">
+              <Link href="/contact" className="inline-flex items-center gap-2 bg-luminary-white text-[#202124] px-8 py-4 font-label-caps text-label-caps border-2 border-luminary-white shadow-[4px_4px_0px_rgba(255,255,255,0.3)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150 active:translate-x-[4px] active:translate-y-[4px]">
                 Get Free Consultation <ArrowRight size={16} />
               </Link>
             </div>
