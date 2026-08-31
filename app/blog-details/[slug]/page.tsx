@@ -8,26 +8,17 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 
-/* ─── helpers ─────────────────────────────────────── */
+/* ─── helpers ──────────────────────────────────────── */
 const formatDate = (iso: string) => {
   if (!iso) return "";
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-IN", {
+  return new Date(iso).toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 };
 
-const PARTICLES = [
-  { s: 5, l: "8%", dl: "0s", du: "8s" },
-  { s: 3, l: "22%", dl: "1.8s", du: "10s" },
-  { s: 6, l: "48%", dl: "0.4s", du: "7s" },
-  { s: 4, l: "70%", dl: "2.2s", du: "9s" },
-  { s: 3, l: "88%", dl: "1.1s", du: "11s" },
-];
-
-/* ─── Skeleton components ──────────────────────────── */
+/* ─── Shimmer ──────────────────────────────────────── */
 function Shimmer() {
   return (
     <span
@@ -35,49 +26,50 @@ function Shimmer() {
         position: "absolute",
         inset: 0,
         background:
-          "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.65) 50%,transparent 100%)",
+          "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.7) 50%,transparent 100%)",
         animation: "shimmer 1.4s infinite",
       }}
     />
   );
 }
 
+/* ─── Article Skeleton ─────────────────────────────── */
 function ArticleSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {/* cover image skeleton — brutalist border */}
       <div
         style={{
           width: "100%",
-          height: 340,
-          borderRadius: 20,
-          background: "#f3edf7",
+          height: 320,
+          background: "#f0f0f0",
           position: "relative",
           overflow: "hidden",
-          marginBottom: 28,
-          boxShadow: "0 10px 40px rgba(163,51,142,0.10)",
+          marginBottom: 32,
+          border: "2px solid #202124",
+          boxShadow: "5px 5px 0px #202124",
         }}
       >
         <Shimmer />
       </div>
+      {/* content skeleton — clean / minimal */}
       <div
         style={{
           background: "#fff",
-          borderRadius: 24,
-          boxShadow: "0 4px 32px rgba(163,51,142,0.08)",
-          border: "1px solid rgba(163,51,142,0.10)",
+          border: "1px solid #e8e8e8",
           padding: "36px 40px 48px",
           display: "flex",
           flexDirection: "column",
-          gap: 16,
+          gap: 14,
         }}
       >
-        {[100, 80, 95, 70, 85, 60, 90].map((w, i) => (
+        {[100, 78, 92, 65, 85, 55, 88].map((w, i) => (
           <div
             key={i}
             style={{
-              height: i === 0 ? 22 : 14,
-              borderRadius: 6,
-              background: "#f3edf7",
+              height: i === 0 ? 20 : 13,
+              background: "#f0f0f0",
+              borderRadius: 4,
               width: `${w}%`,
               position: "relative",
               overflow: "hidden",
@@ -91,6 +83,7 @@ function ArticleSkeleton() {
   );
 }
 
+/* ─── Sidebar Skeleton ─────────────────────────────── */
 function SidebarRecentSkeleton() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -101,17 +94,16 @@ function SidebarRecentSkeleton() {
             display: "flex",
             gap: 12,
             alignItems: "flex-start",
-            padding: "12px 8px",
-            borderBottom:
-              i < 3 ? "1px solid rgba(163,51,142,0.10)" : "none",
+            padding: "14px 0",
+            borderBottom: i < 3 ? "1px solid #f0f0f0" : "none",
           }}
         >
           <div
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 12,
-              background: "#f3edf7",
+              width: 60,
+              height: 60,
+              background: "#f0f0f0",
+              borderRadius: 6,
               flexShrink: 0,
               position: "relative",
               overflow: "hidden",
@@ -119,22 +111,14 @@ function SidebarRecentSkeleton() {
           >
             <Shimmer />
           </div>
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-              paddingTop: 4,
-            }}
-          >
-            {["90%", "65%", "45%"].map((w, j) => (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7, paddingTop: 4 }}>
+            {["88%", "60%", "40%"].map((w, j) => (
               <div
                 key={j}
                 style={{
-                  height: j === 2 ? 10 : 12,
-                  borderRadius: 6,
-                  background: "#f3edf7",
+                  height: j === 2 ? 9 : 11,
+                  borderRadius: 4,
+                  background: "#f0f0f0",
                   width: w,
                   position: "relative",
                   overflow: "hidden",
@@ -155,8 +139,8 @@ export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const contactRef = useRef<HTMLDivElement>(null);
 
-  const [blog, setBlog] = useState<any>(null);       // null = loading
-  const [recent, setRecent] = useState<any>(null);   // null = loading
+  const [blog, setBlog] = useState<any>(null);
+  const [recent, setRecent] = useState<any>(null);
   const [heroReady, setHeroReady] = useState(false);
   const [error, setError] = useState("");
 
@@ -168,8 +152,6 @@ export default function BlogDetailPage() {
 
   useEffect(() => {
     if (!slug) return;
-
-    // Fetch this blog
     fetch(`/api/blogs/${slug}`)
       .then((r) => r.json())
       .then((d) => {
@@ -178,7 +160,6 @@ export default function BlogDetailPage() {
       })
       .catch(() => { setBlog({}); setError("Failed to load blog"); });
 
-    // Fetch recent (for sidebar)
     fetch("/api/blogs")
       .then((r) => r.json())
       .then((d) => {
@@ -190,13 +171,12 @@ export default function BlogDetailPage() {
 
   const scrollToContact = () => {
     if (contactRef.current) {
-      const top =
-        contactRef.current.getBoundingClientRect().top + window.scrollY - 20;
+      const top = contactRef.current.getBoundingClientRect().top + window.scrollY - 20;
       window.scrollTo({ top, behavior: "smooth" });
     }
   };
 
-  /* ─── Error state ─── */
+  /* ─── Error ─── */
   if (error) {
     return (
       <main className="bg-surface-bright min-h-screen pt-32">
@@ -204,7 +184,7 @@ export default function BlogDetailPage() {
         <div className="max-w-3xl mx-auto px-5 text-center">
           <h1 className="font-headline-lg text-4xl text-[#202124] mb-4">Oops!</h1>
           <p className="text-on-surface-variant mb-6">{error}</p>
-          <Link href="/blogs" className="text-brand-vibrancy hover:underline font-label-caps">
+          <Link href="/blog" className="text-brand-vibrancy hover:underline font-label-caps">
             ← Back to Insights
           </Link>
         </div>
@@ -220,82 +200,71 @@ export default function BlogDetailPage() {
           {blog.metaDescription && <meta name="description" content={blog.metaDescription} />}
         </>
       )}
+
       <style>{`
         @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-        @keyframes float { 0%{transform:translateY(0) scale(1);opacity:.5} 100%{transform:translateY(-120px) scale(0);opacity:0} }
+
+        /* hero bg — dark, textured */
         .bd-hero-bg {
           position:absolute; inset:0;
           background-image:url('/heroimage.webp');
           background-size:cover; background-position:center;
-          transition:transform 8s ease;
+          filter: brightness(0.35) contrast(1.05);
         }
-        .bd-particle { position:absolute; border-radius:50%; background:rgba(163,51,142,0.30); animation:float linear infinite; pointer-events:none; z-index:2; }
-        .bd-recent-link { transition:background .2s; }
-        .bd-recent-link:hover { background:rgba(163,51,142,0.06) !important; }
-        .bd-article-body h1,.bd-article-body h2 { font-size:1.45rem; font-weight:700; color:#202124; margin:2rem 0 .75rem; line-height:1.3; }
-        .bd-article-body h3 { font-size:1.15rem; font-weight:700; color:#202124; margin:1.5rem 0 .6rem; }
-        .bd-article-body p { font-size:1.02rem; color:#46474a; line-height:1.9; margin:0 0 1.1rem; }
-        .bd-article-body ul,.bd-article-body ol { padding-left:1.5rem; margin:0 0 1.1rem; color:#46474a; line-height:1.85; font-size:1rem; }
-        .bd-article-body li { margin-bottom:.4rem; }
-        .bd-article-body blockquote { border-left:4px solid #A3338E; padding:14px 22px; margin:1.5rem 0; background:rgba(163,51,142,0.06); border-radius:0 14px 14px 0; font-style:italic; color:#46474a; }
-        .bd-article-body a { color:#A3338E; text-decoration:underline; }
-        .bd-article-body strong { color:#202124; }
-        .bd-article-body img { max-width:100%; border-radius:12px; }
+
+        /* article typography — minimalist, generous spacing */
+        .bd-article-body h1,
+        .bd-article-body h2 { font-size:1.5rem; font-weight:700; color:#111; margin:2.4rem 0 .8rem; line-height:1.25; letter-spacing:-0.01em; }
+        .bd-article-body h3 { font-size:1.15rem; font-weight:600; color:#202124; margin:1.8rem 0 .6rem; }
+        .bd-article-body p  { font-size:1.05rem; color:#444; line-height:1.95; margin:0 0 1.25rem; }
+        .bd-article-body ul,
+        .bd-article-body ol { padding-left:1.5rem; margin:0 0 1.25rem; color:#444; line-height:1.9; font-size:1rem; }
+        .bd-article-body li { margin-bottom:.45rem; }
+        /* blockquote: brutalist left bar, minimal bg */
+        .bd-article-body blockquote {
+          border-left:4px solid #202124;
+          padding:14px 22px;
+          margin:2rem 0;
+          background:#fafafa;
+          font-style:italic;
+          color:#555;
+        }
+        .bd-article-body a      { color:#A3338E; text-decoration:underline; }
+        .bd-article-body strong { color:#111; }
+        .bd-article-body img    { max-width:100%; display:block; }
+
+        /* sidebar recent post hover — minimal */
+        .bd-recent-link { transition: background 0.15s; }
+        .bd-recent-link:hover { background: #fafafa; }
+
         @media(max-width:768px){
-          .bd-sidebar { display:none !important; }
-          .bd-layout { flex-direction:column !important; }
-          .bd-article-card { padding:20px !important; border-radius:16px !important; }
+          .bd-sidebar  { display:none !important; }
+          .bd-layout   { flex-direction:column !important; }
+          .bd-article-card { padding:20px !important; }
         }
       `}</style>
 
       <Navbar />
 
-      {/* ═══ HERO ═══ */}
+      {/* ══════════════════════════════════════
+          HERO  — brutalist structure, minimal typography
+      ══════════════════════════════════════ */}
       <section
         style={{
           position: "relative",
           width: "100%",
-          minHeight: 340,
+          minHeight: 360,
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
+          background: "#111",
         }}
       >
         <div className="bd-hero-bg" />
-        {/* Overlays */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(to right,rgba(0,0,0,0.92) 0%,rgba(0,0,0,0.72) 55%,rgba(0,0,0,0.20) 100%)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 55%)",
-          }}
-        />
-        {/* Particles */}
-        {PARTICLES.map((p, i) => (
-          <span
-            key={i}
-            className="bd-particle"
-            style={{
-              width: p.s,
-              height: p.s,
-              left: p.l,
-              bottom: -10,
-              animationDelay: p.dl,
-              animationDuration: p.du,
-            }}
-          />
-        ))}
 
-        {/* Content */}
+        {/* thin brand accent line at top */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: "#A3338E", zIndex: 20 }} />
+
         <div
           style={{
             position: "relative",
@@ -303,57 +272,46 @@ export default function BlogDetailPage() {
             maxWidth: 1200,
             margin: "0 auto",
             width: "100%",
-            padding: "96px 32px 28px",
+            padding: "100px 32px 32px",
             display: "flex",
             flexDirection: "column",
           }}
         >
-          {/* Eyebrow */}
+          {/* eyebrow — minimal, very quiet */}
           <motion.p
             style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.55)",
-              letterSpacing: "3px",
+              fontSize: 10,
+              color: "rgba(255,255,255,0.45)",
+              letterSpacing: "4px",
               textTransform: "uppercase",
-              marginBottom: 14,
+              marginBottom: 16,
               fontFamily: "Montserrat,sans-serif",
             }}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 12 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: heroReady ? 1 : 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            {blog?.category ? `Berrisol & Illusion · ${blog.category}` : "Berrisol & Illusion · Insights"}
+            {blog?.category ? `Berrisol · ${blog.category}` : "Berrisol · Insights"}
           </motion.p>
 
-          {/* Title */}
+          {/* title — large, serif, no text-shadow (minimalist) */}
           <motion.h1
             style={{
-              fontSize: "clamp(1.4rem,3.5vw,2.4rem)",
+              fontSize: "clamp(1.6rem,4vw,2.8rem)",
               fontWeight: 800,
               color: "#fff",
-              lineHeight: 1.2,
-              textShadow: "0 2px 28px rgba(0,0,0,0.6)",
-              maxWidth: 760,
-              margin: "0 0 18px",
+              lineHeight: 1.15,
+              maxWidth: 720,
+              margin: "0 0 24px",
               fontFamily: "Playfair Display,serif",
+              letterSpacing: "-0.01em",
             }}
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 22 }}
-            transition={{ duration: 0.75, delay: 0.2 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 20 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
           >
             {blog === null ? (
-              <span
-                style={{
-                  display: "inline-block",
-                  width: "60%",
-                  height: "1em",
-                  borderRadius: 8,
-                  background: "rgba(255,255,255,0.18)",
-                  position: "relative",
-                  overflow: "hidden",
-                  verticalAlign: "middle",
-                }}
-              >
+              <span style={{ display: "inline-block", width: "60%", height: "1em", background: "rgba(255,255,255,0.15)", position: "relative", overflow: "hidden", verticalAlign: "middle" }}>
                 <Shimmer />
               </span>
             ) : (
@@ -361,57 +319,35 @@ export default function BlogDetailPage() {
             )}
           </motion.h1>
 
-          {/* Meta row */}
+          {/* meta — minimal plain text, no pill borders */}
           <motion.div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 22,
-            }}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 14 }}
-            transition={{ duration: 0.65, delay: 0.35 }}
+            style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, marginBottom: 28 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: heroReady ? 1 : 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
           >
             {blog?.createdAt && (
-              <span
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 12,
-                  color: "rgba(255,255,255,0.65)",
-                  background: "rgba(255,255,255,0.10)",
-                  backdropFilter: "blur(8px)",
-                  borderRadius: 20,
-                  padding: "5px 12px",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  fontFamily: "Montserrat,sans-serif",
-                }}
-              >
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
                 <Calendar size={11} />
                 {formatDate(blog.createdAt)}
               </span>
+            )}
+            {blog?.tags?.length > 0 && (
+              <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.2)" }} />
             )}
             {blog?.tags?.map((tag: string) => (
               <span
                 key={tag}
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                  fontSize: 11,
+                  fontSize: 10,
                   color: "#f0abda",
-                  background: "rgba(163,51,142,0.35)",
-                  backdropFilter: "blur(8px)",
-                  borderRadius: 20,
-                  padding: "5px 12px",
-                  border: "1px solid rgba(163,51,142,0.35)",
                   fontFamily: "Montserrat,sans-serif",
                   textTransform: "uppercase",
-                  letterSpacing: "0.1em",
+                  letterSpacing: "0.12em",
                   fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
                 <Tag size={9} />
@@ -420,37 +356,20 @@ export default function BlogDetailPage() {
             ))}
           </motion.div>
 
-          {/* Breadcrumb */}
+          {/* breadcrumb */}
           <motion.div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 12,
-              color: "rgba(255,255,255,0.40)",
-              fontFamily: "Montserrat,sans-serif",
-            }}
+            style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Montserrat,sans-serif" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: heroReady ? 1 : 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
           >
-            <Link
-              href="/"
-              style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}
-            >
-              Home
-            </Link>
-            <span>/</span>
-            <Link
-              href="/blogs"
-              style={{ color: "rgba(255,255,255,0.40)", textDecoration: "none" }}
-            >
-              Insights
-            </Link>
+            <Link href="/" style={{ color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Home</Link>
+            <span style={{ opacity: 0.4 }}>/</span>
+            <Link href="/blog" style={{ color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Insights</Link>
           </motion.div>
         </div>
 
-        {/* CTA bottom-right */}
+        {/* CTA bottom-right — brutalist button only */}
         <div
           style={{
             position: "relative",
@@ -460,92 +379,74 @@ export default function BlogDetailPage() {
             width: "100%",
             display: "flex",
             justifyContent: "flex-end",
-            padding: "8px 32px 24px",
+            padding: "0 32px 28px",
           }}
         >
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 6 }}
-            transition={{ duration: 0.7, delay: 1.0 }}
+            transition={{ duration: 0.7, delay: 0.8 }}
           >
-            <div
+            <button
+              onClick={scrollToContact}
               style={{
-                background: "linear-gradient(135deg,#A3338E,#7a2169)",
-                borderRadius: 14,
-                padding: "10px 16px",
-                display: "flex",
-                flexDirection: "column",
-                gap: 8,
-                boxShadow: "0 8px 28px rgba(163,51,142,0.45)",
+                background: "#fff",
+                color: "#202124",
+                fontWeight: 700,
+                fontSize: 11,
+                padding: "10px 20px",
+                border: "2px solid #fff",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                fontFamily: "Montserrat,sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                boxShadow: "4px 4px 0px rgba(255,255,255,0.4)",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translate(4px, 4px)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translate(0, 0)";
+                e.currentTarget.style.boxShadow = "4px 4px 0px rgba(255,255,255,0.4)";
               }}
             >
-              <p
-                style={{
-                  color: "rgba(255,255,255,0.92)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  margin: 0,
-                  whiteSpace: "nowrap",
-                  fontFamily: "Montserrat,sans-serif",
-                }}
-              >
-                Transform your space today?
-              </p>
-              <button
-                onClick={scrollToContact}
-                style={{
-                  background: "#fff",
-                  color: "#A3338E",
-                  fontWeight: 700,
-                  fontSize: 12,
-                  padding: "7px 14px",
-                  borderRadius: 50,
-                  border: "none",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  width: "100%",
-                  fontFamily: "Montserrat,sans-serif",
-                }}
-              >
-                Book a Free Site Visit
-              </button>
-            </div>
+              Book a Free Site Visit
+            </button>
           </motion.div>
         </div>
       </section>
 
-      {/* ═══ BODY ═══ */}
-      <section
-        style={{
-          background:
-            "linear-gradient(to bottom,#f9e8f5 0%,#fdf4fb 12%,#ffffff 22%)",
-          padding: "48px 0 72px",
-        }}
-      >
+      {/* ══════════════════════════════════════
+          BODY  — minimalist layout, clean whitespace
+      ══════════════════════════════════════ */}
+      <section style={{ background: "#fafafa", padding: "56px 0 80px" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
-          <div
-            className="bd-layout"
-            style={{ display: "flex", gap: 32, alignItems: "flex-start" }}
-          >
+          <div className="bd-layout" style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
+
             {/* ── LEFT: Article ── */}
             <div style={{ flex: 1, minWidth: 0 }}>
+
+              {/* back link — minimal */}
               <Link
-                href="/blogs"
+                href="/blog"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 8,
-                  fontSize: 13,
+                  gap: 6,
+                  fontSize: 12,
                   fontFamily: "Montserrat,sans-serif",
                   fontWeight: 600,
-                  color: "#46474a",
+                  color: "#888",
                   textDecoration: "none",
-                  marginBottom: 28,
-                  letterSpacing: "0.05em",
+                  marginBottom: 32,
+                  letterSpacing: "0.06em",
                   textTransform: "uppercase",
                 }}
               >
-                <ArrowLeft size={15} />
+                <ArrowLeft size={13} />
                 Back to Insights
               </Link>
 
@@ -553,38 +454,33 @@ export default function BlogDetailPage() {
                 <ArticleSkeleton />
               ) : (
                 <>
+                  {/* cover image — brutalist border + shadow */}
                   {blog?.coverImage && (
                     <div
                       style={{
                         width: "100%",
-                        marginBottom: 28,
-                        borderRadius: 20,
+                        marginBottom: 32,
                         overflow: "hidden",
-                        boxShadow: "0 10px 40px rgba(163,51,142,0.15)",
+                        border: "2px solid #202124",
+                        boxShadow: "5px 5px 0px #202124",
                       }}
                     >
                       <img
                         src={blog.coverImage}
                         alt={blog.title}
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          display: "block",
-                          objectFit: "cover",
-                          maxHeight: 480,
-                        }}
+                        style={{ width: "100%", height: "auto", display: "block", objectFit: "cover", maxHeight: 480 }}
                       />
                     </div>
                   )}
 
+                  {/* article card — minimalist: white, thin border, ample padding */}
                   <div
                     className="bd-article-card"
                     style={{
                       background: "#fff",
-                      borderRadius: 24,
-                      boxShadow: "0 4px 32px rgba(163,51,142,0.08)",
-                      border: "1px solid rgba(163,51,142,0.10)",
-                      padding: "36px 40px 52px",
+                      border: "1px solid #e8e8e8",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+                      padding: "40px 44px 56px",
                     }}
                   >
                     <div
@@ -597,41 +493,36 @@ export default function BlogDetailPage() {
             </div>
 
             {/* ── RIGHT: Sidebar ── */}
-            <div className="bd-sidebar" style={{ width: 300, flexShrink: 0 }}>
-              {/* Recent Posts */}
+            <div className="bd-sidebar" style={{ width: 288, flexShrink: 0 }}>
+
+              {/* Recent posts — minimalist card */}
               <div
                 style={{
                   background: "#fff",
-                  borderRadius: 20,
-                  padding: 24,
-                  boxShadow: "0 4px 24px rgba(163,51,142,0.09)",
-                  border: "1px solid rgba(163,51,142,0.12)",
+                  border: "1px solid #e8e8e8",
+                  padding: "24px 20px",
                 }}
               >
+                {/* header — brutalist rule */}
                 <div
                   style={{
+                    marginBottom: 18,
+                    paddingBottom: 14,
+                    borderBottom: "2px solid #202124",
                     display: "flex",
                     alignItems: "center",
-                    gap: 10,
-                    marginBottom: 18,
+                    justifyContent: "space-between",
                   }}
                 >
-                  <div
-                    style={{
-                      width: 4,
-                      height: 22,
-                      borderRadius: 4,
-                      background:
-                        "linear-gradient(180deg,#A3338E,#7a2169)",
-                    }}
-                  />
                   <h3
                     style={{
-                      fontSize: 15,
+                      fontSize: 11,
                       fontWeight: 800,
                       color: "#202124",
                       margin: 0,
-                      fontFamily: "Playfair Display,serif",
+                      fontFamily: "Montserrat,sans-serif",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
                     }}
                   >
                     Latest Posts
@@ -641,59 +532,46 @@ export default function BlogDetailPage() {
                 {recent === null ? (
                   <SidebarRecentSkeleton />
                 ) : recent.length > 0 ? (
-                  <div
-                    style={{ display: "flex", flexDirection: "column", gap: 0 }}
-                  >
+                  <div style={{ display: "flex", flexDirection: "column" }}>
                     {recent.map((item: any, i: number) => (
                       <Link
                         key={item._id}
                         href={`/blog-details/${item.slug}`}
                         className="bd-recent-link"
                         style={{
+                          textDecoration: "none",
+                          color: "inherit",
                           display: "flex",
                           gap: 12,
                           alignItems: "flex-start",
-                          padding: "12px 8px",
-                          borderRadius: 12,
-                          textDecoration: "none",
-                          color: "inherit",
-                          borderBottom:
-                            i < recent.length - 1
-                              ? "1px solid rgba(163,51,142,0.10)"
-                              : "none",
+                          padding: "14px 8px",
+                          borderBottom: i < recent.length - 1 ? "1px solid #f0f0f0" : "none",
+                          borderRadius: 4,
                         }}
                       >
+                        {/* thumbnail — rounded (minimalist) */}
                         <div
                           style={{
-                            width: 64,
-                            height: 64,
-                            borderRadius: 12,
+                            width: 60,
+                            height: 60,
+                            borderRadius: 6,
                             overflow: "hidden",
                             flexShrink: 0,
-                            boxShadow: "0 4px 14px rgba(163,51,142,0.12)",
-                            background: "#f3edf7",
+                            background: "#f0f0f0",
                           }}
                         >
                           {item.coverImage && (
-                            <img
-                              src={item.coverImage}
-                              alt={item.title}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                            />
+                            <img src={item.coverImage} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           )}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <p
                             style={{
                               fontSize: 12,
-                              fontWeight: 700,
+                              fontWeight: 600,
                               color: "#202124",
-                              margin: "0 0 4px",
-                              lineHeight: 1.4,
+                              margin: "0 0 5px",
+                              lineHeight: 1.45,
                               display: "-webkit-box",
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: "vertical" as const,
@@ -703,81 +581,61 @@ export default function BlogDetailPage() {
                           >
                             {item.title}
                           </p>
-                          <span
-                            style={{
-                              fontSize: 10,
-                              color: "#9e9e9e",
-                              letterSpacing: "0.03em",
-                              fontFamily: "Montserrat,sans-serif",
-                            }}
-                          >
+                          <span style={{ fontSize: 10, color: "#aaa", fontFamily: "Montserrat,sans-serif", letterSpacing: "0.03em" }}>
                             {formatDate(item.createdAt)}
                           </span>
-                          <div
-                            style={{
-                              width: 20,
-                              height: 2,
-                              borderRadius: 2,
-                              background:
-                                "linear-gradient(90deg,#f0abda,#A3338E)",
-                              marginTop: 6,
-                            }}
-                          />
                         </div>
                       </Link>
                     ))}
                   </div>
                 ) : (
-                  <p style={{ fontSize: 13, color: "#9e9e9e", margin: 0 }}>
-                    No recent posts.
-                  </p>
+                  <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>No recent posts.</p>
                 )}
               </div>
 
-              {/* CTA card */}
+              {/* CTA card — brutalist fill + hard shadow, minimal copy */}
               <div
                 style={{
-                  marginTop: 24,
-                  background:
-                    "linear-gradient(135deg,#A3338E 0%,#7a2169 100%)",
-                  borderRadius: 20,
-                  padding: 24,
-                  boxShadow: "0 8px 32px rgba(163,51,142,0.28)",
+                  marginTop: 20,
+                  background: "#A3338E",
+                  border: "2px solid #202124",
+                  boxShadow: "4px 4px 0px #202124",
+                  padding: "28px 24px",
                 }}
               >
                 <p
                   style={{
                     color: "#fff",
                     fontWeight: 700,
-                    fontSize: 16,
-                    margin: "0 0 8px",
+                    fontSize: 17,
+                    margin: "0 0 6px",
                     fontFamily: "Playfair Display,serif",
+                    lineHeight: 1.3,
                   }}
                 >
                   Ready to upgrade your space?
                 </p>
                 <p
                   style={{
-                    color: "rgba(255,255,255,0.78)",
-                    fontSize: 13,
-                    margin: "0 0 18px",
-                    lineHeight: 1.6,
+                    color: "rgba(255,255,255,0.72)",
+                    fontSize: 12,
+                    margin: "0 0 20px",
+                    lineHeight: 1.65,
                     fontFamily: "Montserrat,sans-serif",
                   }}
                 >
-                  Get a free site visit and custom quote from our experts.
+                  Free site visit · Custom quote · Expert installation.
                 </p>
                 <button
                   onClick={scrollToContact}
                   style={{
                     width: "100%",
                     background: "#fff",
-                    color: "#A3338E",
+                    color: "#202124",
                     fontWeight: 700,
-                    fontSize: 12,
-                    padding: "10px 16px",
-                    borderRadius: 50,
-                    border: "none",
+                    fontSize: 11,
+                    padding: "11px 16px",
+                    border: "2px solid #202124",
                     cursor: "pointer",
                     letterSpacing: "0.08em",
                     textTransform: "uppercase",
@@ -786,12 +644,23 @@ export default function BlogDetailPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: 6,
+                    boxShadow: "3px 3px 0px #202124",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translate(3px, 3px)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translate(0, 0)";
+                    e.currentTarget.style.boxShadow = "3px 3px 0px #202124";
                   }}
                 >
-                  Book Free Site Visit <ArrowRight size={13} />
+                  Book Free Site Visit <ArrowRight size={12} />
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       </section>

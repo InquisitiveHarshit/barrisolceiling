@@ -89,9 +89,6 @@ export default function BlogsPage() {
                     <h3 className="font-headline-md text-xl text-[#202124] mb-3 leading-snug">
                       {post.title}
                     </h3>
-                    <p className="font-body-md text-sm text-on-surface-variant mb-6 leading-relaxed line-clamp-2 flex-1">
-                      {post.excerpt}
-                    </p>
                     <Link
                       href={`/blog-details/${post.slug}`}
                       className="font-label-caps text-label-caps text-brand-vibrancy inline-flex items-center gap-2 hover:gap-3 transition-all mt-auto"
