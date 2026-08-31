@@ -70,9 +70,9 @@ export default function Navbar() {
               transition={{ duration: 0.3 }}
               className="w-full flex h-full"
             >
-            {/* LEFT 55% — transparent, all nav content here */}
-            <div className="w-[55%] flex items-center justify-between px-5 md:px-16 h-full pointer-events-auto gap-4">
-              <Link href="/" className="flex items-center relative z-50 shrink-0">
+            {/* LEFT 55% on desktop, full width on mobile */}
+            <div className="w-full lg:w-[55%] flex items-center justify-between px-5 md:px-16 h-full pointer-events-auto gap-4">
+              <Link href="/" className="flex items-center relative z-50 shrink-0 bg-white/90 rounded-xl px-2 py-1 lg:bg-transparent lg:p-0">
                 <img
                   alt="Berrisol & Illusion Decors Logo"
                   className="h-14 md:h-16 w-auto object-contain"
@@ -98,15 +98,15 @@ export default function Navbar() {
               {/* Mobile menu toggle */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden p-2 text-primary relative z-50"
+                className="lg:hidden p-2 text-white bg-white/20 rounded-lg relative z-50"
                 aria-label="Toggle Menu"
               >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
+                {isOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
               </button>
             </div>
 
-            {/* RIGHT 45% — completely transparent, image shows through */}
-            <div className="w-[45%]" />
+            {/* RIGHT 45% — desktop only, image shows through */}
+            <div className="hidden lg:block w-[45%]" />
             </motion.div>
           ) : (
             <motion.div
@@ -153,7 +153,7 @@ export default function Navbar() {
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-primary relative z-50"
+              className="lg:hidden p-2 text-primary bg-surface-container rounded-lg relative z-50"
               aria-label="Toggle Menu"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -171,9 +171,9 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-luminary-white pt-24 px-5 flex flex-col h-[100dvh]"
+            className="fixed inset-0 z-40 bg-[#1a1a2e] pt-24 px-5 flex flex-col h-[100dvh]"
           >
-            <ul className="flex flex-col gap-6 font-display-md text-2xl text-primary mt-8">
+            <ul className="flex flex-col gap-6 font-display-md text-2xl text-white mt-8">
               {navLinks.map((item) => (
                 <motion.li
                   key={item.name}
@@ -184,7 +184,7 @@ export default function Navbar() {
                   <Link
                     href={item.path}
                     onClick={() => setIsOpen(false)}
-                    className="block py-2"
+                    className="block py-2 text-white hover:text-brand-vibrancy transition-colors"
                   >
                     {item.name}
                   </Link>

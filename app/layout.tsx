@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   title: "Berrisol & Illusion Decors | Premium Stretch Ceilings",
   description:
     "Transform your space with innovative stretch ceiling solutions designed for elegance, durability, and flawless finishes.",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

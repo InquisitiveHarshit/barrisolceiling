@@ -7,7 +7,8 @@
         "build": "next build",
         "start": "next start",
         "lint": "eslint",
-        "zip": "npx bestzip ../deploy.zip app assets backend components lib public package.json package-lock.json next.config.ts postcss.config.mjs eslint.config.mjs tsconfig.json .env.local"
+        "zip": "npx bestzip ../deploy.zip app assets backend components lib public package.json package-lock.json next.config.ts postcss.config.mjs eslint.config.mjs tsconfig.json .env.local",
+        "seed": "node scripts/seed-pages.mjs"
     },
     "dependencies": {
         "@base-ui/react": "^1.7.0",
