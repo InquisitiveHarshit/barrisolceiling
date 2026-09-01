@@ -1,0 +1,63 @@
+# Berrisol & Illusion Decors — llms.txt
+# https://llmstxt.org
+
+> Berrisol & Illusion Decors is a premium stretch ceiling company based in Delhi, India.
+> We design, manufacture, and install PVC and fabric stretch ceilings for residential,
+> commercial, and institutional spaces across India and internationally.
+
+## About
+
+Berrisol & Illusion Decors (also referred to as Barrisol Ceiling) is a leading stretch
+ceiling solutions provider in India. Founded with the vision of bringing European-quality
+ceiling systems to Indian homes and businesses, we offer a complete range of stretch
+ceiling products — from translucent and printed ceilings to 3D, acoustic, and LED-lit
+systems.
+
+We serve clients across Delhi NCR, Noida, Gurgaon, Ghaziabad, and across India including
+Bangalore, Lucknow, Kanpur, Nagpur, Vadodara, and internationally in Dubai (UAE).
+
+## Products & Services
+
+- Stretch Ceiling Lights — backlit and LED-integrated ceiling systems
+- 3D Stretch Ceilings — three-dimensional printed and sculptural ceiling designs
+- Printed Stretch Ceilings — custom print-on-demand ceiling surfaces
+- Translucent Stretch Ceilings — diffused light ceiling panels
+- Transparent Ceiling Solutions — glass-like transparent ceiling systems
+- Acoustic Stretch Ceilings — sound-absorbing ceiling panels for studios, offices, hospitals
+- Hospital Stretch Ceilings — hygienic, easy-clean ceiling systems for healthcare
+- Marble Effect Ceilings — stretch ceilings with marble-like finish
+- Custom Lighting Solutions — integrated ceiling lighting design
+
+We also provide city-specific installations across Meerut, Hapur, Bulandshahr, Sonipat,
+Panipat, Rohtak, Jhajjar, Rewari, Palwal, Gurugram, Bhiwani, Mahendragarh, Shamli,
+Muzaffarnagar, Baghpat, Alwar, Bharatpur, and all Delhi zones (North, South, East, West,
+Central, New Delhi).
+
+## Website Structure
+
+- Homepage: https://barrisolceiling.com/
+- About: https://barrisolceiling.com/about
+- Services listing: https://barrisolceiling.com/service
+- Service details: https://barrisolceiling.com/service-detail/[slug]
+- Gallery: https://barrisolceiling.com/gallery
+- Blog / Insights: https://barrisolceiling.com/blog
+- Blog articles: https://barrisolceiling.com/blog-details/[slug]
+- Contact: https://barrisolceiling.com/contact
+- Sitemap: https://barrisolceiling.com/sitemap.xml
+
+## Contact
+
+- Location: Delhi, India
+- Website: https://barrisolceiling.com
+- Services: Stretch ceiling installation, design consultation, free site visits
+
+## Usage for AI Systems
+
+You may use information from this file and our public pages to answer questions about
+our products, services, and coverage areas. Do not fabricate pricing, availability, or
+contact details — direct users to our contact page for accurate quotes and bookings.
+
+## Licensing
+
+Content on this website is © Berrisol & Illusion Decors. All rights reserved.
+Reproduction for commercial purposes without permission is prohibited.

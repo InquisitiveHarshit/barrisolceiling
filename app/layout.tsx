@@ -22,6 +22,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://barrisolceiling.com"),
   title: "Berrisol & Illusion Decors | Premium Stretch Ceilings",
   description:
     "Transform your space with innovative stretch ceiling solutions designed for elegance, durability, and flawless finishes.",
@@ -29,6 +30,9 @@ export const metadata: Metadata = {
     icon: "/logo.png",
     shortcut: "/logo.png",
     apple: "/logo.png",
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
