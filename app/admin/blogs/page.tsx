@@ -10,12 +10,6 @@ export default function AdminBlogs() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/admin/login");
-      return;
-    }
-
     fetchBlogs();
   }, [router]);
 
@@ -23,9 +17,7 @@ export default function AdminBlogs() {
     try {
       const res = await fetch("/api/blogs?published=false");
       const data = await res.json();
-      if (data.success) {
-        setBlogs(data.data);
-      }
+      if (data.success) setBlogs(data.data);
     } catch (error) {
       console.error("Error fetching blogs", error);
     } finally {
@@ -35,100 +27,285 @@ export default function AdminBlogs() {
 
   const deleteBlog = async (slug: string) => {
     if (!confirm("Are you sure you want to delete this blog?")) return;
-
     try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`/api/blogs/${slug}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(`/api/blogs/${slug}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        fetchBlogs();
-      } else {
-        alert(data.message || "Failed to delete");
-      }
+      if (data.success) fetchBlogs();
+      else alert(data.message || "Failed to delete");
     } catch (error) {
       console.error("Error deleting blog", error);
     }
   };
 
+  const badge = (published: boolean): React.CSSProperties => ({
+    display: "inline-block",
+    padding: "2px 8px",
+    fontSize: "11px",
+    fontWeight: "700",
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    border: `1px solid ${published ? "#86efac" : "#fde68a"}`,
+    background: published ? "#f0fdf4" : "#fffbeb",
+    color: published ? "#166534" : "#92400e",
+  });
+
   if (loading) {
-    return <div className="p-10 pt-32 text-center">Loading...</div>;
+    return (
+      <div
+        style={{
+          padding: "40px",
+          fontFamily: "Georgia, serif",
+          color: "#6b7280",
+          fontSize: "13px",
+        }}
+      >
+        Loading…
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-surface-bright pt-32 px-5 md:px-16">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="font-headline-lg text-3xl text-[#202124]">Manage Blogs</h1>
-          <Link
-            href="/admin/blogs/create"
-            className="flex items-center gap-2 bg-brand-vibrancy text-white px-5 py-2.5 rounded-lg hover:bg-brand-vibrancy/90 transition-colors font-label-caps"
+    <div
+      style={{
+        padding: "24px 28px",
+        fontFamily: "'Georgia', 'Times New Roman', serif",
+        background: "#e8e8e8",
+        minHeight: "100%",
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              fontSize: "20px",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: "2px",
+            }}
           >
-            <Plus size={16} />
-            Create New
-          </Link>
+            Manage Blogs
+          </h1>
+          <p style={{ fontSize: "12px", color: "#6b7280" }}>
+            {blogs.length} post{blogs.length !== 1 ? "s" : ""} total
+          </p>
         </div>
+        <Link
+          href="/admin/blogs/create"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "5px",
+            padding: "7px 14px",
+            background: "#1a2340",
+            color: "#ffffff",
+            border: "none",
+            fontSize: "12px",
+            fontWeight: "700",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            textDecoration: "none",
+            fontFamily: "Georgia, serif",
+          }}
+          onMouseEnter={(e) =>
+            ((e.currentTarget as HTMLElement).style.background = "#243050")
+          }
+          onMouseLeave={(e) =>
+            ((e.currentTarget as HTMLElement).style.background = "#1a2340")
+          }
+        >
+          <Plus size={13} /> New Blog
+        </Link>
+      </div>
 
-        <div className="bg-luminary-white rounded-2xl shadow-sm border border-outline/10 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-surface-container-low border-b border-outline/10 text-sm font-label-caps text-on-surface-variant">
-              <tr>
-                <th className="px-6 py-4">Title</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline/10">
-              {blogs.map((blog: any) => (
-                <tr key={blog._id} className="hover:bg-surface-container-lowest/50">
-                  <td className="px-6 py-4 font-headline-md text-[#202124]">
-                    {blog.title}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-label-caps ${
-                        blog.isPublished
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {blog.isPublished ? "Published" : "Draft"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-on-surface-variant">
-                    {new Date(blog.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 flex justify-end gap-3">
+      {/* Table */}
+      <div
+        style={{
+          background: "#ffffff",
+          border: "1px solid #d1d5db",
+          overflow: "hidden",
+        }}
+      >
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead
+            style={{
+              background: "#f3f4f6",
+              borderBottom: "2px solid #d1d5db",
+            }}
+          >
+            <tr>
+              <th
+                style={{
+                  padding: "10px 14px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "#374151",
+                  textAlign: "left",
+                }}
+              >
+                Title
+              </th>
+              <th
+                style={{
+                  padding: "10px 14px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "#374151",
+                  textAlign: "left",
+                }}
+              >
+                Status
+              </th>
+              <th
+                style={{
+                  padding: "10px 14px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "#374151",
+                  textAlign: "left",
+                }}
+              >
+                Date
+              </th>
+              <th
+                style={{
+                  padding: "10px 14px",
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "#374151",
+                  textAlign: "right",
+                }}
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {blogs.map((blog: any) => (
+              <tr
+                key={blog._id}
+                style={{ borderBottom: "1px solid #e5e7eb" }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget as HTMLElement).style.background = "#f9fafb")
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget as HTMLElement).style.background = "#ffffff")
+                }
+              >
+                <td
+                  style={{
+                    padding: "10px 14px",
+                    fontSize: "13px",
+                    fontWeight: "600",
+                    color: "#111827",
+                    maxWidth: "340px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {blog.title}
+                </td>
+                <td style={{ padding: "10px 14px" }}>
+                  <span style={badge(blog.isPublished)}>
+                    {blog.isPublished ? "Published" : "Draft"}
+                  </span>
+                </td>
+                <td
+                  style={{
+                    padding: "10px 14px",
+                    fontSize: "12px",
+                    color: "#6b7280",
+                  }}
+                >
+                  {new Date(blog.createdAt).toLocaleDateString()}
+                </td>
+                <td
+                  style={{
+                    padding: "10px 14px",
+                    textAlign: "right",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      gap: "6px",
+                      alignItems: "center",
+                    }}
+                  >
                     <Link
                       href={`/admin/blogs/${blog.slug || blog._id}`}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit"
+                      style={{
+                        padding: "4px 6px",
+                        border: "1px solid #1d4ed8",
+                        color: "#1d4ed8",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        background: "transparent",
+                        textDecoration: "none",
+                      }}
                     >
-                      <Edit size={18} />
+                      <Edit size={13} />
                     </Link>
                     <button
                       onClick={() => deleteBlog(blog.slug || blog._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
+                      style={{
+                        padding: "4px 6px",
+                        border: "1px solid #dc2626",
+                        color: "#dc2626",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        background: "transparent",
+                        cursor: "pointer",
+                      }}
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={13} />
                     </button>
-                  </td>
-                </tr>
-              ))}
-              {blogs.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="px-6 py-10 text-center text-on-surface-variant">
-                    No blogs found. Create one to get started!
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {blogs.length === 0 && (
+              <tr>
+                <td
+                  colSpan={4}
+                  style={{
+                    padding: "36px",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    color: "#9ca3af",
+                    fontStyle: "italic",
+                  }}
+                >
+                  No blogs found.{" "}
+                  <Link
+                    href="/admin/blogs/create"
+                    style={{ color: "#1a2340" }}
+                  >
+                    Create one →
+                  </Link>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

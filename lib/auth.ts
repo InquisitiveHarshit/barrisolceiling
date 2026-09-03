@@ -14,15 +14,16 @@ export interface JwtPayload {
  */
 export async function authenticateAdmin(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return { error: "Missing or invalid authorization header.", status: 401 };
+    const token = req.cookies.get("admin_token")?.value;
+
+    if (!token) {
+      return { error: "Missing or invalid token in cookies.", status: 401 };
     }
 
-    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "default_secret"
+      process.env.JWT_SECRET || "default_secret",
+      { algorithms: ["HS256"] }
     ) as JwtPayload;
 
     if (decoded.role !== "admin") {

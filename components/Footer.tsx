@@ -1,97 +1,113 @@
 "use client";
+import React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary w-full pt-20 pb-10 px-5 md:px-16">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-luminary-white/10">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <div className="inline-flex bg-white px-3 py-2 mb-4">
-              <img src="/logo.png" alt="Berrisol & Illusion Decors" className="h-10 w-auto object-contain" />
+    <footer className="border-t border-white/10 bg-[#0C0E12] py-16 text-[#8E94A0] font-body text-xs">
+      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-12 pb-14 border-b border-white/10">
+
+          {/* Identity */}
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 bg-white rounded flex items-center justify-center border border-white/20 shadow-md">
+                <img alt="Berrisol Logo" className="h-8 w-auto object-contain" src="/logo.png" />
+              </div>
+              <span
+                className="text-base text-white uppercase tracking-widest"
+                style={{ fontFamily: "Cinzel, serif" }}
+              >
+                Berrisol &amp; Illusion Decors
+              </span>
             </div>
-            <p className="font-body-md text-sm text-secondary-fixed-dim leading-relaxed">
-              Premium stretch ceiling and false ceiling contractors in Delhi,
-              delivering modern designs with European-grade materials.
+            <p className="text-[#8E94A0] text-xs leading-relaxed max-w-sm font-light">
+              Premier contractor and specifier of European tension membranes, acoustic
+              micro-perforation, and architectural stretch ceilings in Delhi, Gurugram,
+              Noida, and across Northern India.
             </p>
+            <div className="font-mono text-[11px] text-[#A62681] font-medium mt-2">
+              10+ Years Practice • 1000+ Executed Projects • 10-Year Warranty
+            </div>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="font-label-caps text-label-caps text-luminary-white mb-5">
-              Services
-            </h4>
-            <ul className="space-y-3 font-body-md text-sm">
-              {["Stretch Ceiling Lights", "3D Ceilings", "Acoustic Solutions", "Custom Designs"].map((s) => (
-                <li key={s}>
-                  <a className="text-secondary-fixed-dim hover:text-luminary-white transition-colors" href="#">
-                    {s}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Systems */}
+          <div className="lg:col-span-3 flex flex-col gap-3 font-mono text-xs">
+            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Systems</div>
+            {[
+              "Translucent Diffuser Ceilings",
+              "Acoustic Absorption Membranes",
+              "3D Vaults & Parametric Forms",
+              "High-Gloss Mirror Lacquer",
+              "Fiber-Optic Starry Canopies",
+            ].map((s) => (
+              <Link key={s} href="/service" className="hover:text-[#E4B5FF] transition-colors">
+                {s}
+              </Link>
+            ))}
           </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="font-label-caps text-label-caps text-luminary-white mb-5">
-              Company
-            </h4>
-            <ul className="space-y-3 font-body-md text-sm">
-              {["About Us", "Our Gallery", "Blog", "Privacy Policy", "Terms of Service"].map((s) => (
-                <li key={s}>
-                  <a className="text-secondary-fixed-dim hover:text-luminary-white transition-colors" href="#">
-                    {s}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          {/* Journey */}
+          <div className="lg:col-span-2 flex flex-col gap-3 font-mono text-xs">
+            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Atelier Journey</div>
+            {[
+              { label: "Atelier Overview", href: "/" },
+              { label: "About Studio",     href: "/about" },
+              { label: "Technical Standards", href: "/service" },
+              { label: "Project Archive",  href: "/gallery" },
+              { label: "Specifier Booking", href: "/contact" },
+            ].map((l) => (
+              <Link key={l.label} href={l.href} className="hover:text-[#E4B5FF] transition-colors">
+                {l.label}
+              </Link>
+            ))}
           </div>
 
           {/* Contact */}
-          <div>
-            <h4 className="font-label-caps text-label-caps text-luminary-white mb-5">
-              Contact
-            </h4>
-            <address className="not-italic font-body-md text-sm text-secondary-fixed-dim space-y-3">
-              <p>C-46 2nd Floor, DDA Sheds<br />Okhla Phase 1, New Delhi 110020</p>
-              <a className="hover:text-luminary-white transition-colors block" href="tel:+919540593079">
+          <div className="lg:col-span-3 flex flex-col gap-3 font-mono text-xs">
+            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Atelier &amp; Works</div>
+            <p className="text-[#D8DCE3]">C-46 2nd Floor, DDA Sheds, Okhla Phase 1, New Delhi 110020</p>
+            <p>
+              Direct:{" "}
+              <a href="tel:+919540593079" className="text-[#A62681] hover:text-white transition-colors">
                 +91 9540593079
               </a>
-              <a className="hover:text-luminary-white transition-colors block" href="mailto:info@barrisolceiling.com">
+            </p>
+            <p>
+              Email:{" "}
+              <a href="mailto:info@barrisolceiling.com" className="text-[#A62681] hover:text-white transition-colors">
                 info@barrisolceiling.com
               </a>
-            </address>
-            <div className="flex gap-3 mt-6">
+            </p>
+            <div className="flex gap-3 mt-4 flex-wrap">
               {[
                 { label: "Instagram", href: "https://www.instagram.com/berrisol_illusion_official" },
-                { label: "LinkedIn", href: "https://www.linkedin.com/company/berrisol-illusion-decors/" },
-              ].map((social) => (
+                { label: "LinkedIn",  href: "https://www.linkedin.com/company/berrisol-illusion-decors/" },
+              ].map((s) => (
                 <motion.a
-                  key={social.label}
-                  href={social.href}
+                  key={s.label}
+                  href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileTap={{ scale: 0.92 }}
-                  transition={{ type: "spring", duration: 0.15, bounce: 0 }}
-                  className="font-label-caps text-label-caps text-[10px] text-secondary-fixed-dim border border-luminary-white/10 px-3 py-1.5 hover:border-brand-vibrancy hover:text-brand-vibrancy transition-colors"
+                  whileTap={{ scale: 0.95 }}
+                  className="font-mono text-[10px] text-[#D8DCE3] border border-white/15 px-3 py-1.5 hover:border-[#A62681] hover:text-[#E4B5FF] transition-colors rounded-xs"
                 >
-                  {social.label}
+                  {s.label}
                 </motion.a>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-label-caps text-label-caps text-[10px] text-on-secondary-container">
-            &copy; {new Date().getFullYear()} Berrisol &amp; Illusion Decors. All rights reserved.
-          </p>
-          <p className="font-label-caps text-label-caps text-[10px] text-on-secondary-container">
-            Premium Stretch Ceilings - Delhi, India
-          </p>
+        {/* Legal */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-[#8E94A0]">
+          <div>© {new Date().getFullYear()} Berrisol &amp; Illusion Decors. All rights reserved.</div>
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
+            <span>BS EN 14716 Compliant</span>
+            <span>•</span>
+            <span>DIN 4102-B1 Fire Certified</span>
+          </div>
         </div>
       </div>
     </footer>

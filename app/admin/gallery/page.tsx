@@ -52,10 +52,8 @@ export default function GalleryPage() {
 
     setIsUploading(true);
     try {
-      const token = localStorage.getItem("admin_token");
       const res = await fetch("/api/gallery", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       const data = await res.json();
@@ -76,10 +74,9 @@ export default function GalleryPage() {
     if (!confirm("Are you sure you want to delete this image? This cannot be undone.")) return;
     setDeletingId(id);
     try {
-      const token = localStorage.getItem("admin_token");
       const res = await fetch("/api/gallery", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
@@ -104,10 +101,9 @@ export default function GalleryPage() {
   const saveEdit = async (id: string) => {
     setSavingId(id);
     try {
-      const token = localStorage.getItem("admin_token");
       const res = await fetch("/api/gallery", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, title: editDraft.title, location: editDraft.location }),
       });
       const data = await res.json();

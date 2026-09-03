@@ -67,10 +67,8 @@ export default function CreateService() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("blackAndWhite", String(blackAndWhite));
-    const token = localStorage.getItem("admin_token");
     const res = await fetch("/api/upload", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
     const data = await res.json();
@@ -90,9 +88,6 @@ export default function CreateService() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("admin_token");
-      if (!token) throw new Error("You must be logged in.");
-
       let coverImage = "";
       if (file) coverImage = await handleImageUpload();
 
@@ -103,7 +98,6 @@ export default function CreateService() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -230,7 +224,7 @@ export default function CreateService() {
             </label>
             <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden focus-within:border-zinc-900 transition-colors">
               {editor && (
-                <div className="flex items-center gap-1 border-b border-zinc-100 p-2 bg-zinc-50">
+                <div className="flex items-center gap-1 border-b border-zinc-100 p-2 bg-zinc-50 text-zinc-800">
                   {[
                     { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive("bold") },
                     { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive("italic") },

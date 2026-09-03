@@ -29,7 +29,7 @@ export default function BlogsPage() {
   }, []);
 
   return (
-    <main className="bg-surface-bright min-h-screen pt-20">
+    <main className="bg-surface-bright min-h-screen">
       <Navbar />
       
       <section className="py-section-gap px-5 md:px-16">

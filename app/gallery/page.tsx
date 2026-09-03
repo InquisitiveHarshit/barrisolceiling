@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function GalleryPage() {
   return (
-    <main className="pt-20">
+    <main className="min-h-screen">
       <Navbar />
       <Gallery showViewAll={false} />
       <ContactForm />

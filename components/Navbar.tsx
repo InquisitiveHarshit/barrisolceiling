@@ -3,44 +3,27 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowUpRight } from "lucide-react";
 import LeadModal from "./LeadModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
   const pathname = usePathname();
-  const isHome = pathname === "/";
 
-  // Detect when user scrolls slightly
+  // Lock body scroll for mobile menu / modal
   useEffect(() => {
-    if (!isHome) return;
-    const onScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll(); // run once on mount
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [isHome]);
-
-  // Lock body scroll for mobile menu
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else if (!modalOpen) {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isOpen || modalOpen ? "hidden" : "unset";
+    return () => { document.body.style.overflow = "unset"; };
   }, [isOpen, modalOpen]);
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
+    { name: "Home",     path: "/" },
+    { name: "About",    path: "/about" },
     { name: "Services", path: "/service" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Blogs", path: "/blog" },
-    { name: "Contact", path: "/contact" },
+    { name: "Gallery",  path: "/gallery" },
+    { name: "Blogs",    path: "/blog" },
+    { name: "Contact",  path: "/contact" },
   ];
 
   const openModal = () => {
@@ -48,168 +31,128 @@ export default function Navbar() {
     setModalOpen(true);
   };
 
-  // Hero transparent state: homepage AND not yet scrolled past hero
-  const isHeroNav = isHome && !scrolled;
-
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 w-full z-50 h-20 transition-all duration-500 flex ${
-          isHeroNav
-            ? "bg-transparent pointer-events-none border-b border-transparent"
-            : "bg-luminary-white/90 backdrop-blur-md border-b border-outline/10 justify-between items-center px-5 md:px-16"
-        }`}
-      >
-        <AnimatePresence mode="wait">
-          {isHeroNav ? (
-            <motion.div
-              key="hero-nav"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full flex h-full"
-            >
-            {/* LEFT 55% on desktop, full width on mobile */}
-            <div className="w-full lg:w-[55%] flex items-center justify-between px-5 md:px-16 h-full pointer-events-auto gap-4">
-              <Link href="/" className="flex items-center relative z-50 shrink-0 bg-white/90 rounded-xl px-2 py-1 lg:bg-transparent lg:p-0">
-                <img
-                  alt="Berrisol & Illusion Decors Logo"
-                  className="h-14 md:h-16 w-auto object-contain"
-                  src="/logo.png"
-                />
-              </Link>
+      <header className="sticky top-0 z-50 bg-[#0C0E12]/90 backdrop-blur-md border-b border-white/10">
+        <div className="max-w-[94rem] mx-auto px-4 sm:px-8 h-20 sm:h-24 flex items-center justify-between gap-4">
 
-              {/* Desktop nav links */}
-              <ul className="hidden lg:flex space-x-5 xl:space-x-6 items-center font-label-caps text-label-caps">
-                {navLinks.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.path}
-                      className="inline-block text-on-surface-variant hover:text-brand-vibrancy transition-all duration-200 active:scale-95 relative group whitespace-nowrap text-[11px] xl:text-xs"
-                    >
-                      {item.name}
-                      <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-brand-vibrancy group-hover:w-full transition-all duration-300" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Mobile menu toggle */}
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden p-2 text-white bg-white/20 rounded-lg relative z-50"
-                aria-label="Toggle Menu"
-              >
-                {isOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
-              </button>
-            </div>
-
-            {/* RIGHT 45% — desktop only, image shows through */}
-            <div className="hidden lg:block w-[45%]" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="standard-nav"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="w-full flex justify-between items-center h-full"
-            >
-              {/* STANDARD — white fixed bar */}
-              <Link href="/" className="flex items-center relative z-50">
+          {/* Logo & brand */}
+          <Link className="flex items-center gap-3 group shrink-0" href="/">
+            <div className="p-1.5 bg-white rounded flex items-center justify-center border border-white/20 shadow-[0_0_15px_rgba(123,44,191,0.2)]">
               <img
                 alt="Berrisol & Illusion Decors Logo"
-                className="h-14 md:h-16 w-auto object-contain"
+                className="h-8 sm:h-10 w-auto object-contain"
                 src="/logo.png"
               />
-            </Link>
-
-            <ul className="hidden lg:flex space-x-8 items-center font-label-caps text-label-caps">
-              {navLinks.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.path}
-                    className="inline-block text-on-surface-variant hover:text-brand-vibrancy transition-all duration-200 active:scale-95 relative group"
-                  >
-                    {item.name}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-brand-vibrancy group-hover:w-full transition-all duration-300" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <div className="hidden lg:block">
-              <motion.button
-                onClick={openModal}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97, y: 1 }}
-                className="bg-brand-vibrancy text-luminary-white px-6 py-3 font-label-caps text-label-caps border-2 border-[#202124] shadow-[3px_3px_0px_#202124] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all duration-150"
-              >
-                Book a Free Site Visit
-              </motion.button>
             </div>
+            <div className="hidden sm:flex flex-col">
+              <span
+                className="text-lg sm:text-xl tracking-[0.18em] text-white font-medium uppercase leading-tight group-hover:text-[#A62681] transition-colors"
+                style={{ fontFamily: "Cinzel, serif" }}
+              >
+                Berrisol
+              </span>
+              <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-[#A62681] font-semibold">
+                &amp; Illusion Decors
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 font-mono text-xs uppercase tracking-[0.15em] text-[#8E94A0]">
+            {navLinks.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.path}
+                  className={
+                    isActive
+                      ? "text-white border-b-2 border-[#A62681] pb-1 font-semibold"
+                      : "hover:text-[#E4B5FF] transition-colors"
+                  }
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={openModal}
+              className="hidden sm:inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.15em] font-semibold transition-all shadow-[0_0_18px_rgba(166,38,129,0.4)] hover:shadow-[0_0_24px_rgba(157,78,221,0.6)] rounded-xs whitespace-nowrap"
+            >
+              <span>Book Site Survey</span>
+              <ArrowUpRight className="w-4 h-4" />
+            </button>
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 text-primary bg-surface-container rounded-lg relative z-50"
+              className="lg:hidden p-2 text-white bg-white/10 rounded-lg relative z-50"
               aria-label="Toggle Menu"
             >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
+              {isOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+          </div>
+        </div>
+      </header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-[#1a1a2e] pt-24 px-5 flex flex-col h-[100dvh]"
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-40 bg-[#0C0E12] pt-20 px-6 flex flex-col h-[100dvh] overflow-y-auto"
           >
-            <ul className="flex flex-col gap-6 font-display-md text-2xl text-white mt-8">
-              {navLinks.map((item) => (
-                <motion.li
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                >
-                  <Link
-                    href={item.path}
-                    onClick={() => setIsOpen(false)}
-                    className="block py-2 text-white hover:text-brand-vibrancy transition-colors"
+            <ul className="flex flex-col gap-5 font-mono text-lg uppercase tracking-widest text-[#8E94A0] mt-6">
+              {navLinks.map((item, i) => {
+                const isActive = pathname === item.path;
+                return (
+                  <motion.li
+                    key={item.name}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.25, delay: i * 0.05 }}
                   >
-                    {item.name}
-                  </Link>
-                </motion.li>
-              ))}
+                    <Link
+                      href={item.path}
+                      onClick={() => setIsOpen(false)}
+                      className={`block py-2 border-b border-white/5 transition-colors ${
+                        isActive
+                          ? "text-white font-bold border-[#A62681]/40"
+                          : "hover:text-[#E4B5FF]"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.li>
+                );
+              })}
             </ul>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
-              className="mt-auto mb-10 w-full"
+              className="mt-auto mb-10 w-full pt-6"
             >
               <button
                 onClick={openModal}
-                className="w-full bg-brand-vibrancy text-luminary-white px-6 py-4 font-label-caps text-label-caps border-2 border-[#202124] shadow-[3px_3px_0px_#202124] hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-none transition-all duration-150"
+                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#6A2C91] to-[#A62681] text-white px-6 py-4 font-mono text-sm uppercase tracking-[0.15em] font-semibold shadow-[0_0_18px_rgba(166,38,129,0.4)] rounded-xs"
               >
-                Book a Free Site Visit
+                <span>Book Site Survey</span>
+                <ArrowUpRight className="w-5 h-5" />
               </button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Lead Capture Modal */}
       <LeadModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );

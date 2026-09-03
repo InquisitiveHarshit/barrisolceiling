@@ -71,12 +71,8 @@ export default function CreateBlog() {
     formData.append("file", file);
     formData.append("blackAndWhite", String(blackAndWhite));
 
-    const token = localStorage.getItem("admin_token");
     const res = await fetch("/api/upload", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       body: formData,
     });
 
@@ -106,18 +102,12 @@ export default function CreateBlog() {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("admin_token");
-      if (!token) {
-        throw new Error("You must be logged in to create a post.");
-      }
-
       let coverImage = "";
       if (file) {
         coverImage = await handleImageUpload();
       }
 
       const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
-
       const payload = { title, slug: slug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage };
       console.log("[CreateBlog] Submitting payload:", payload);
 
@@ -125,7 +115,6 @@ export default function CreateBlog() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -254,7 +243,7 @@ export default function CreateBlog() {
               <div className="bg-white rounded-lg border border-outline/20 overflow-hidden">
                 {/* TipTap Toolbar */}
                 {editor && (
-                  <div className="flex items-center gap-2 border-b border-outline/20 p-2 bg-surface-container-lowest">
+                  <div className="flex items-center gap-2 border-b border-outline/20 p-2 bg-surface-container-lowest text-zinc-800">
                     <button
                       type="button"
                       onClick={() => editor.chain().focus().toggleBold().run()}

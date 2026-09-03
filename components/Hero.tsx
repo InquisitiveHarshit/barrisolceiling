@@ -1,165 +1,236 @@
 "use client";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { HexagonPattern } from "@/components/ui/hexagon-pattern";
-import { ShimmerButton } from "@/components/ui/shimmer-button";
-import { DiaTextReveal } from "@/components/ui/dia-text-reveal";
+import { ArrowUpRight, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+
+interface HeroImage {
+  _id: string;
+  url: string;
+  title?: string;
+  location?: string;
+}
+
+const FALLBACK: HeroImage[] = [
+  { _id: "f1", url: "/hero-stretch-ceiling.jpg", title: "Stretch Ceiling", location: "Chanakyapuri" },
+  { _id: "f2", url: "/heroimage.webp",           title: "Luminous Ceiling", location: "Gurugram" },
+];
 
 export default function Hero() {
+  const [images, setImages]     = useState<HeroImage[]>(FALLBACK);
+  const [current, setCurrent]   = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  /* ── Fetch gallery images from admin ── */
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.images?.length > 0) setImages(d.images);
+      })
+      .catch(() => {});
+  }, []);
+
+  /* ── Auto-scroll every 4s, pause on hover ── */
+  useEffect(() => {
+    if (images.length <= 1) return;
+    if (!isHovered) {
+      timerRef.current = setInterval(() => {
+        setCurrent((c) => (c + 1) % images.length);
+      }, 4000);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [images.length, isHovered]);
+
+  const prev = () => setCurrent((c) => (c - 1 + images.length) % images.length);
+  const next = () => setCurrent((c) => (c + 1) % images.length);
+
+  const img = images[current];
+
   return (
-    <>
-      {/* ─── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative w-full overflow-hidden bg-white">
+    <section
+      id="overview"
+      className="relative min-h-[92dvh] flex items-center bg-[#0C0E12] text-[#E2E2E6] overflow-hidden border-b border-white/10 pt-20 pb-16 lg:py-0"
+    >
+      {/* Grid pattern */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(120,120,120,0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(120,120,120,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-        {/* ── Desktop layout: split left/right ── */}
-        <div className="hidden lg:grid lg:grid-cols-[55%_45%] min-h-[90dvh]">
+      {/* Glow orbs */}
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[#7B2CBF]/20 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute bottom-10 right-0 w-96 h-96 bg-[#A62681]/15 rounded-full blur-[128px] pointer-events-none" />
 
-          {/* LEFT — hexagon bg + copy */}
-          <div className="relative flex items-center pt-24 pb-16">
-            {/* Hex pattern only on the left panel */}
-            <div className="absolute inset-0 bg-white">
-              <HexagonPattern
-                className="fill-brand-vibrancy/[0.03] stroke-brand-vibrancy/15"
-                radius={32}
-                gap={4}
-              />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_70%_at_40%_50%,white_35%,transparent_100%)]" />
+      <div className="relative z-10 max-w-[94rem] w-full mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+
+          {/* ── LEFT: Copy ── */}
+          <div className="lg:col-span-6 flex flex-col justify-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-[#E4B5FF] font-mono w-fit mb-6 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-[#A62681] animate-pulse" />
+              <span>Architectural Tension Membrane Atelier • Delhi NCR</span>
             </div>
 
-            <div className="relative z-10 max-w-7xl w-full mx-auto px-5 md:px-16">
-              <h1 className="font-display-lg text-5xl xl:text-7xl text-[#202124] mb-6 leading-[1.1] tracking-tight">
-                Transform Your Space with{" "}
-                <br />
-                <div className="mt-2">
-                  <DiaTextReveal
-                    className="text-5xl xl:text-7xl font-bold tracking-tight"
-                    text="Elegant Ceilings"
-                    textColor="#800080"
-                    colors={["#3b82f6", "#8b5cf6", "#a855f7"]}
-                  />
-                </div>
-              </h1>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.1] tracking-tight mb-6 font-serif">
+              Bespoke Stretch Ceilings &amp; Architectural Lighting
+            </h1>
 
-              <p className="font-body-lg text-lg text-on-surface-variant max-w-lg leading-relaxed mb-10">
-                Delhi&apos;s most trusted stretch ceiling experts. Seamless
-                finishes, premium European materials, and flawless installation
-                guaranteed.
-              </p>
+            <p className="text-base sm:text-lg text-[#8E94A0] leading-relaxed max-w-xl font-light mb-8">
+              Crafting monolithic, shadowless light fields and acoustic stretch
+              membranes for luxury residences and commercial spaces across Delhi NCR.
+            </p>
 
-              <div className="flex flex-wrap items-center gap-5">
-                <Link href="/contact">
-                  <ShimmerButton className="shadow-2xl h-14 px-8">
-                    <span className="text-sm font-medium tracking-tight text-white lg:text-base font-label-caps uppercase">
-                      Book Free Site Visit
-                    </span>
-                  </ShimmerButton>
-                </Link>
-                <Link href="/service">
-                  <button className="bg-transparent border-2 border-[#202124] text-zinc-900 px-8 h-14 font-label-caps text-xs tracking-[0.18em] uppercase shadow-[4px_4px_0px_#202124] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150">
-                    Our Services
-                  </button>
-                </Link>
+            {/* CTAs */}
+            <div className="flex flex-wrap items-center gap-4 mb-10">
+              <Link
+                href="#consultation"
+                className="px-6 sm:px-7 py-3.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-all flex items-center gap-2.5 shadow-[0_0_24px_rgba(166,38,129,0.35)] hover:shadow-[0_0_32px_rgba(157,78,221,0.5)] rounded-xs"
+              >
+                <span>Commission Site Survey</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </Link>
+              <a
+                href="https://wa.me/919540593079"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 sm:px-7 py-3.5 border border-white/15 hover:border-[#9D4EDD] bg-white/[0.03] text-[#D8DCE3] hover:text-white text-xs uppercase tracking-[0.18em] font-mono transition-all flex items-center gap-2 rounded-xs"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#9D4EDD]" />
+                <span>WhatsApp Inquiry</span>
+              </a>
+            </div>
+
+            {/* Metrics */}
+            <div className="grid grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-white/10 font-mono">
+              <div>
+                <div className="text-2xl sm:text-3xl text-white font-light">10+</div>
+                <div className="text-[10px] uppercase tracking-wider text-[#8E94A0] mt-1">Years Practice</div>
+              </div>
+              <div className="border-l border-white/10 pl-4 sm:pl-6">
+                <div className="text-2xl sm:text-3xl text-white font-light">1000+</div>
+                <div className="text-[10px] uppercase tracking-wider text-[#8E94A0] mt-1">Installations</div>
+              </div>
+              <div className="border-l border-white/10 pl-4 sm:pl-6">
+                <div className="text-2xl sm:text-3xl text-white font-light">100%</div>
+                <div className="text-[10px] uppercase tracking-wider text-[#8E94A0] mt-1">Flatness</div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT — full-bleed image */}
-          <div className="relative">
-            <Image
-              src="/hero-stretch-ceiling.jpg"
-              alt="Premium stretch ceiling installation"
-              fill
-              priority
-              fetchPriority="high"
-              quality={90}
-              className="object-cover"
-              sizes="45vw"
-            />
-          </div>
-        </div>
+          {/* ── RIGHT: Auto-scroll carousel ── */}
+          <div className="lg:col-span-6">
+            <div
+              className="relative border border-white/15 bg-[#111317] p-2 sm:p-3 shadow-2xl rounded-xs"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {/* Image frame */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0C0E12] rounded-xs">
+                {images.map((im, i) => (
+                  <img
+                    key={im._id}
+                    src={im.url}
+                    alt={im.title || "Stretch ceiling project"}
+                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 brightness-95"
+                    style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
+                  />
+                ))}
 
-        {/* ── Mobile layout: compact, centered ── */}
-        <div className="lg:hidden flex flex-col">
+                {/* Image counter */}
+                <div className="absolute top-4 left-4 z-10 bg-[#0C0E12]/80 backdrop-blur px-2.5 py-1 font-mono text-[10px] text-[#8E94A0] border border-white/10">
+                  {String(current + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+                </div>
 
-          {/* Image banner (top) */}
-          <div className="relative w-full h-56 sm:h-72">
-            <Image
-              src="/hero-stretch-ceiling.jpg"
-              alt="Premium stretch ceiling installation"
-              fill
-              priority
-              quality={85}
-              className="object-cover"
-              sizes="100vw"
-            />
-          </div>
+                {/* Location tag */}
+                {img.location && (
+                  <div className="absolute bottom-4 left-4 z-10 bg-[#0C0E12]/85 backdrop-blur border border-white/15 px-3 py-1.5 flex items-center gap-2 font-mono text-[10px] text-[#D8DCE3]">
+                    <span className="w-2 h-2 rounded-full bg-[#A62681] animate-ping" />
+                    <span>{img.location}</span>
+                  </div>
+                )}
 
-          {/* Copy (below image) */}
-          <div className="relative px-5 pt-6 pb-12 text-center bg-white">
-            <HexagonPattern
-              className="absolute inset-0 fill-brand-vibrancy/[0.03] stroke-brand-vibrancy/15 pointer-events-none"
-              radius={28}
-              gap={4}
-            />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_50%,white_30%,transparent_100%)] pointer-events-none" />
+                {/* Prev / Next arrows — show only if >1 image */}
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prev}
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
+                    >
+                      <ChevronLeft className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      onClick={next}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
+                    >
+                      <ChevronRight className="w-4 h-4 text-white" />
+                    </button>
+                  </>
+                )}
+              </div>
 
-            <div className="relative z-10">
-              <h1 className="font-display-lg text-3xl sm:text-4xl text-[#202124] mb-4 leading-[1.15] tracking-tight">
-                Transform Your Space with{" "}
-                <div className="mt-1">
-                  <DiaTextReveal
-                    className="text-3xl sm:text-4xl font-bold tracking-tight"
-                    text="Elegant Ceilings"
-                    textColor="#800080"
-                    colors={["#3b82f6", "#8b5cf6", "#a855f7"]}
+              {/* Dot indicators + title row */}
+              <div className="mt-3 px-1 flex items-center justify-between gap-4">
+                {/* Title */}
+                <p className="font-mono text-[11px] text-[#8E94A0] truncate">
+                  {img.title || "Gallery Image"}
+                </p>
+
+                {/* Dots */}
+                {images.length > 1 && (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrent(i)}
+                        aria-label={`Go to image ${i + 1}`}
+                        className="transition-all duration-300"
+                        style={{
+                          width: i === current ? "20px" : "6px",
+                          height: "6px",
+                          borderRadius: "3px",
+                          background: i === current ? "#A62681" : "rgba(255,255,255,0.2)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Progress bar */}
+              {images.length > 1 && (
+                <div className="mt-2 h-px bg-white/5 overflow-hidden rounded-full">
+                  <div
+                    key={current}
+                    className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"
+                    style={{
+                      animation: isHovered ? "none" : "hero-progress 4s linear forwards",
+                      width: isHovered ? `${((current + 1) / images.length) * 100}%` : undefined,
+                    }}
                   />
                 </div>
-              </h1>
+              )}
 
-              <p className="font-body-lg text-base text-on-surface-variant leading-relaxed mb-8 max-w-md mx-auto">
-                Delhi&apos;s most trusted stretch ceiling experts. Seamless
-                finishes, premium European materials, and flawless installation
-                guaranteed.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/contact" className="w-full sm:w-auto">
-                  <ShimmerButton className="shadow-xl h-12 px-6 w-full sm:w-auto">
-                    <span className="text-sm font-medium tracking-tight text-white font-label-caps uppercase">
-                      Book Free Site Visit
-                    </span>
-                  </ShimmerButton>
-                </Link>
-                <Link href="/service" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto bg-transparent border-2 border-[#202124] text-zinc-900 px-6 h-12 font-label-caps text-xs tracking-[0.18em] uppercase shadow-[4px_4px_0px_#202124] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150">
-                    Our Services
-                  </button>
-                </Link>
-              </div>
+              <style>{`
+                @keyframes hero-progress {
+                  from { width: 0% }
+                  to   { width: 100% }
+                }
+              `}</style>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ─── TRUST STRIP ──────────────────────────────────────────────── */}
-      <div className="bg-surface-container-low border-t border-black/10">
-        <div className="max-w-7xl mx-auto px-5 md:px-16 py-6 grid grid-cols-3 divide-x divide-black/10">
-          {[
-            { value: "10+", label: "Years Experience" },
-            { value: "1000+", label: "Installations" },
-            { value: "100%", label: "Satisfaction" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center px-4">
-              <p className="text-2xl md:text-3xl font-bold text-[#202124] mb-1 font-display-lg">
-                {stat.value}
-              </p>
-              <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px]">
-                {stat.label}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
-    </>
+    </section>
   );
 }

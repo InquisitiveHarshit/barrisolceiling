@@ -95,10 +95,8 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
     const formData = new FormData();
     formData.append("file", file);
     formData.append("blackAndWhite", String(blackAndWhite));
-    const token = localStorage.getItem("admin_token");
     const res = await fetch("/api/upload", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
     const data = await res.json();
@@ -125,16 +123,12 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("admin_token");
-      if (!token) throw new Error("You must be logged in to update a post.");
-
       let coverImage = undefined;
       if (file) {
         coverImage = await handleImageUpload();
       }
 
       const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
-
       const payload: any = { title, slug: editSlug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished };
       if (coverImage) payload.coverImage = coverImage;
 
@@ -142,7 +136,6 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -271,7 +264,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
             <div className="bg-white rounded-xl border border-black/10 overflow-hidden focus-within:border-brand-vibrancy focus-within:ring-1 focus-within:ring-brand-vibrancy transition-shadow">
               {/* TipTap Toolbar */}
               {editor && (
-                <div className="flex items-center gap-1 border-b border-black/5 p-2 bg-[#FAFAFA]">
+                <div className="flex items-center gap-1 border-b border-black/5 p-2 bg-[#FAFAFA] text-zinc-800">
                   {[
                     { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive('bold') },
                     { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive('italic') },

@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import { ContactLead } from "@/models/ContactLead";
+import { authenticateAdmin } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    const authResult = await authenticateAdmin(req);
+    if (authResult.error) {
+      return NextResponse.json(
+        { success: false, message: authResult.error },
+        { status: authResult.status }
+      );
+    }
+
     await connectDB();
     const leads = await ContactLead.find().sort({ createdAt: -1 });
     return NextResponse.json({ success: true, leads }, { status: 200 });

@@ -11,7 +11,7 @@ export default function AboutPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-20 min-h-screen bg-surface">
+      <main className="pt-20 min-h-screen bg-[#0C0E12]">
         <AboutContent />
       </main>
       <Footer />

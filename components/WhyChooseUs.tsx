@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { Shield, PenTool, Layers, Tags, Clock, Award } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -14,58 +15,65 @@ const trustItems = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="py-section-gap">
-      <div className="w-full px-5 md:px-16">
-      {/* Header */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12 items-end mb-16">
-        <div>
-          <p className="font-label-caps text-label-caps text-brand-vibrancy mb-4">Why Choose Us</p>
-          <h2 className="font-headline-lg text-4xl md:text-5xl text-[#202124] leading-tight">
-            Why Clients Trust Us
-          </h2>
+    <section className="py-24 bg-white dark:bg-[#0C0E12] text-zinc-900 dark:text-[#E2E2E6] border-b border-zinc-200 dark:border-white/10 transition-colors duration-300">
+      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+        
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-zinc-200 dark:border-white/10 mb-12">
+          <div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#A62681] dark:text-[#E4B5FF] font-semibold block mb-3">
+              Why Choose Us
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl text-zinc-900 dark:text-white font-serif font-normal">
+              Why Clients Trust Us
+            </h2>
+          </div>
+          <p className="text-sm text-zinc-600 dark:text-[#8E94A0] max-w-md font-light leading-relaxed">
+            We believe in building long-term relationships through transparency, craftsmanship, and European engineering standard work.
+          </p>
         </div>
-        <p className="font-body-lg text-on-surface-variant text-lg leading-relaxed lg:max-w-xl">
-          We believe in building long-term relationships through transparency, craftsmanship, and quality work. Here's what sets us apart.
-        </p>
-      </div>
 
-      {/* Grid of Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {trustItems.map((item, i) => (
-          <motion.div
-            key={i}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", duration: 0.15, bounce: 0 }}
-            className="group bg-luminary-white border border-outline/10 rounded-2xl p-8 hover:shadow-xl transition-shadow duration-300 cursor-default"
-          >
-            <div className="w-11 h-11 bg-brand-vibrancy/10 rounded-xl flex items-center justify-center mb-6 text-brand-vibrancy group-hover:bg-brand-vibrancy group-hover:text-luminary-white transition-all duration-300">
-              <item.icon size={22} />
-            </div>
-            <h3 className="font-headline-md text-xl text-[#202124] mb-3">{item.title}</h3>
-            <p className="font-body-md text-on-surface-variant text-[15px] leading-relaxed">{item.desc}</p>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Bottom CTA strip */}
-      <div className="mt-14 bg-[#202124] rounded-2xl px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
-          <h3 className="font-headline-md text-2xl text-luminary-white mb-1">Ready to Transform Your Space?</h3>
-          <p className="font-body-md text-luminary-white/60 text-sm">Get a free site visit and consultation — no commitment required.</p>
+        {/* Grid of Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {trustItems.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="group bg-zinc-50 dark:bg-[#111317] border border-zinc-200 dark:border-white/10 rounded-xs p-8 hover:border-[#A62681]/60 dark:hover:border-[#6A2C91]/60 transition-colors shadow-lg"
+              >
+                <div className="w-11 h-11 bg-[#A62681]/10 dark:bg-[#A62681]/20 rounded-xs flex items-center justify-center mb-6 text-[#A62681] dark:text-[#E4B5FF] group-hover:bg-[#A62681] group-hover:text-white transition-colors">
+                  <Icon size={22} />
+                </div>
+                <h3 className="text-xl text-zinc-900 dark:text-white font-serif mb-3 group-hover:text-[#A62681] dark:group-hover:text-[#E4B5FF] transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-[#8E94A0] leading-relaxed font-light">
+                  {item.desc}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
-        <motion.div
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", duration: 0.15, bounce: 0 }}
-          className="shrink-0"
-        >
+
+        {/* Bottom CTA strip */}
+        <div className="mt-16 bg-gradient-to-r from-[#6A2C91] to-[#A62681] text-white rounded-xs px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+          <div>
+            <h3 className="text-2xl text-white font-serif mb-2">Ready to Transform Your Space?</h3>
+            <p className="text-white/80 text-sm font-light">Get an on-site spatial survey and membrane sample audit — no commitment required.</p>
+          </div>
           <Link
-            href="/contact"
-            className="inline-block bg-luminary-white text-[#202124] px-8 py-4 font-label-caps text-label-caps whitespace-nowrap border-2 border-luminary-white shadow-[4px_4px_0px_rgba(255,255,255,0.3)] hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all duration-150"
+            href="#consultation"
+            className="shrink-0 inline-block bg-white text-zinc-900 px-8 py-4 font-mono text-xs uppercase tracking-[0.15em] font-semibold hover:bg-zinc-100 transition-colors rounded-xs shadow-lg"
           >
             Book Free Site Visit
           </Link>
-        </motion.div>
-      </div>
+        </div>
+
       </div>
     </section>
   );

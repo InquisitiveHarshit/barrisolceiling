@@ -26,6 +26,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Security: Validate file type — only allow images
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid file type. Only JPEG, PNG, GIF, WEBP, and AVIF images are allowed." },
+        { status: 400 }
+      );
+    }
+
+    // Security: Validate file size — max 5MB
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE_BYTES) {
+      return NextResponse.json(
+        { success: false, message: "File too large. Maximum allowed size is 5MB." },
+        { status: 400 }
+      );
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 

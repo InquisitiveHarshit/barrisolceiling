@@ -77,11 +77,11 @@
 
 @layer base {
   body {
-    background-color: var(--color-surface-bright);
-    color: var(--color-primary-container);
     -webkit-font-smoothing: antialiased;
-    @apply bg-background text-foreground;
+    background-color: #0C0E12;
+    color: #E2E2E6;
   }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -310,4 +310,118 @@
   background-clip: text;
   color: transparent;
   animation: hero-text-shimmer 3s linear infinite;
+}
+
+/* ── Form Inputs & TipTap Rich Text Visibility Fix ── */
+input, textarea, select {
+  color: #18181b;
+}
+
+.dark input, 
+.dark textarea, 
+.dark select {
+  color: #18181b;
+}
+
+/* Dark background inputs (e.g. in dark theme sections) */
+.bg-\[\#0C0E12\] input,
+.bg-\[\#0C0E12\] textarea,
+.bg-\[\#0C0E12\] select,
+.bg-\[\#111317\] input,
+.bg-\[\#111317\] textarea,
+.bg-\[\#111317\] select,
+.bg-obsidian input,
+.bg-obsidian textarea,
+.bg-obsidian select {
+  color: #ffffff !important;
+}
+
+/* Rich Text Editor (TipTap / ProseMirror) */
+.ProseMirror {
+  color: #18181b !important;
+}
+
+.dark .ProseMirror {
+  color: #18181b !important;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  color: #71717a;
+  opacity: 0.7;
+}
+
+/* TipTap Editor Toolbar Icons & Buttons Visibility */
+.bg-surface-container-lowest button,
+.bg-zinc-50 button,
+.bg-zinc-100 button,
+.bg-white button {
+  color: #18181b !important;
+}
+
+.bg-surface-container-lowest button svg,
+.bg-zinc-50 button svg,
+.bg-zinc-100 button svg,
+.bg-white button svg {
+  color: #18181b !important;
+  stroke: #18181b !important;
+}
+
+/* ── TipTap & Rendered Article List Styles (Bullet points & Numbered pointers) ── */
+.ProseMirror ul,
+.prose ul,
+.bd-article-body ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ProseMirror ol,
+.prose ol,
+.bd-article-body ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.ProseMirror li,
+.prose li,
+.bd-article-body li {
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+  display: list-item !important;
+}
+
+.ProseMirror li p,
+.prose li p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  display: inline-block !important;
+}
+
+/* ── Dark Mode Overrides for Legacy Utility Classes ── */
+.dark .bg-surface-bright,
+.dark .bg-surface-container-low {
+  background-color: #0C0E12 !important;
+}
+
+.dark .bg-luminary-white {
+  background-color: #111317 !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.dark .text-\[\#202124\] {
+  color: #ffffff !important;
+}
+
+.dark .text-on-surface-variant {
+  color: #8E94A0 !important;
+}
+
+.dark .border-outline\/10,
+.dark .border-outline\/20 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
 }

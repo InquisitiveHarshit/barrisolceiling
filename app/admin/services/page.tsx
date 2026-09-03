@@ -10,11 +10,6 @@ export default function AdminServices() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.push("/admin/login");
-      return;
-    }
     fetchServices();
   }, [router]);
 
@@ -36,12 +31,8 @@ export default function AdminServices() {
     if (!confirm("Are you sure you want to delete this service?")) return;
 
     try {
-      const token = localStorage.getItem("admin_token");
       const res = await fetch(`/api/services/${slug}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       const data = await res.json();
       if (data.success) {
