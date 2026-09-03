@@ -10,10 +10,7 @@ interface HeroImage {
   location?: string;
 }
 
-const FALLBACK: HeroImage[] = [
-  { _id: "f1", url: "/hero-stretch-ceiling.jpg", title: "Stretch Ceiling", location: "Chanakyapuri" },
-  { _id: "f2", url: "/heroimage.webp",           title: "Luminous Ceiling", location: "Gurugram" },
-];
+const FALLBACK: HeroImage[] = [];
 
 export default function Hero() {
   const [images, setImages]     = useState<HeroImage[]>(FALLBACK);
