@@ -5,6 +5,7 @@ export interface IGalleryImage extends Document {
   publicId: string;
   title?: string;
   location?: string;
+  showInHero: boolean;
   createdAt: Date;
 }
 
@@ -25,6 +26,10 @@ const GalleryImageSchema = new Schema<IGalleryImage>(
     location: {
       type: String,
       default: "",
+    },
+    showInHero: {
+      type: Boolean,
+      default: false,
     },
   },
   {

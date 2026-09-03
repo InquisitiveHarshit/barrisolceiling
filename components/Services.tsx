@@ -15,38 +15,29 @@ interface Service {
   tags?: string[];
 }
 
-/* ── Shimmer skeleton card ── */
 function SkeletonRow({ idx }: { idx: number }) {
   return (
-    <div className="py-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-b border-zinc-200 dark:border-white/10">
-      {/* number */}
+    <div className="py-10 sm:py-14 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center border-b border-white/10">
       <div className="lg:col-span-1">
-        <div className="w-14 h-14 rounded-sm bg-zinc-200 dark:bg-white/5 animate-pulse" />
+        <div className="w-14 h-14 rounded-sm bg-white/5 animate-pulse" />
       </div>
-      {/* text */}
       <div className="lg:col-span-5 flex flex-col gap-3">
-        <div className="h-3 w-24 rounded bg-zinc-200 dark:bg-white/5 animate-pulse" />
-        <div className="h-7 w-3/4 rounded bg-zinc-200 dark:bg-white/5 animate-pulse" />
-        <div className="h-3 w-full rounded bg-zinc-200 dark:bg-white/5 animate-pulse" />
-        <div className="h-3 w-5/6 rounded bg-zinc-200 dark:bg-white/5 animate-pulse" />
+        <div className="h-3 w-24 rounded bg-white/5 animate-pulse" />
+        <div className="h-7 w-3/4 rounded bg-white/5 animate-pulse" />
+        <div className="h-3 w-full rounded bg-white/5 animate-pulse" />
+        <div className="h-3 w-5/6 rounded bg-white/5 animate-pulse" />
         <div className="flex gap-2 pt-2">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-6 w-20 rounded-sm bg-zinc-200 dark:bg-white/5 animate-pulse"
-            />
+            <div key={i} className="h-6 w-20 rounded-sm bg-white/5 animate-pulse" />
           ))}
         </div>
       </div>
-      {/* image */}
       <div className="lg:col-span-6">
-        <div className="aspect-[16/9] rounded-sm bg-zinc-200 dark:bg-white/5 animate-pulse" />
+        <div className="aspect-[16/9] rounded-sm bg-white/5 animate-pulse" />
       </div>
     </div>
   );
 }
-
-/* ── Shimmer text effect via CSS-in-JS ── */
 
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
@@ -98,11 +89,17 @@ export default function Services() {
                 Architectural Systems &amp; Typologies
               </h2>
             </div>
-            <p className="text-sm text-[#8E94A0] max-w-md font-light leading-relaxed">
-              Engineered European polymers and micro-woven textiles manufactured
-              for pristine geometric stability, acoustic performance, and diffuse
-              illumination.
-            </p>
+            <Link
+              href="/service"
+              className="group/cta inline-flex items-center gap-3 text-sm font-mono uppercase tracking-widest font-semibold whitespace-nowrap shrink-0"
+            >
+              <span className="text-white group-hover/cta:text-[#E4B5FF] transition-colors duration-300">
+                Explore All Services
+              </span>
+              <span className="inline-flex items-center justify-center w-9 h-9 border border-white/20 group-hover/cta:border-[#A62681] group-hover/cta:bg-[#A62681]/10 transition-all duration-300">
+                <ArrowRight className="w-3.5 h-3.5 text-white group-hover/cta:text-[#E4B5FF] group-hover/cta:translate-x-0.5 transition-all duration-300" />
+              </span>
+            </Link>
           </div>
 
           {/* ── Service rows ── */}
@@ -207,7 +204,7 @@ export default function Services() {
                           src={service.coverImage || "/heroimage.webp"}
                           alt={service.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                          className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
                           sizes="(max-width: 1024px) 100vw, 50vw"
                         />
                         {/* Purple gradient overlay on hover */}

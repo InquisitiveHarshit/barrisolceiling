@@ -154,7 +154,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { id, title, location } = await req.json();
+    const { id, title, location, showInHero } = await req.json();
     if (!id) {
       return NextResponse.json(
         { success: false, message: "Image ID is required." },
@@ -163,9 +163,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     await connectDB();
+    const updateFields: Record<string, unknown> = { title, location };
+    if (typeof showInHero === "boolean") updateFields.showInHero = showInHero;
+
     const updated = await GalleryImage.findByIdAndUpdate(
       id,
-      { title, location },
+      updateFields,
       { new: true }
     );
 

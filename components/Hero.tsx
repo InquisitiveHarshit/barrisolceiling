@@ -21,12 +21,15 @@ export default function Hero() {
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  /* ── Fetch gallery images from admin ── */
+  /* ── Fetch hero-selected images from admin ── */
   useEffect(() => {
-    fetch("/api/gallery")
+    fetch("/api/gallery/hero")
       .then((r) => r.json())
       .then((d) => {
-        if (d.success && d.images?.length > 0) setImages(d.images);
+        if (d.success && d.images?.length > 0) {
+          setImages(d.images);
+        }
+        // if nothing is marked for hero, keep the FALLBACK local images
       })
       .catch(() => {});
   }, []);
