@@ -45,7 +45,7 @@ export default function Hero() {
   const prev = () => setCurrent((c) => (c - 1 + images.length) % images.length);
   const next = () => setCurrent((c) => (c + 1) % images.length);
 
-  const img = images[current];
+  const img = images[current] ?? null;
 
   return (
     <section
@@ -127,13 +127,23 @@ export default function Hero() {
 
           {/* ── RIGHT: Auto-scroll carousel ── */}
           <div className="lg:col-span-6">
-            <div
-              className="relative border border-white/15 bg-[#111317] p-2 sm:p-3 shadow-2xl rounded-xs"
+            {images.length === 0 ? (
+              /* Empty state — no hero images selected yet */
+              <div className="relative border border-white/10 bg-[#111317] rounded-xs aspect-[4/3] flex items-center justify-center">
+                <p className="font-mono text-xs text-[#8E94A0] text-center px-8 leading-relaxed">
+                  No hero images selected.<br />
+                  <span className="text-[#A62681]">Admin → Gallery → Edit → Show in Hero</span>
+                </p>
+              </div>
+            ) : img && (
+              <div
+              className="relative border border-white/15 bg-[#111317] shadow-2xl rounded-xs"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
               {/* Image frame */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0C0E12] rounded-xs">
+              <div className="p-2 sm:p-3 pb-0">
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0C0E12] rounded-xs" style={{ width: "calc(100% - 0px)" }}>
                 {images.map((im, i) => (
                   <img
                     key={im._id}
@@ -176,49 +186,71 @@ export default function Hero() {
                     </button>
                   </>
                 )}
-              </div>
+              </div>{/* end image frame */}
+              </div>{/* end padding wrapper */}
 
-              {/* Dot indicators + title row */}
-              <div className="mt-3 px-1 flex items-center justify-between gap-4">
-                {/* Title */}
-                <p className="font-mono text-[11px] text-[#8E94A0] truncate">
-                  {img.title || "Gallery Image"}
-                </p>
+              {/* ── Spec row ── */}
+              <div className="mt-0 border-t border-white/10 bg-[#0C0E12]">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 divide-x divide-white/10">
+                  <div className="px-3 py-2.5">
+                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Project Reference</p>
+                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">
+                      {img.title || "—"}
+                    </p>
+                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
+                      {img.location || "Delhi NCR"}
+                    </p>
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
+                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">Barrisol</p>
+                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.17mm</p>
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>
+                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">2700K Dim‑Warm</p>
+                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">DALI‑2 Dimming</p>
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Photometrics</p>
+                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">CRI 98+ / 650 Lux</p>
+                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Zero Sag Warranty</p>
+                  </div>
+                </div>
 
-                {/* Dots */}
+                {/* Dots + progress */}
                 {images.length > 1 && (
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {images.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrent(i)}
-                        aria-label={`Go to image ${i + 1}`}
-                        className="transition-all duration-300"
+                  <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
+                    <div className="flex items-center gap-1.5">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrent(i)}
+                          aria-label={`Go to image ${i + 1}`}
+                          className="transition-all duration-300"
+                          style={{
+                            width: i === current ? "20px" : "6px",
+                            height: "4px",
+                            borderRadius: "2px",
+                            background: i === current ? "#A62681" : "rgba(255,255,255,0.15)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    {/* Slim progress bar */}
+                    <div className="flex-1 ml-4 h-px bg-white/5 overflow-hidden rounded-full">
+                      <div
+                        key={current}
+                        className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"
                         style={{
-                          width: i === current ? "20px" : "6px",
-                          height: "6px",
-                          borderRadius: "3px",
-                          background: i === current ? "#A62681" : "rgba(255,255,255,0.2)",
+                          animation: isHovered ? "none" : "hero-progress 4s linear forwards",
+                          width: isHovered ? `${((current + 1) / images.length) * 100}%` : undefined,
                         }}
                       />
-                    ))}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Progress bar */}
-              {images.length > 1 && (
-                <div className="mt-2 h-px bg-white/5 overflow-hidden rounded-full">
-                  <div
-                    key={current}
-                    className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"
-                    style={{
-                      animation: isHovered ? "none" : "hero-progress 4s linear forwards",
-                      width: isHovered ? `${((current + 1) / images.length) * 100}%` : undefined,
-                    }}
-                  />
-                </div>
-              )}
 
               <style>{`
                 @keyframes hero-progress {
@@ -227,6 +259,7 @@ export default function Hero() {
                 }
               `}</style>
             </div>
+            )}{/* end img && */}
           </div>
 
         </div>
