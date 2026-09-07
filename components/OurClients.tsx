@@ -20,7 +20,9 @@ const TRACK = [...CLIENTS, ...CLIENTS, ...CLIENTS];
 function LogoTicker() {
   const x = useMotionValue(0);
   const SPEED = 35; // px/s
-  const ITEM_W = 268; // 240px card + 28px gap
+  const CARD_W = 200; // 200px card width
+  const GAP = 32;     // 32px gap (gap-8)
+  const ITEM_W = CARD_W + GAP; // 232px total width per item
   const TOTAL = CLIENTS.length * ITEM_W;
   const paused = useRef(false);
 
@@ -31,7 +33,7 @@ function LogoTicker() {
 
   return (
     <div
-      className="relative overflow-hidden py-4 bg-[#07090E] border-y border-white/10"
+      className="relative overflow-hidden py-8 bg-[#07090E]"
       onMouseEnter={() => { paused.current = true; }}
       onMouseLeave={() => { paused.current = false; }}
     >
@@ -41,21 +43,21 @@ function LogoTicker() {
 
       <motion.div
         style={{ x }}
-        className="flex gap-7 will-change-transform items-center justify-start"
+        className="flex gap-8 will-change-transform items-center justify-start"
       >
         {TRACK.map((client, idx) => (
           <div
             key={idx}
             className="group flex-shrink-0 flex items-center justify-center
-                       w-[240px] h-[150px] p-2 bg-white
-                       border border-zinc-300 shadow-md
+                       w-[200px] h-[200px] p-4 bg-white
+                       border border-white/10 shadow-lg rounded-xs
                        transition-transform duration-300 overflow-hidden cursor-default"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={client.src}
               alt={client.name}
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         ))}
@@ -72,19 +74,22 @@ export default function OurClients() {
   return (
     <section
       ref={sectionRef}
-      className="py-12 bg-[#07090E] text-[#E2E2E6] overflow-hidden"
+      className="py-16 sm:py-20 bg-[#07090E] text-[#E2E2E6] overflow-hidden border-b border-white/10"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        {/* Subtle Eyebrow matching reference design */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-10">
+        {/* Section Header matching site design standard */}
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-6"
+          className="text-center max-w-2xl mx-auto"
         >
-          <span className="font-mono text-[11px] uppercase tracking-[0.3em] font-semibold text-white/80 block">
+          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#E4B5FF] font-semibold block mb-3">
             TRUSTED BY INDUSTRY LEADERS
           </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-serif font-normal">
+            Our Clients
+          </h2>
         </motion.div>
       </div>
 
