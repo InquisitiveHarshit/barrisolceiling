@@ -28,9 +28,9 @@ export const metadata: Metadata = {
   description:
     "Transform your space with innovative stretch ceiling solutions designed for elegance, durability, and flawless finishes.",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: "/icon.png",
+    shortcut: "/icon.png",
+    apple: "/icon.png",
   },
   alternates: {
     canonical: "/",
