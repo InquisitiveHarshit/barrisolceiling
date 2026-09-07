@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#0C0E12] py-16 text-[#8E94A0] font-body text-xs">
-      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10 sm:gap-12 pb-14 border-b border-white/10">
 
           {/* Identity */}

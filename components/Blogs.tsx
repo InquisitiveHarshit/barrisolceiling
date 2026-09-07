@@ -34,7 +34,7 @@ export default function Blogs() {
       id="blogs"
       className="py-16 sm:py-24 bg-[#0C0E12] text-[#E2E2E6] border-b border-white/10"
     >
-      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-10 sm:pb-12 border-b border-white/10 mb-10 sm:mb-12">

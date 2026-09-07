@@ -147,9 +147,9 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
   return (
     <section
       id="consultation"
-      className="py-16 sm:py-24 px-4 sm:px-8 bg-[#0C0E12] border-b border-white/10"
+      className="py-16 sm:py-24 bg-[#0C0E12] border-b border-white/10"
     >
-      <div className="max-w-[94rem] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-16 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-16 items-start">
 
         {/* Left */}
         <div className="lg:col-span-5 flex flex-col gap-6">

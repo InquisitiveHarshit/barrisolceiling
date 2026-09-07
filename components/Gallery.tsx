@@ -45,7 +45,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
       id="portfolio"
       className="py-16 sm:py-24 border-b border-white/10 bg-[#0C0E12] text-[#E2E2E6]"
     >
-      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 sm:mb-12 pb-8 border-b border-white/10">
@@ -187,6 +187,19 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
                 </div>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* View More Button */}
+        {showViewAll && (
+          <div className="mt-16 sm:mt-20 pt-6 pb-2 flex justify-center">
+            <Link
+              href="/gallery"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#111317] hover:bg-[#A62681] text-white border border-white/15 hover:border-[#A62681] rounded-xs font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-[0_8px_30px_rgb(166,38,129,0.3)] group"
+            >
+              <span>View More Projects</span>
+              <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </Link>
           </div>
         )}
 

@@ -3,6 +3,7 @@ import { Montserrat, Playfair_Display, Geist } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}>
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );

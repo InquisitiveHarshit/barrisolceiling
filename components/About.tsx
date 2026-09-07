@@ -17,7 +17,7 @@ const fadeUp = {
 export default function About() {
   return (
     <section id="about" className="py-24 bg-[#fafafa] dark:bg-[#0C0E12] text-zinc-900 dark:text-[#E2E2E6] border-b border-zinc-200 dark:border-white/10 transition-colors duration-300">
-      <div className="max-w-[94rem] mx-auto px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Image — leads the section */}
           <motion.div

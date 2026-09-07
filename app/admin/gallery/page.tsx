@@ -125,7 +125,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full">
+    <div className="p-8 max-w-[84rem] mx-auto w-full">
       <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-medium tracking-tight text-zinc-900">Gallery</h2>
