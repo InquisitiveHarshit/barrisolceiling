@@ -59,7 +59,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 font-mono text-xs uppercase tracking-[0.15em] text-[#8E94A0]">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 font-mono text-sm xl:text-base uppercase tracking-[0.15em] text-[#8E94A0]">
             {navLinks.map((item) => {
               const isActive = pathname === item.path;
               return (
@@ -68,8 +68,8 @@ export default function Navbar() {
                   href={item.path}
                   className={
                     isActive
-                      ? "text-white border-b-2 border-[#A62681] pb-1 font-semibold"
-                      : "hover:text-[#E4B5FF] transition-colors"
+                      ? "text-white border-b-2 border-[#A62681] pb-1 font-bold"
+                      : "hover:text-[#E4B5FF] transition-colors font-medium"
                   }
                 >
                   {item.name}
