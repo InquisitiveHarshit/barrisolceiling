@@ -1,11 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 const WA_NUMBER = "919540593079";
 const WA_URL = `https://wa.me/${WA_NUMBER}?text=Hello%2C%20I%27m%20interested%20in%20your%20stretch%20ceiling%20services.`;
 
 export default function WhatsAppButton() {
+  const pathname = usePathname();
   const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -13,6 +15,10 @@ export default function WhatsAppButton() {
     const t = setTimeout(() => setVisible(true), 1200);
     return () => clearTimeout(t);
   }, []);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <>
