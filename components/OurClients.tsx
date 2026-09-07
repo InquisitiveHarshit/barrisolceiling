@@ -19,8 +19,8 @@ const TRACK = [...CLIENTS, ...CLIENTS, ...CLIENTS];
 /* ─── Continuous Ticker Component ───────────────────────────────── */
 function LogoTicker() {
   const x = useMotionValue(0);
-  const SPEED = 30; // px/s — slow luxury glide
-  const ITEM_W = 200; // px per logo + gap
+  const SPEED = 35; // px/s
+  const ITEM_W = 268; // 240px card + 28px gap
   const TOTAL = CLIENTS.length * ITEM_W;
   const paused = useRef(false);
 
@@ -31,31 +31,31 @@ function LogoTicker() {
 
   return (
     <div
-      className="relative overflow-hidden py-8 bg-[#07090E] border-y border-white/[0.06]"
+      className="relative overflow-hidden py-4 bg-[#07090E] border-y border-white/10"
       onMouseEnter={() => { paused.current = true; }}
       onMouseLeave={() => { paused.current = false; }}
     >
-      {/* Soft gradient fade edges matching dark section */}
+      {/* Soft gradient fade edges */}
       <div className="pointer-events-none absolute inset-y-0 left-0 w-32 z-10 bg-gradient-to-r from-[#07090E] to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-32 z-10 bg-gradient-to-l from-[#07090E] to-transparent" />
 
       <motion.div
         style={{ x }}
-        className="flex gap-16 will-change-transform items-center justify-start"
+        className="flex gap-7 will-change-transform items-center justify-start"
       >
         {TRACK.map((client, idx) => (
           <div
             key={idx}
-            className="group flex-shrink-0 flex items-center justify-center w-[140px] h-[50px] cursor-default"
+            className="group flex-shrink-0 flex items-center justify-center
+                       w-[240px] h-[150px] p-2 bg-white
+                       border border-zinc-300 shadow-md
+                       transition-transform duration-300 overflow-hidden cursor-default"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={client.src}
               alt={client.name}
-              className="max-h-10 max-w-[140px] w-auto object-contain
-                         filter invert grayscale contrast-150 brightness-110
-                         mix-blend-screen opacity-45 group-hover:opacity-100 group-hover:scale-105
-                         transition-all duration-300"
+              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         ))}
@@ -72,7 +72,7 @@ export default function OurClients() {
   return (
     <section
       ref={sectionRef}
-      className="py-14 bg-[#07090E] text-[#E2E2E6] overflow-hidden"
+      className="py-12 bg-[#07090E] text-[#E2E2E6] overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Subtle Eyebrow matching reference design */}
@@ -80,15 +80,15 @@ export default function OurClients() {
           initial={{ opacity: 0, y: 15 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
-          <span className="font-mono text-[11px] uppercase tracking-[0.3em] font-semibold text-sky-400/90 block">
+          <span className="font-mono text-[11px] uppercase tracking-[0.3em] font-semibold text-white/80 block">
             TRUSTED BY INDUSTRY LEADERS
           </span>
         </motion.div>
       </div>
 
-      {/* Monochrome Floating Logo Ticker */}
+      {/* Floating Logo Ticker */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={inView ? { opacity: 1 } : { opacity: 0 }}
