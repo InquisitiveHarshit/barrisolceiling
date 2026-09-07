@@ -60,9 +60,10 @@ export default function BlogsPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {blogs.map((post) => (
-                <article
+                <Link
                   key={post._id}
-                  className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10"
+                  href={`/blog-details/${post.slug}`}
+                  className="bg-luminary-white rounded-2xl group hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col shadow-sm hover:shadow-md border border-outline/10 cursor-pointer"
                 >
                   <div className="h-[220px] overflow-hidden">
                     <img
@@ -86,18 +87,17 @@ export default function BlogsPage() {
                         {post.category}
                       </span>
                     )}
-                    <h3 className="font-headline-md text-xl text-[#202124] mb-3 leading-snug">
+                    <h3 className="font-headline-md text-xl text-[#202124] mb-3 leading-snug group-hover:text-[#A62681] transition-colors">
                       {post.title}
                     </h3>
-                    <Link
-                      href={`/blog-details/${post.slug}`}
-                      className="font-label-caps text-label-caps text-brand-vibrancy inline-flex items-center gap-2 hover:gap-3 transition-all mt-auto"
+                    <div
+                      className="font-label-caps text-label-caps text-brand-vibrancy inline-flex items-center gap-2 group-hover:gap-3 transition-all mt-auto"
                     >
                       READ MORE
                       <ArrowRight size={14} />
-                    </Link>
+                    </div>
                   </div>
-                </article>
+                </Link>
               ))}
               
               {blogs.length === 0 && (

@@ -83,41 +83,45 @@ export default function ServicesPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
               {services.map((service, i) => (
-                <motion.div
+                <Link
                   key={service._id || service.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className="bg-[#111317] border border-white/5 hover:border-[#A62681]/40 group transition-all duration-300 overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-[0_8px_32px_-8px_rgba(166,38,129,0.25)] rounded-xs"
+                  href={`/service-detail/${service.slug}`}
+                  className="block group"
                 >
-                  <div className="h-[200px] sm:h-[220px] overflow-hidden">
-                    <img
-                      alt={service.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
-                      src={service.coverImage || "/heroimage.webp"}
-                    />
-                  </div>
-                  <div className="p-5 sm:p-7 flex flex-col flex-1">
-                    {service.category && (
-                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A62681] mb-3 block">
-                        {service.category}
-                      </span>
-                    )}
-                    <h3 className="font-serif text-lg sm:text-xl text-white mb-3 leading-snug group-hover:text-[#E4B5FF] transition-colors">
-                      {service.title}
-                    </h3>
-                    <p className="text-sm text-[#8E94A0] mb-6 leading-relaxed flex-1 font-light">
-                      {service.shortDescription}
-                    </p>
-                    <Link
-                      href={`/service-detail/${service.slug}`}
-                      className="font-mono text-xs uppercase tracking-wider text-[#A62681] inline-flex items-center gap-2 hover:gap-3 transition-all mt-auto group-hover:text-[#E4B5FF]"
-                    >
-                      LEARN MORE
-                      <ArrowRight size={14} />
-                    </Link>
-                  </div>
-                </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.08 }}
+                    className="bg-[#111317] border border-white/5 group-hover:border-[#A62681]/40 transition-all duration-300 overflow-hidden flex flex-col group-hover:-translate-y-1 group-hover:shadow-[0_8px_32px_-8px_rgba(166,38,129,0.25)] rounded-xs h-full"
+                  >
+                    <div className="h-[200px] sm:h-[220px] overflow-hidden">
+                      <img
+                        alt={service.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
+                        src={service.coverImage || "/heroimage.webp"}
+                      />
+                    </div>
+                    <div className="p-5 sm:p-7 flex flex-col flex-1">
+                      {service.category && (
+                        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A62681] mb-3 block">
+                          {service.category}
+                        </span>
+                      )}
+                      <h3 className="font-serif text-lg sm:text-xl text-white mb-3 leading-snug group-hover:text-[#E4B5FF] transition-colors">
+                        {service.title}
+                      </h3>
+                      <p className="text-sm text-[#8E94A0] mb-6 leading-relaxed flex-1 font-light">
+                        {service.shortDescription}
+                      </p>
+                      <div
+                        className="font-mono text-xs uppercase tracking-wider text-[#A62681] inline-flex items-center gap-2 group-hover:gap-3 transition-all mt-auto group-hover:text-[#E4B5FF]"
+                      >
+                        LEARN MORE
+                        <ArrowRight size={14} />
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
               ))}
               {services.length === 0 && (
                 <div className="col-span-full text-center py-20 text-[#8E94A0] font-mono text-sm">
