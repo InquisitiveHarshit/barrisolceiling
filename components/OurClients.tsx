@@ -20,9 +20,9 @@ const TRACK = [...CLIENTS, ...CLIENTS, ...CLIENTS];
 function LogoTicker() {
   const x = useMotionValue(0);
   const SPEED = 35; // px/s
-  const CARD_W = 200; // 200px card width
+  const CARD_W = 220; // 220px card width
   const GAP = 32;     // 32px gap (gap-8)
-  const ITEM_W = CARD_W + GAP; // 232px total width per item
+  const ITEM_W = CARD_W + GAP; // 252px total item width
   const TOTAL = CLIENTS.length * ITEM_W;
   const paused = useRef(false);
 
@@ -49,15 +49,15 @@ function LogoTicker() {
           <div
             key={idx}
             className="group flex-shrink-0 flex items-center justify-center
-                       w-[200px] h-[200px] p-4 bg-white
-                       border border-white/10 shadow-lg rounded-xs
+                       w-[220px] h-[150px] p-6 bg-white
+                       border border-white/10 shadow-lg rounded-xl
                        transition-transform duration-300 overflow-hidden cursor-default"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={client.src}
               alt={client.name}
-              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
             />
           </div>
         ))}

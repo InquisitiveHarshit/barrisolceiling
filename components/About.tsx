@@ -53,10 +53,10 @@ export default function About() {
               viewport={{ once: true, amount: 0.4 }}
             >
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#A62681] dark:text-[#E4B5FF] font-semibold block mb-3">
-                Delhi NCR Atelier
+                India Atelier
               </span>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl text-zinc-900 dark:text-white font-serif font-normal leading-tight">
-                Leading Stretch Ceiling Experts in Delhi
+                Leading Stretch Ceiling Experts in India
               </h2>
             </motion.div>
 
@@ -68,7 +68,7 @@ export default function About() {
               viewport={{ once: true, amount: 0.4 }}
               className="text-base text-zinc-600 dark:text-[#8E94A0] leading-relaxed font-light"
             >
-              We are premier false ceiling contractors in Delhi NCR, specializing
+              We are premier false ceiling contractors in India, specializing
               in European stretch membranes and custom technical lighting solutions for luxury residential and commercial spaces.
             </motion.p>
 
@@ -81,7 +81,7 @@ export default function About() {
               className="space-y-3.5 pt-2"
             >
               {[
-                "1000+ successful installations across Delhi, Gurugram & Noida",
+                "1000+ successful installations across India",
                 "European BS EN 14716 & DIN 4102-B1 fire certified membranes",
                 "Custom photometric design support with on-site laser survey",
               ].map((item) => (

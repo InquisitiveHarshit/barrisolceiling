@@ -16,7 +16,7 @@ export default function AboutContent() {
               in Modern Interiors.
             </h1>
             <p className="font-body-lg text-lg md:text-xl text-[#8E94A0] max-w-xl leading-relaxed mb-10">
-              We are one of the most trusted false ceiling contractors in Delhi,
+              We are one of the most trusted false ceiling contractors in India,
               specializing in advanced stretch ceiling solutions for residential
               and commercial spaces. From luxury homes to large commercial
               projects, we redefine interiors.
@@ -99,7 +99,7 @@ export default function AboutContent() {
               </div>
               <h3 className="font-headline-md text-xl text-white mb-3">Our Vision</h3>
               <p className="font-body-md text-[#8E94A0] text-sm leading-relaxed">
-                To become the leading name in Delhi by delivering innovative,
+                To become the leading name in India by delivering innovative,
                 high-quality ceiling solutions that exceed expectations.
               </p>
             </div>
