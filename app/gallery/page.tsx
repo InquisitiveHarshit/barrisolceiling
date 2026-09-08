@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 export const metadata = {
   title: "Gallery | Borocelling",
-  description: "View our portfolio of premium stretch ceiling installations across Delhi NCR.",
+  description: "View our portfolio of premium stretch ceiling installations across India.",
 };
 
 export default function GalleryPage() {

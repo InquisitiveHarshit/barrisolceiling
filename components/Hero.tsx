@@ -10,11 +10,35 @@ interface HeroImage {
   location?: string;
 }
 
-const FALLBACK: HeroImage[] = [];
+const DEFAULT_FALLBACK_IMAGES: HeroImage[] = [
+  { _id: "fallback-1", url: "/hero-stretch-ceiling.jpg", title: "Luxury Translucent Stretch Ceiling", location: "India" },
+  { _id: "fallback-2", url: "/heroimage.webp", title: "Modern Backlit Tension Membrane", location: "India" },
+];
+
+function HeroSkeleton() {
+  return (
+    <div className="relative border border-white/15 bg-[#111317] shadow-2xl rounded-xs animate-pulse">
+      <div className="p-2 sm:p-3 pb-0">
+        <div className="relative aspect-[4/3] w-full bg-[#1A1D26] rounded-xs flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-[#A62681] animate-spin" />
+        </div>
+      </div>
+      <div className="border-t border-white/10 bg-[#0C0E12] p-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="h-10 bg-white/5 rounded-xs" />
+          <div className="h-10 bg-white/5 rounded-xs" />
+          <div className="h-10 bg-white/5 rounded-xs" />
+          <div className="h-10 bg-white/5 rounded-xs" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Hero() {
-  const [images, setImages]     = useState<HeroImage[]>(FALLBACK);
-  const [current, setCurrent]   = useState(0);
+  const [images, setImages]       = useState<HeroImage[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [current, setCurrent]     = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -25,10 +49,16 @@ export default function Hero() {
       .then((d) => {
         if (d.success && d.images?.length > 0) {
           setImages(d.images);
+        } else {
+          setImages(DEFAULT_FALLBACK_IMAGES);
         }
-        // if nothing is marked for hero, keep the FALLBACK local images
       })
-      .catch(() => {});
+      .catch(() => {
+        setImages(DEFAULT_FALLBACK_IMAGES);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   /* ── Auto-scroll every 4s, pause on hover ── */
@@ -76,7 +106,7 @@ export default function Hero() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs text-[#E4B5FF] font-mono w-fit mb-6 backdrop-blur-md">
               <span className="w-2 h-2 rounded-full bg-[#A62681] animate-pulse" />
-              <span>Architectural Tension Membrane Atelier • Delhi NCR</span>
+              <span>Architectural Tension Membrane Atelier • India</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.1] tracking-tight mb-6 font-serif">
@@ -85,7 +115,7 @@ export default function Hero() {
 
             <p className="text-base sm:text-lg text-[#8E94A0] leading-relaxed max-w-xl font-light mb-8">
               Crafting monolithic, shadowless light fields and acoustic stretch
-              membranes for luxury residences and commercial spaces across Delhi NCR.
+              membranes for luxury residences and commercial spaces across India.
             </p>
 
             {/* CTAs */}
@@ -127,14 +157,8 @@ export default function Hero() {
 
           {/* ── RIGHT: Auto-scroll carousel ── */}
           <div className="lg:col-span-6">
-            {images.length === 0 ? (
-              /* Empty state — no hero images selected yet */
-              <div className="relative border border-white/10 bg-[#111317] rounded-xs aspect-[4/3] flex items-center justify-center">
-                <p className="font-mono text-xs text-[#8E94A0] text-center px-8 leading-relaxed">
-                  No hero images selected.<br />
-                  <span className="text-[#A62681]">Admin → Gallery → Edit → Show in Hero</span>
-                </p>
-              </div>
+            {loading ? (
+              <HeroSkeleton />
             ) : img && (
               <div
               className="relative border border-white/15 bg-[#111317] shadow-2xl rounded-xs"
@@ -198,7 +222,7 @@ export default function Hero() {
                       {img.title || "—"}
                     </p>
                     <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
-                      {img.location || "Delhi NCR"}
+                      {img.location || "India"}
                     </p>
                   </div>
                   <div className="px-3 py-2.5">

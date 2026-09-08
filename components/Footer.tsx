@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -26,6 +26,22 @@ const LinkedinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function Footer() {
+  const [services, setServices] = useState<{ title: string; slug: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          // top 5 by creation order (API already sorts by createdAt desc, so slice first 5)
+          setServices(
+            d.data.slice(0, 5).map((s: any) => ({ title: s.title, slug: s.slug }))
+          );
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <footer className="border-t border-white/10 bg-[#0C0E12] py-16 text-[#8E94A0] font-body text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
@@ -57,38 +73,31 @@ export default function Footer() {
           {/* Systems */}
           <div className="lg:col-span-3 flex flex-col gap-3 font-mono text-xs">
             <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Systems</div>
-            {[
-              "Translucent Diffuser Ceilings",
-              "Acoustic Absorption Membranes",
-              "3D Vaults & Parametric Forms",
-              "High-Gloss Mirror Lacquer",
-              "Fiber-Optic Starry Canopies",
-            ].map((s) => (
-              <Link key={s} href="/service" className="hover:text-[#E4B5FF] transition-colors">
-                {s}
-              </Link>
-            ))}
-          </div>
-
-          {/* Journey */}
-          <div className="lg:col-span-2 flex flex-col gap-3 font-mono text-xs">
-            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Atelier Journey</div>
-            {[
-              { label: "Atelier Overview", href: "/" },
-              { label: "About Studio",     href: "/about" },
-              { label: "Technical Standards", href: "/service" },
-              { label: "Project Archive",  href: "/gallery" },
-              { label: "Specifier Booking", href: "/contact" },
-            ].map((l) => (
-              <Link key={l.label} href={l.href} className="hover:text-[#E4B5FF] transition-colors">
-                {l.label}
-              </Link>
-            ))}
+            {services.length > 0
+              ? services.map((s) => (
+                  <Link
+                    key={s.slug}
+                    href={`/service-detail/${s.slug}`}
+                    className="hover:text-[#E4B5FF] transition-colors"
+                  >
+                    {s.title}
+                  </Link>
+                ))
+              : // skeleton placeholders while loading
+                Array.from({ length: 5 }).map((_, i) => (
+                  <span key={i} className="h-3 w-40 bg-white/5 rounded animate-pulse" />
+                ))}
+            <Link
+              href="/service"
+              className="hover:text-[#A62681] transition-colors text-[#8E94A0] mt-1"
+            >
+              View All Services →
+            </Link>
           </div>
 
           {/* Contact & Socials */}
-          <div className="lg:col-span-3 flex flex-col gap-3 font-mono text-xs">
-            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Atelier &amp; Works</div>
+          <div className="lg:col-span-5 flex flex-col gap-3 font-mono text-xs">
+            <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Reach the Studio</div>
             <p className="text-[#D8DCE3]">C-46 2nd Floor, DDA Sheds, Okhla Phase 1, New Delhi 110020</p>
             <p>
               Direct:{" "}
