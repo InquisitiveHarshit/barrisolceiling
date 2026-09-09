@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -10,6 +10,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
+import GalleryPickerModal from "@/components/admin/GalleryPickerModal";
 
 export default function EditBlog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -23,8 +24,17 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
+
+  // Cover image — two sources: uploaded file OR gallery pick
+  // "saved" tracks the URL already stored in DB (shown until replaced)
+  const [imageSource, setImageSource] = useState<"upload" | "gallery">("upload");
+  const [savedCoverUrl, setSavedCoverUrl] = useState<string>("");   // from DB
   const [file, setFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
+  const [galleryUrl, setGalleryUrl] = useState<string>("");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,30 +61,30 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   });
 
   useEffect(() => {
-    return () => {
-      if (editor) {
-        editor.destroy();
-      }
-    };
+    return () => { if (editor) editor.destroy(); };
   }, [editor]);
 
+  // Fetch existing blog data once editor is ready
   useEffect(() => {
     const fetchBlog = async () => {
       try {
         const res = await fetch(`/api/blogs/${slug}`);
         const data = await res.json();
         if (data.success) {
-          setTitle(data.data.title);
-          setEditSlug(data.data.slug || "");
-          setCategory(data.data.category || "");
-          setContent(data.data.content);
-          setExcerpt(data.data.excerpt || "");
-          setMetaTitle(data.data.metaTitle || "");
-          setMetaDescription(data.data.metaDescription || "");
-          setTags(data.data.tags?.join(", ") || "");
-          setIsPublished(data.data.isPublished);
-          if (editor && editor.getHTML() !== data.data.content) {
-            editor.commands.setContent(data.data.content);
+          const b = data.data;
+          setTitle(b.title);
+          setEditSlug(b.slug || "");
+          setCategory(b.category || "");
+          setContent(b.content);
+          setExcerpt(b.excerpt || "");
+          setMetaTitle(b.metaTitle || "");
+          setMetaDescription(b.metaDescription || "");
+          setTags(b.tags?.join(", ") || "");
+          setIsPublished(b.isPublished);
+          // Pre-populate the saved cover so we always show what's currently stored
+          if (b.coverImage) setSavedCoverUrl(b.coverImage);
+          if (editor && editor.getHTML() !== b.content) {
+            editor.commands.setContent(b.content);
           }
         } else {
           setError(data.message || "Failed to load blog");
@@ -85,26 +95,27 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
         setPageLoading(false);
       }
     };
-    if (editor) {
-      fetchBlog();
-    }
+    if (editor) fetchBlog();
   }, [slug, editor]);
+
+  // Local preview for newly selected upload file
+  useEffect(() => {
+    if (!file) { setFilePreview(null); return; }
+    const url = URL.createObjectURL(file);
+    setFilePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const handleImageUpload = async () => {
     if (!file) return null;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("blackAndWhite", String(blackAndWhite));
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
     const data = await res.json();
     if (data.success) {
       let url = data.url;
-      if (blackAndWhite) {
-        url = url.replace("/upload/", "/upload/e_grayscale/");
-      }
+      if (blackAndWhite) url = url.replace("/upload/", "/upload/e_grayscale/");
       return url;
     }
     throw new Error(data.message || "Failed to upload image");
@@ -121,25 +132,35 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
     }
 
     setLoading(true);
-
     try {
-      let coverImage = undefined;
-      if (file) {
-        coverImage = await handleImageUpload();
-      }
+      const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
+      const payload: any = {
+        title,
+        slug: editSlug || undefined,
+        category,
+        content,
+        excerpt,
+        metaTitle,
+        metaDescription,
+        tags: tagsArray,
+        isPublished,
+      };
 
-      const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
-      const payload: any = { title, slug: editSlug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished };
-      if (coverImage) payload.coverImage = coverImage;
+      if (imageSource === "upload" && file) {
+        // New file upload replaces whatever is stored
+        payload.coverImage = await handleImageUpload();
+      } else if (imageSource === "gallery" && galleryUrl) {
+        // Gallery pick replaces whatever is stored
+        payload.coverImage = galleryUrl;
+      }
+      // If neither condition is true, coverImage is omitted from payload
+      // → the PUT route keeps the existing DB value unchanged
 
       const res = await fetch(`/api/blogs/${slug}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
       if (data.success) {
         router.push("/admin/blogs");
@@ -153,6 +174,19 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
     }
   };
 
+  // What to show as the cover preview:
+  // 1. If user picked from gallery → show gallery pick
+  // 2. If user selected a file → show local file preview
+  // 3. Otherwise → show whatever is currently saved in DB
+  const coverPreview =
+    imageSource === "gallery" && galleryUrl
+      ? galleryUrl
+      : imageSource === "upload" && filePreview
+      ? filePreview
+      : savedCoverUrl || null;
+
+  const coverIsNew = (imageSource === "gallery" && !!galleryUrl) || (imageSource === "upload" && !!file);
+
   if (pageLoading) {
     return <div className="min-h-screen bg-[#F4F4F5] pt-32 px-5 text-center text-zinc-600 font-label-caps">Loading...</div>;
   }
@@ -164,7 +198,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
           href="/admin/blogs"
           className="group inline-flex items-center gap-2 text-zinc-600 hover:text-zinc-900 transition-colors mb-8 text-sm font-medium tracking-wide"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
           Back to Blogs
         </Link>
 
@@ -174,10 +208,10 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
           </h1>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+            {/* Title */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
-                Title
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Title</label>
               <input
                 type="text"
                 value={title}
@@ -189,9 +223,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
 
             {/* Slug */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
-                URL Slug
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">URL Slug</label>
               <div className="flex items-center bg-white border border-zinc-300 rounded-lg overflow-hidden focus-within:border-brand-vibrancy transition-shadow">
                 <span className="px-3 py-3 text-sm text-zinc-600 bg-zinc-100 border-r border-zinc-300 whitespace-nowrap">/blog-details/</span>
                 <input
@@ -209,9 +241,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
-                Category
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Category</label>
               <input
                 type="text"
                 value={category}
@@ -221,6 +251,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
               />
             </div>
 
+            {/* Excerpt */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
                 Excerpt <span className="normal-case tracking-normal font-normal opacity-70">(Short description)</span>
@@ -233,46 +264,130 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
               />
             </div>
 
-            <div className="space-y-2 flex flex-col justify-end">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
-                Cover Image <span className="normal-case tracking-normal font-normal opacity-70">(Leave empty to keep current)</span>
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
-                />
-                <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
-                  <div
-                    onClick={() => setBlackAndWhite((v) => !v)}
-                    className={`relative w-8 h-4 rounded-full transition-colors ${blackAndWhite ? "bg-brand-vibrancy" : "bg-zinc-200"}`}
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
-                    />
-                  </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700">B&W</span>
-                </label>
+            {/* ── Cover Image ── */}
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Cover Image</label>
+
+              {/* Source toggle */}
+              <div className="inline-flex rounded-lg border border-zinc-300 overflow-hidden text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setImageSource("upload")}
+                  className={`flex items-center gap-2 px-4 py-2 transition-colors ${
+                    imageSource === "upload"
+                      ? "bg-brand-vibrancy text-white"
+                      : "bg-white text-zinc-600 hover:bg-zinc-50"
+                  }`}
+                >
+                  <UploadCloud size={15} />
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImageSource("gallery")}
+                  className={`flex items-center gap-2 px-4 py-2 transition-colors border-l border-zinc-300 ${
+                    imageSource === "gallery"
+                      ? "bg-brand-vibrancy text-white"
+                      : "bg-white text-zinc-600 hover:bg-zinc-50"
+                  }`}
+                >
+                  <Images size={15} />
+                  Pick from Gallery
+                </button>
               </div>
+
+              {/* Upload panel */}
+              {imageSource === "upload" && (
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-lg text-sm text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
+                    <div
+                      onClick={() => setBlackAndWhite((v) => !v)}
+                      className={`relative w-8 h-4 rounded-full transition-colors ${blackAndWhite ? "bg-brand-vibrancy" : "bg-zinc-200"}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`} />
+                    </div>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-zinc-700">B&W</span>
+                  </label>
+                </div>
+              )}
+
+              {/* Gallery panel */}
+              {imageSource === "gallery" && (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGalleryOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:border-brand-vibrancy hover:text-brand-vibrancy transition-colors"
+                  >
+                    <Images size={16} />
+                    {galleryUrl ? "Change Image" : "Browse Gallery"}
+                  </button>
+                  {galleryUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setGalleryUrl("")}
+                      className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
+                      aria-label="Remove gallery selection"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Cover preview */}
+              {coverPreview && (
+                <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-zinc-200 shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverPreview}
+                    alt="Cover preview"
+                    className="w-full h-40 object-cover"
+                  />
+                  {/* Only show remove button when user has actively chosen something new */}
+                  {coverIsNew && (
+                    <div className="absolute top-2 right-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (imageSource === "upload") setFile(null);
+                          else setGalleryUrl("");
+                        }}
+                        className="bg-white/90 hover:bg-white p-1 rounded-full shadow text-zinc-600 hover:text-red-500 transition-colors"
+                        aria-label="Remove new cover image"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                  <div className="px-3 py-1.5 bg-zinc-50 border-t border-zinc-200">
+                    <p className="text-xs text-zinc-500">
+                      {coverIsNew ? "New cover — will replace current on save" : "Current cover image"}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* Content */}
             <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
-                Content
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Content</label>
               <div className="bg-white rounded-lg border border-zinc-300 overflow-hidden focus-within:border-brand-vibrancy transition-shadow">
-                {/* TipTap Toolbar */}
                 {editor && (
                   <div className="flex items-center gap-1 border-b border-zinc-200 p-2 bg-zinc-50 text-zinc-700">
                     {[
-                      { icon: Bold, action: () => editor.chain().focus().toggleBold().run(), active: editor.isActive('bold') },
-                      { icon: Italic, action: () => editor.chain().focus().toggleItalic().run(), active: editor.isActive('italic') },
-                      { icon: Heading2, action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }) },
-                      { icon: List, action: () => editor.chain().focus().toggleBulletList().run(), active: editor.isActive('bulletList') },
-                      { icon: ListOrdered, action: () => editor.chain().focus().toggleOrderedList().run(), active: editor.isActive('orderedList') },
-                      { icon: TableIcon, action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), active: editor.isActive('table') },
+                      { icon: Bold,         action: () => editor.chain().focus().toggleBold().run(),                                           active: editor.isActive('bold') },
+                      { icon: Italic,       action: () => editor.chain().focus().toggleItalic().run(),                                         active: editor.isActive('italic') },
+                      { icon: Heading2,     action: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),                            active: editor.isActive('heading', { level: 2 }) },
+                      { icon: List,         action: () => editor.chain().focus().toggleBulletList().run(),                                     active: editor.isActive('bulletList') },
+                      { icon: ListOrdered,  action: () => editor.chain().focus().toggleOrderedList().run(),                                    active: editor.isActive('orderedList') },
+                      { icon: TableIcon,    action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(), active: editor.isActive('table') },
                     ].map((btn, i) => (
                       <button
                         key={i}
@@ -285,11 +400,11 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                     ))}
                   </div>
                 )}
-                {/* TipTap Editor */}
                 <EditorContent editor={editor} className="min-h-[300px] p-2 text-zinc-900" />
               </div>
             </div>
 
+            {/* Tags */}
             <div className="space-y-2">
               <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">
                 Tags <span className="normal-case tracking-normal font-normal opacity-70">(Comma separated)</span>
@@ -331,6 +446,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
               />
             </div>
 
+            {/* Publish */}
             <div className="flex items-center gap-3 pt-2">
               <input
                 type="checkbox"
@@ -339,10 +455,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                 onChange={(e) => setIsPublished(e.target.checked)}
                 className="w-5 h-5 accent-brand-vibrancy cursor-pointer rounded border-zinc-300 focus:ring-brand-vibrancy"
               />
-              <label
-                htmlFor="isPublished"
-                className="text-sm font-medium text-zinc-900 select-none cursor-pointer"
-              >
+              <label htmlFor="isPublished" className="text-sm font-medium text-zinc-900 select-none cursor-pointer">
                 Publish Immediately
               </label>
             </div>
@@ -364,6 +477,14 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
           </form>
         </div>
       </div>
+
+      {/* Gallery Picker Modal */}
+      <GalleryPickerModal
+        open={galleryOpen}
+        currentUrl={galleryUrl || savedCoverUrl}
+        onSelect={(url) => setGalleryUrl(url)}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }

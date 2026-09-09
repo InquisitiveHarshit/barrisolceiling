@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -10,6 +10,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
+import GalleryPickerModal from "@/components/admin/GalleryPickerModal";
 
 export default function CreateBlog() {
   const [title, setTitle] = useState("");
@@ -22,8 +23,15 @@ export default function CreateBlog() {
   const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
+
+  // Cover image — two sources: uploaded file OR gallery pick
+  const [imageSource, setImageSource] = useState<"upload" | "gallery">("upload");
   const [file, setFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
+  const [galleryUrl, setGalleryUrl] = useState<string>("");
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -34,6 +42,14 @@ export default function CreateBlog() {
       setSlug(slugify(title, { lower: true, strict: true }));
     }
   }, [title, slugManuallyEdited]);
+
+  // Local preview for uploaded file
+  useEffect(() => {
+    if (!file) { setFilePreview(null); return; }
+    const url = URL.createObjectURL(file);
+    setFilePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const editor = useEditor({
     extensions: [
@@ -55,44 +71,29 @@ export default function CreateBlog() {
     },
   });
 
-  // Ensure editor is destroyed when unmounted to prevent memory leaks
   useEffect(() => {
-    return () => {
-      if (editor) {
-        editor.destroy();
-      }
-    };
+    return () => { if (editor) editor.destroy(); };
   }, [editor]);
 
   const handleImageUpload = async () => {
     if (!file) return null;
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("blackAndWhite", String(blackAndWhite));
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
     const data = await res.json();
     if (data.success) {
       let url = data.url;
-      if (blackAndWhite) {
-        url = url.replace("/upload/", "/upload/e_grayscale/");
-      }
+      if (blackAndWhite) url = url.replace("/upload/", "/upload/e_grayscale/");
       return url;
-    } else {
-      throw new Error(data.message || "Failed to upload image");
     }
+    throw new Error(data.message || "Failed to upload image");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Guard: check that TipTap content isn't empty (it emits "<p></p>" when blank)
     const textContent = content.replace(/<[^>]*>/g, "").trim();
     if (!textContent) {
       setError("Please add some content before publishing.");
@@ -100,41 +101,37 @@ export default function CreateBlog() {
     }
 
     setLoading(true);
-
     try {
       let coverImage = "";
-      if (file) {
+      if (imageSource === "upload" && file) {
         coverImage = await handleImageUpload();
+      } else if (imageSource === "gallery" && galleryUrl) {
+        coverImage = galleryUrl;
       }
 
-      const tagsArray = tags.split(",").map((tag) => tag.trim()).filter(Boolean);
+      const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
       const payload = { title, slug: slug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage };
-      console.log("[CreateBlog] Submitting payload:", payload);
 
       const res = await fetch("/api/blogs", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-      console.log("[CreateBlog] Server response:", res.status, data);
-
       if (data.success) {
         router.push("/admin/blogs");
       } else {
         setError(data.message || `Server error (${res.status})`);
       }
     } catch (err: any) {
-      console.error("[CreateBlog] Caught error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // The active cover preview URL for display
+  const coverPreview = imageSource === "gallery" ? galleryUrl : filePreview;
 
   return (
     <div className="min-h-screen bg-[#F4F4F5] pt-32 px-5 md:px-16 pb-20 text-zinc-900">
@@ -152,10 +149,10 @@ export default function CreateBlog() {
           </h1>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+            {/* Title */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Title
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">Title</label>
               <input
                 type="text"
                 value={title}
@@ -167,9 +164,7 @@ export default function CreateBlog() {
 
             {/* Slug */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                URL Slug
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">URL Slug</label>
               <div className="flex items-center border border-zinc-300 rounded-lg overflow-hidden focus-within:border-brand-vibrancy">
                 <span className="px-3 py-3 text-sm text-zinc-600 bg-zinc-100 border-r border-zinc-300 whitespace-nowrap">/blog-details/</span>
                 <input
@@ -187,9 +182,7 @@ export default function CreateBlog() {
 
             {/* Category */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Category
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">Category</label>
               <input
                 type="text"
                 value={category}
@@ -199,10 +192,9 @@ export default function CreateBlog() {
               />
             </div>
 
+            {/* Excerpt */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Excerpt (Short description)
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">Excerpt (Short description)</label>
               <textarea
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
@@ -211,92 +203,133 @@ export default function CreateBlog() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Cover Image
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-lg text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
-                />
-                <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
-                  <div
-                    onClick={() => setBlackAndWhite((v) => !v)}
-                    className={`relative w-9 h-5 rounded-full transition-colors ${blackAndWhite ? "bg-brand-vibrancy" : "bg-zinc-200"}`}
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-zinc-700">B&W</span>
-                </label>
+            {/* ── Cover Image ── */}
+            <div className="space-y-3">
+              <label className="block font-label-caps text-zinc-700">Cover Image</label>
+
+              {/* Source toggle */}
+              <div className="inline-flex rounded-lg border border-zinc-300 overflow-hidden text-sm font-medium">
+                <button
+                  type="button"
+                  onClick={() => setImageSource("upload")}
+                  className={`flex items-center gap-2 px-4 py-2 transition-colors ${
+                    imageSource === "upload"
+                      ? "bg-brand-vibrancy text-white"
+                      : "bg-white text-zinc-600 hover:bg-zinc-50"
+                  }`}
+                >
+                  <UploadCloud size={15} />
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setImageSource("gallery")}
+                  className={`flex items-center gap-2 px-4 py-2 transition-colors border-l border-zinc-300 ${
+                    imageSource === "gallery"
+                      ? "bg-brand-vibrancy text-white"
+                      : "bg-white text-zinc-600 hover:bg-zinc-50"
+                  }`}
+                >
+                  <Images size={15} />
+                  Pick from Gallery
+                </button>
               </div>
+
+              {/* Upload panel */}
+              {imageSource === "upload" && (
+                <div className="flex items-center gap-4">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="flex-1 px-4 py-3 bg-white border border-zinc-300 rounded-lg text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-vibrancy/10 file:text-brand-vibrancy hover:file:bg-brand-vibrancy/20 transition-colors cursor-pointer"
+                  />
+                  <label className="flex items-center gap-2 cursor-pointer select-none whitespace-nowrap">
+                    <div
+                      onClick={() => setBlackAndWhite((v) => !v)}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${blackAndWhite ? "bg-brand-vibrancy" : "bg-zinc-200"}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`} />
+                    </div>
+                    <span className="text-sm font-medium text-zinc-700">B&W</span>
+                  </label>
+                </div>
+              )}
+
+              {/* Gallery panel */}
+              {imageSource === "gallery" && (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setGalleryOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-zinc-700 bg-white border border-zinc-300 rounded-lg hover:border-brand-vibrancy hover:text-brand-vibrancy transition-colors"
+                  >
+                    <Images size={16} />
+                    {galleryUrl ? "Change Image" : "Browse Gallery"}
+                  </button>
+                  {galleryUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setGalleryUrl("")}
+                      className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
+                      aria-label="Remove gallery selection"
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Cover preview (shared) */}
+              {coverPreview && (
+                <div className="relative w-full max-w-sm rounded-xl overflow-hidden border border-zinc-200 shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={coverPreview}
+                    alt="Cover preview"
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="absolute top-2 right-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (imageSource === "upload") { setFile(null); }
+                        else { setGalleryUrl(""); }
+                      }}
+                      className="bg-white/90 hover:bg-white p-1 rounded-full shadow text-zinc-600 hover:text-red-500 transition-colors"
+                      aria-label="Remove cover image"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <div className="px-3 py-1.5 bg-zinc-50 border-t border-zinc-200">
+                    <p className="text-xs text-zinc-500">Cover preview</p>
+                  </div>
+                </div>
+              )}
             </div>
 
+            {/* Content */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Content
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">Content</label>
               <div className="bg-white rounded-lg border border-zinc-300 overflow-hidden">
-                {/* TipTap Toolbar */}
                 {editor && (
                   <div className="flex items-center gap-2 border-b border-zinc-200 p-2 bg-zinc-50 text-zinc-700">
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().toggleBold().run()}
-                      className={`p-2 rounded ${editor.isActive('bold') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <Bold size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().toggleItalic().run()}
-                      className={`p-2 rounded ${editor.isActive('italic') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <Italic size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                      className={`p-2 rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <Heading2 size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().toggleBulletList().run()}
-                      className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <List size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                      className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <ListOrdered size={16} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-                      className={`p-2 rounded ${editor.isActive('table') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}
-                    >
-                      <TableIcon size={16} />
-                    </button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`p-2 rounded ${editor.isActive('bold') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><Bold size={16} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`p-2 rounded ${editor.isActive('italic') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><Italic size={16} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`p-2 rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><Heading2 size={16} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><List size={16} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><ListOrdered size={16} /></button>
+                    <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={`p-2 rounded ${editor.isActive('table') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><TableIcon size={16} /></button>
                   </div>
                 )}
-                {/* TipTap Editor */}
                 <EditorContent editor={editor} className="min-h-[250px]" />
               </div>
             </div>
 
+            {/* Tags */}
             <div>
-              <label className="block font-label-caps text-zinc-700 mb-2">
-                Tags (Comma separated)
-              </label>
+              <label className="block font-label-caps text-zinc-700 mb-2">Tags (Comma separated)</label>
               <input
                 type="text"
                 value={tags}
@@ -334,6 +367,7 @@ export default function CreateBlog() {
               />
             </div>
 
+            {/* Publish */}
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
@@ -342,10 +376,7 @@ export default function CreateBlog() {
                 onChange={(e) => setIsPublished(e.target.checked)}
                 className="w-5 h-5 accent-brand-vibrancy cursor-pointer"
               />
-              <label
-                htmlFor="isPublished"
-                className="font-label-caps text-zinc-800 cursor-pointer select-none"
-              >
+              <label htmlFor="isPublished" className="font-label-caps text-zinc-800 cursor-pointer select-none">
                 Publish Immediately
               </label>
             </div>
@@ -367,6 +398,14 @@ export default function CreateBlog() {
           </form>
         </div>
       </div>
+
+      {/* Gallery Picker Modal */}
+      <GalleryPickerModal
+        open={galleryOpen}
+        currentUrl={galleryUrl}
+        onSelect={(url) => setGalleryUrl(url)}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }
