@@ -180,7 +180,7 @@ export default function AdminLayout({
             )}
           </nav>
           <span className="text-xs" style={{ color: "#9ca3af", fontFamily: "Georgia, serif" }}>
-            Barrisol Admin v1
+            Berrisol Admin v1
           </span>
         </header>
 

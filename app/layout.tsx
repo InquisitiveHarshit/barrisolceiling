@@ -45,11 +45,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={cn("dark", "font-sans", geist.variable)}>
       <head>
         <meta name="google-site-verification" content="k1vOl6gSCn1EBAG3SE7CLN1l9xE3NPMwEsXMNvUorXo" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F8JDH2R0ML"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics-gtag" strategy="afterInteractive">
+        <Script id="google-analytics-gtag" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -61,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18383636220"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       </head>
       <body className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}>

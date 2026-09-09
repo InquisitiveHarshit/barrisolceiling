@@ -36,9 +36,9 @@ function HeroSkeleton() {
 }
 
 export default function Hero() {
-  const [images, setImages]       = useState<HeroImage[]>([]);
-  const [loading, setLoading]     = useState(true);
-  const [current, setCurrent]     = useState(0);
+  const [images, setImages] = useState<HeroImage[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [current, setCurrent] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -161,128 +161,130 @@ export default function Hero() {
               <HeroSkeleton />
             ) : img && (
               <div
-              className="relative border border-white/15 bg-[#111317] shadow-2xl rounded-xs"
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            >
-              {/* Image frame */}
-              <div className="p-2 sm:p-3 pb-0">
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0C0E12] rounded-xs" style={{ width: "calc(100% - 0px)" }}>
-                {images.map((im, i) => (
-                  <img
-                    key={im._id}
-                    src={im.url}
-                    alt={im.title || "Stretch ceiling project"}
-                    className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 brightness-95"
-                    style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
-                  />
-                ))}
+                className="relative border border-white/15 bg-[#111317] shadow-2xl rounded-xs"
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              >
+                {/* Image frame */}
+                <div className="p-2 sm:p-3 pb-0">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0C0E12] rounded-xs" style={{ width: "calc(100% - 0px)" }}>
+                    {images.map((im, i) => (
+                      <img
+                        key={im._id}
+                        src={im.url}
+                        alt={im.title || "Stretch ceiling project"}
+                        loading={i === 0 ? "eager" : "lazy"}
+                        fetchPriority={i === 0 ? "high" : "low"}
+                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 brightness-95"
+                        style={{ opacity: i === current ? 1 : 0, zIndex: i === current ? 1 : 0 }}
+                      />
+                    ))}
 
-                {/* Image counter */}
-                <div className="absolute top-4 left-4 z-10 bg-[#0C0E12]/80 backdrop-blur px-2.5 py-1 font-mono text-[10px] text-[#8E94A0] border border-white/10">
-                  {String(current + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
-                </div>
+                    {/* Image counter */}
+                    <div className="absolute top-4 left-4 z-10 bg-[#0C0E12]/80 backdrop-blur px-2.5 py-1 font-mono text-[10px] text-[#8E94A0] border border-white/10">
+                      {String(current + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+                    </div>
 
-                {/* Location tag */}
-                {img.location && (
-                  <div className="absolute bottom-4 left-4 z-10 bg-[#0C0E12]/85 backdrop-blur border border-white/15 px-3 py-1.5 flex items-center gap-2 font-mono text-[10px] text-[#D8DCE3]">
-                    <span className="w-2 h-2 rounded-full bg-[#A62681] animate-ping" />
-                    <span>{img.location}</span>
-                  </div>
-                )}
+                    {/* Location tag */}
+                    {img.location && (
+                      <div className="absolute bottom-4 left-4 z-10 bg-[#0C0E12]/85 backdrop-blur border border-white/15 px-3 py-1.5 flex items-center gap-2 font-mono text-[10px] text-[#D8DCE3]">
+                        <span className="w-2 h-2 rounded-full bg-[#A62681] animate-ping" />
+                        <span>{img.location}</span>
+                      </div>
+                    )}
 
-                {/* Prev / Next arrows — show only if >1 image */}
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prev}
-                      aria-label="Previous image"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
-                    >
-                      <ChevronLeft className="w-4 h-4 text-white" />
-                    </button>
-                    <button
-                      onClick={next}
-                      aria-label="Next image"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
-                    >
-                      <ChevronRight className="w-4 h-4 text-white" />
-                    </button>
-                  </>
-                )}
-              </div>{/* end image frame */}
-              </div>{/* end padding wrapper */}
-
-              {/* ── Spec row ── */}
-              <div className="mt-0 border-t border-white/10 bg-[#0C0E12]">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 divide-x divide-white/10">
-                  <div className="px-3 py-2.5">
-                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Project Reference</p>
-                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">
-                      {img.title || "—"}
-                    </p>
-                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
-                      {img.location || "India"}
-                    </p>
-                  </div>
-                  <div className="px-3 py-2.5">
-                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
-                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">Barrisol</p>
-                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.17mm</p>
-                  </div>
-                  <div className="px-3 py-2.5">
-                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>
-                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">2700K Dim‑Warm</p>
-                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">DALI‑2 Dimming</p>
-                  </div>
-                  <div className="px-3 py-2.5">
-                    <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Photometrics</p>
-                    <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">CRI 98+ / 650 Lux</p>
-                    <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Zero Sag Warranty</p>
-                  </div>
-                </div>
-
-                {/* Dots + progress */}
-                {images.length > 1 && (
-                  <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
-                    <div className="flex items-center gap-1.5">
-                      {images.map((_, i) => (
+                    {/* Prev / Next arrows — show only if >1 image */}
+                    {images.length > 1 && (
+                      <>
                         <button
-                          key={i}
-                          onClick={() => setCurrent(i)}
-                          aria-label={`Go to image ${i + 1}`}
-                          className="transition-all duration-300"
+                          onClick={prev}
+                          aria-label="Previous image"
+                          className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
+                        >
+                          <ChevronLeft className="w-4 h-4 text-white" />
+                        </button>
+                        <button
+                          onClick={next}
+                          aria-label="Next image"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-8 h-8 flex items-center justify-center bg-[#0C0E12]/70 border border-white/15 hover:border-[#A62681] hover:bg-[#A62681]/20 transition-all backdrop-blur"
+                        >
+                          <ChevronRight className="w-4 h-4 text-white" />
+                        </button>
+                      </>
+                    )}
+                  </div>{/* end image frame */}
+                </div>{/* end padding wrapper */}
+
+                {/* ── Spec row ── */}
+                <div className="mt-0 border-t border-white/10 bg-[#0C0E12]">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 divide-x divide-white/10">
+                    <div className="px-3 py-2.5">
+                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Project Reference</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">
+                        {img.title || "—"}
+                      </p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
+                        {img.location || "India"}
+                      </p>
+                    </div>
+                    <div className="px-3 py-2.5">
+                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">Berrisol</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.17mm</p>
+                    </div>
+                    <div className="px-3 py-2.5">
+                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">2700K Dim‑Warm</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">DALI‑2 Dimming</p>
+                    </div>
+                    <div className="px-3 py-2.5">
+                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Photometrics</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">CRI 98+ / 650 Lux</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Zero Sag Warranty</p>
+                    </div>
+                  </div>
+
+                  {/* Dots + progress */}
+                  {images.length > 1 && (
+                    <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
+                      <div className="flex items-center gap-1.5">
+                        {images.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setCurrent(i)}
+                            aria-label={`Go to image ${i + 1}`}
+                            className="transition-all duration-300"
+                            style={{
+                              width: i === current ? "20px" : "6px",
+                              height: "4px",
+                              borderRadius: "2px",
+                              background: i === current ? "#A62681" : "rgba(255,255,255,0.15)",
+                            }}
+                          />
+                        ))}
+                      </div>
+                      {/* Slim progress bar */}
+                      <div className="flex-1 ml-4 h-px bg-white/5 overflow-hidden rounded-full">
+                        <div
+                          key={current}
+                          className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"
                           style={{
-                            width: i === current ? "20px" : "6px",
-                            height: "4px",
-                            borderRadius: "2px",
-                            background: i === current ? "#A62681" : "rgba(255,255,255,0.15)",
+                            animation: isHovered ? "none" : "hero-progress 4s linear forwards",
+                            width: isHovered ? `${((current + 1) / images.length) * 100}%` : undefined,
                           }}
                         />
-                      ))}
+                      </div>
                     </div>
-                    {/* Slim progress bar */}
-                    <div className="flex-1 ml-4 h-px bg-white/5 overflow-hidden rounded-full">
-                      <div
-                        key={current}
-                        className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"
-                        style={{
-                          animation: isHovered ? "none" : "hero-progress 4s linear forwards",
-                          width: isHovered ? `${((current + 1) / images.length) * 100}%` : undefined,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              <style>{`
+                <style>{`
                 @keyframes hero-progress {
                   from { width: 0% }
                   to   { width: 100% }
                 }
               `}</style>
-            </div>
+              </div>
             )}{/* end img && */}
           </div>
 
