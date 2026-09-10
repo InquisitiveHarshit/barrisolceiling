@@ -68,7 +68,7 @@ export default function About() {
               viewport={{ once: true, amount: 0.4 }}
               className="text-base text-zinc-600 dark:text-[#8E94A0] leading-relaxed font-light"
             >
-              We are premier false ceiling contractors in India, specializing
+              We are premier stretch  ceiling contractors in India, specializing
               in European stretch membranes and custom technical lighting solutions for luxury residential and commercial spaces.
             </motion.p>
 
