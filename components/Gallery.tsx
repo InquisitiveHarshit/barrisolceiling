@@ -98,7 +98,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-8 flex flex-col gap-3 border border-white/10 hover:border-[#A62681]/50 p-3 bg-[#111317] rounded-xs transition-colors group shadow-2xl"
+              className="lg:col-span-8 flex flex-col self-start border border-white/10 hover:border-[#A62681]/50 p-3 bg-[#111317] rounded-xs transition-colors group shadow-2xl"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-[#0C0E12] rounded-xs">
                 <Image
@@ -112,13 +112,10 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
                   {displayImages[0]?.location || "Gurugram, Delhi NCR"}
                 </div>
               </div>
-              <div className="p-3 sm:p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg sm:text-xl text-white font-serif group-hover:text-[#E4B5FF] transition-colors leading-snug">
-                    {displayImages[0]?.title || "Private Celestial Salon with Fiber-Optic Integration"}
-                  </h3>
-
-                </div>
+              <div className="px-3 py-2 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                <h3 className="text-lg sm:text-xl text-white font-serif group-hover:text-[#E4B5FF] transition-colors leading-snug">
+                  {displayImages[0]?.title || "Private Celestial Salon with Fiber-Optic Integration"}
+                </h3>
                 <div className="font-mono text-xs text-[#A62681] shrink-0 border border-[#A62681]/40 px-3 py-1 bg-[#A62681]/10 rounded-xs whitespace-nowrap">
                   Area: 72 sq. meters
                 </div>
@@ -190,7 +187,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
 
         {/* View More Button */}
         {showViewAll && (
-          <div className="mt-16 sm:mt-20 pt-6 pb-2 flex justify-center">
+          <div className="mt-10 sm:mt-12 flex justify-center">
             <Link
               href="/gallery"
               className="inline-flex items-center gap-2.5 px-8 py-3.5 bg-[#111317] hover:bg-[#A62681] text-white border border-white/15 hover:border-[#A62681] rounded-xs font-mono text-xs uppercase tracking-widest transition-all duration-300 shadow-xl hover:shadow-[0_8px_30px_rgb(166,38,129,0.3)] group"
