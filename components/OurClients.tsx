@@ -11,6 +11,13 @@ const CLIENTS = [
   { name: "Madame",                           src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772758/borocelling/clients/IMG-20250812-WA0042.jpg" },
   { name: "Concept Kitchen 2",                src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772759/borocelling/clients/IMG-20250812-WA0043.jpg" },
   { name: "Partner",                          src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772753/borocelling/clients/01123333.jpg" },
+  { name: "Ankur Lighting",                   src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022305/borocelling/clients/ankur-lighting.jpg" },
+  { name: "Sir Ganga Ram Hospital",           src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022306/borocelling/clients/sir-ganga-ram-hospital.jpg" },
+  { name: "Geetanjali Salon",                 src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022306/borocelling/clients/geetanjali-salon.png" },
+  { name: "Rippl",                            src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022307/borocelling/clients/rippl.png" },
+  { name: "Mahindra",                         src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022309/borocelling/clients/client-logo-1.jpg" },
+  { name: "Payoneer",                         src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022310/borocelling/clients/client-logo-2.jpg" },
+  { name: "Looks Salon",                      src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789024713/borocelling/clients/looks-salon.png" },
 ];
 
 /* 3× duplication for seamless infinite loop */

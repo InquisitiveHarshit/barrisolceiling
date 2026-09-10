@@ -230,7 +230,7 @@ export default function Hero() {
                     <div className="px-3 py-2.5">
                       <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
                       <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">Berrisol</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.17mm</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.18mm</p>
                     </div>
                     <div className="px-3 py-2.5">
                       <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>

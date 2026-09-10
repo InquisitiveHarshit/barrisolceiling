@@ -17,10 +17,10 @@ interface GalleryProps {
 }
 
 const FALLBACK: GalleryImage[] = [
-  { _id: "f1", url: "/heroimage.webp",           title: "Translucent Ceiling",     location: "Gurugram, India" },
+  { _id: "f1", url: "/heroimage.webp", title: "Translucent Ceiling", location: "Gurugram, India" },
   { _id: "f2", url: "/hero-stretch-ceiling.jpg", title: "Printed Stretch Ceiling", location: "Delhi, India" },
-  { _id: "f3", url: "/heroimage.webp",           title: "Glossy Finish",           location: "Noida, India" },
-  { _id: "f4", url: "/hero-stretch-ceiling.jpg", title: "3D Design",               location: "Faridabad, India" },
+  { _id: "f3", url: "/heroimage.webp", title: "Glossy Finish", location: "Noida, India" },
+  { _id: "f4", url: "/hero-stretch-ceiling.jpg", title: "3D Design", location: "Faridabad, India" },
 ];
 
 export default function Gallery({ showViewAll = true }: GalleryProps) {
@@ -84,7 +84,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
             </div>
           ) : (
             <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-              {[180,260,140,300,220,160,280,200,240,170,310,190].map((h, i) => (
+              {[180, 260, 140, 300, 220, 160, 280, 200, 240, 170, 310, 190].map((h, i) => (
                 <div key={i} className="break-inside-avoid bg-white/5 animate-pulse" style={{ height: `${h}px` }} />
               ))}
             </div>
@@ -117,9 +117,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
                   <h3 className="text-lg sm:text-xl text-white font-serif group-hover:text-[#E4B5FF] transition-colors leading-snug">
                     {displayImages[0]?.title || "Private Celestial Salon with Fiber-Optic Integration"}
                   </h3>
-                  <p className="text-xs text-[#8E94A0] mt-1 font-light">
-                    High-definition UV tension membrane with micro-calibrated starlight LEDs.
-                  </p>
+
                 </div>
                 <div className="font-mono text-xs text-[#A62681] shrink-0 border border-[#A62681]/40 px-3 py-1 bg-[#A62681]/10 rounded-xs whitespace-nowrap">
                   Area: 72 sq. meters

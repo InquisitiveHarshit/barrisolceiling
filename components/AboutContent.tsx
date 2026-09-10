@@ -16,7 +16,7 @@ export default function AboutContent() {
               in Modern Interiors.
             </h1>
             <p className="font-body-lg text-lg md:text-xl text-[#8E94A0] max-w-xl leading-relaxed mb-10">
-              We are one of the most trusted false ceiling contractors in India,
+              We are one of the most trusted stretch ceiling contractors in India,
               specializing in advanced stretch ceiling solutions for residential
               and commercial spaces. From luxury homes to large commercial
               projects, we redefine interiors.
