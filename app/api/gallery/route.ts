@@ -154,7 +154,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { id, title, location, showInHero } = await req.json();
+    const { id, title, location, showInHero, material, materialSpec, lightingCCT, lightingDimming, photometrics, warranty } = await req.json();
     if (!id) {
       return NextResponse.json(
         { success: false, message: "Image ID is required." },
@@ -165,6 +165,12 @@ export async function PATCH(req: NextRequest) {
     await connectDB();
     const updateFields: Record<string, unknown> = { title, location };
     if (typeof showInHero === "boolean") updateFields.showInHero = showInHero;
+    if (material      !== undefined) updateFields.material      = material;
+    if (materialSpec  !== undefined) updateFields.materialSpec  = materialSpec;
+    if (lightingCCT   !== undefined) updateFields.lightingCCT   = lightingCCT;
+    if (lightingDimming !== undefined) updateFields.lightingDimming = lightingDimming;
+    if (photometrics  !== undefined) updateFields.photometrics  = photometrics;
+    if (warranty      !== undefined) updateFields.warranty      = warranty;
 
     const updated = await GalleryImage.findByIdAndUpdate(
       id,

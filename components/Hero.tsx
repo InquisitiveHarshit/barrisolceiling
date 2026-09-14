@@ -8,6 +8,12 @@ interface HeroImage {
   url: string;
   title?: string;
   location?: string;
+  material?: string;
+  materialSpec?: string;
+  lightingCCT?: string;
+  lightingDimming?: string;
+  photometrics?: string;
+  warranty?: string;
 }
 
 const DEFAULT_FALLBACK_IMAGES: HeroImage[] = [
@@ -224,23 +230,23 @@ export default function Hero() {
                         {img.title || "—"}
                       </p>
                       <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
-                        {img.location || "India"}
+                        {img.location || "—"}
                       </p>
                     </div>
                     <div className="px-3 py-2.5">
                       <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">Berrisol</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Translucent 0.18mm</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.material || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.materialSpec || "—"}</p>
                     </div>
                     <div className="px-3 py-2.5">
                       <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">2700K Dim‑Warm</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">DALI‑2 Dimming</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.lightingCCT || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.lightingDimming || "—"}</p>
                     </div>
                     <div className="px-3 py-2.5">
                       <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Photometrics</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight">CRI 98+ / 650 Lux</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase">Zero Sag Warranty</p>
+                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.photometrics || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.warranty || "—"}</p>
                     </div>
                   </div>
 

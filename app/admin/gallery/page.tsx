@@ -11,6 +11,12 @@ interface GalleryImg {
   title?: string;
   location?: string;
   showInHero?: boolean;
+  material?: string;
+  materialSpec?: string;
+  lightingCCT?: string;
+  lightingDimming?: string;
+  photometrics?: string;
+  warranty?: string;
 }
 
 export default function GalleryPage() {
@@ -19,7 +25,12 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDraft, setEditDraft] = useState({ title: "", location: "", showInHero: false });
+  const [editDraft, setEditDraft] = useState({
+    title: "", location: "", showInHero: false,
+    material: "", materialSpec: "",
+    lightingCCT: "", lightingDimming: "",
+    photometrics: "", warranty: "",
+  });
   const [savingId, setSavingId] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "hero">("all");
@@ -92,12 +103,22 @@ export default function GalleryPage() {
 
   const startEdit = (img: GalleryImg) => {
     setEditingId(img._id);
-    setEditDraft({ title: img.title || "", location: img.location || "", showInHero: !!img.showInHero });
+    setEditDraft({
+      title: img.title || "", location: img.location || "", showInHero: !!img.showInHero,
+      material: img.material || "", materialSpec: img.materialSpec || "",
+      lightingCCT: img.lightingCCT || "", lightingDimming: img.lightingDimming || "",
+      photometrics: img.photometrics || "", warranty: img.warranty || "",
+    });
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditDraft({ title: "", location: "", showInHero: false });
+    setEditDraft({
+      title: "", location: "", showInHero: false,
+      material: "", materialSpec: "",
+      lightingCCT: "", lightingDimming: "",
+      photometrics: "", warranty: "",
+    });
   };
 
   const saveEdit = async (id: string) => {
@@ -106,14 +127,12 @@ export default function GalleryPage() {
       const res = await fetch("/api/gallery", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, title: editDraft.title, location: editDraft.location, showInHero: editDraft.showInHero }),
+        body: JSON.stringify({ id, ...editDraft }),
       });
       const data = await res.json();
       if (data.success) {
         setImages((prev) =>
-          prev.map((img) =>
-            img._id === id ? { ...img, title: editDraft.title, location: editDraft.location, showInHero: editDraft.showInHero } : img
-          )
+          prev.map((img) => img._id === id ? { ...img, ...editDraft } : img)
         );
         setEditingId(null);
       }
@@ -273,58 +292,128 @@ export default function GalleryPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
           >
-            <h3 className="text-base font-semibold text-zinc-900 mb-4">Edit Image Label</h3>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Title</label>
-                <input
-                  type="text"
-                  value={editDraft.title}
-                  onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
-                  placeholder="e.g. Grid Translucent Stretch Ceiling"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">Location</label>
-                <input
-                  type="text"
-                  value={editDraft.location}
-                  onChange={(e) => setEditDraft((d) => ({ ...d, location: e.target.value }))}
-                  placeholder="e.g. Gurugram, India"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                />
-              </div>
-              {/* Show in Hero toggle */}
-              <button
-                type="button"
-                onClick={() => setEditDraft((d) => ({ ...d, showInHero: !d.showInHero }))}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${
-                  editDraft.showInHero
-                    ? "bg-amber-50 border-amber-300 text-amber-800"
-                    : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Star
-                    className={`w-4 h-4 transition-colors ${editDraft.showInHero ? "text-amber-500 fill-amber-500" : "text-zinc-400"}`}
-                  />
-                  <span className="text-sm font-medium">Show in Hero Carousel</span>
-                </div>
-                {/* pill toggle */}
-                <div className={`relative w-9 h-5 rounded-full transition-colors ${editDraft.showInHero ? "bg-amber-400" : "bg-zinc-300"}`}>
-                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${editDraft.showInHero ? "translate-x-4" : "translate-x-0"}`} />
-                </div>
-              </button>
+            {/* Modal header */}
+            <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-zinc-100 z-10">
+              <h3 className="text-base font-semibold text-zinc-900">Edit Image Metadata</h3>
+              <p className="text-xs text-zinc-400 mt-0.5">These fields appear in the Hero carousel spec row</p>
             </div>
 
-            <div className="flex gap-2 mt-5">
+            <div className="px-6 py-4 space-y-4">
+
+              {/* ── Basic info ── */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Basic Info</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Title <span className="text-zinc-400">(Project Reference)</span></label>
+                  <input type="text" value={editDraft.title}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
+                    placeholder="e.g. Stretch Ceiling"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Location</label>
+                  <input type="text" value={editDraft.location}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, location: e.target.value }))}
+                    placeholder="e.g. Gurugram, India"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+              </div>
+
+              {/* ── Tension Material ── */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Tension Material</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Name</label>
+                  <input type="text" value={editDraft.material}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, material: e.target.value }))}
+                    placeholder="e.g. Barrisol"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Spec</label>
+                  <input type="text" value={editDraft.materialSpec}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, materialSpec: e.target.value }))}
+                    placeholder="e.g. Translucent 0.18mm"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+              </div>
+
+              {/* ── Lighting CCT ── */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Lighting CCT</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">CCT Value</label>
+                  <input type="text" value={editDraft.lightingCCT}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, lightingCCT: e.target.value }))}
+                    placeholder="e.g. 2700K Dim-Warm"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Dimming Type</label>
+                  <input type="text" value={editDraft.lightingDimming}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, lightingDimming: e.target.value }))}
+                    placeholder="e.g. DALI-2 Dimming"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+              </div>
+
+              {/* ── Photometrics ── */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Photometrics</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Photometrics</label>
+                  <input type="text" value={editDraft.photometrics}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, photometrics: e.target.value }))}
+                    placeholder="e.g. CRI 98+ / 650 Lux"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Warranty</label>
+                  <input type="text" value={editDraft.warranty}
+                    onChange={(e) => setEditDraft((d) => ({ ...d, warranty: e.target.value }))}
+                    placeholder="e.g. Zero Sag Warranty"
+                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  />
+                </div>
+              </div>
+
+              {/* ── Show in Hero toggle ── */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditDraft((d) => ({ ...d, showInHero: !d.showInHero }))}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${
+                    editDraft.showInHero
+                      ? "bg-amber-50 border-amber-300 text-amber-800"
+                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Star className={`w-4 h-4 transition-colors ${editDraft.showInHero ? "text-amber-500 fill-amber-500" : "text-zinc-400"}`} />
+                    <span className="text-sm font-medium">Show in Hero Carousel</span>
+                  </div>
+                  <div className={`relative w-9 h-5 rounded-full transition-colors ${editDraft.showInHero ? "bg-amber-400" : "bg-zinc-300"}`}>
+                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${editDraft.showInHero ? "translate-x-4" : "translate-x-0"}`} />
+                  </div>
+                </button>
+              </div>
+
+            </div>
+
+            {/* Footer buttons */}
+            <div className="sticky bottom-0 bg-white px-6 py-4 border-t border-zinc-100 flex gap-2">
               <button
                 onClick={cancelEdit}
-                className="flex-1 flex items-center justify-center gap-1.5 border border-zinc-200 text-sm font-medium py-2 rounded-lg hover:bg-zinc-50 transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 border border-zinc-200 text-sm font-medium py-2.5 rounded-lg hover:bg-zinc-50 transition-colors"
                 style={{ color: "#4b5563", backgroundColor: "#f9fafb" }}
               >
                 <X className="w-4 h-4" /> Cancel
@@ -332,11 +421,13 @@ export default function GalleryPage() {
               <button
                 onClick={() => saveEdit(editingId)}
                 disabled={!!savingId}
-                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2 rounded-lg transition-colors disabled:opacity-60"
+                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60"
                 style={{ color: "#ffffff", backgroundColor: "#111827", border: "none" }}
               >
-                {savingId ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#ffffff" }} /> : <Check className="w-4 h-4" style={{ color: "#ffffff" }} />}
-                <span style={{ color: "#ffffff" }}>Save</span>
+                {savingId
+                  ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#ffffff" }} />
+                  : <Check className="w-4 h-4" style={{ color: "#ffffff" }} />}
+                <span style={{ color: "#ffffff" }}>Save Changes</span>
               </button>
             </div>
           </motion.div>
