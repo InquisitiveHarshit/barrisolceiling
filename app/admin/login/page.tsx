@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -146,31 +147,50 @@ export default function AdminLogin() {
               >
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                style={{
-                  width: "100%",
-                  padding: "8px 10px",
-                  border: "1px solid #9ca3af",
-                  background: "#f9fafb",
-                  color: "#111827",
-                  fontSize: "14px",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  fontFamily: "Georgia, serif",
-                }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.border = "1px solid #1a2340")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.border = "1px solid #9ca3af")
-                }
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  style={{
+                    width: "100%",
+                    padding: "8px 36px 8px 10px",
+                    border: "1px solid #9ca3af",
+                    background: "#f9fafb",
+                    color: "#111827",
+                    fontSize: "14px",
+                    outline: "none",
+                    boxSizing: "border-box",
+                    fontFamily: "Georgia, serif",
+                  }}
+                  onFocus={(e) =>
+                    (e.currentTarget.style.border = "1px solid #1a2340")
+                  }
+                  onBlur={(e) =>
+                    (e.currentTarget.style.border = "1px solid #9ca3af")
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#6b7280",
+                    fontSize: "12px",
+                  }}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </div>
 
             <button

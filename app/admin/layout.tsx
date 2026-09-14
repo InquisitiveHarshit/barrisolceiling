@@ -11,6 +11,7 @@ import {
   LogOut,
   Briefcase,
   ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -50,6 +51,7 @@ export default function AdminLayout({
 
   const links = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "Admins", href: "/admin/admins", icon: ShieldCheck },
     { name: "Leads", href: "/admin/leads", icon: Users },
     { name: "Blogs", href: "/admin/blogs", icon: FileText },
     { name: "Services", href: "/admin/services", icon: Briefcase },

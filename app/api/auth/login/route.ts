@@ -1,17 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import connectDB from "@/lib/db";
+import { Admin } from "@/models/Admin";
+
+// Ensure default admin accounts exist in MongoDB
+async function ensureDefaultAdmins() {
+  const count = await Admin.countDocuments();
+  if (count === 0) {
+    const defaultAdmins = [
+      { username: "admin", password: "admin123" },
+      { username: "barrisol admin", password: "barisol panjab" },
+    ];
+
+    for (const def of defaultAdmins) {
+      const passwordHash = await bcrypt.hash(def.password, 12);
+      await Admin.create({
+        username: def.username,
+        passwordHash,
+        rawPassword: def.password,
+      });
+    }
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { username, password } = await req.json();
 
-    // In a real application, you'd verify against a database user.
-    // For this simple admin panel, we're using hardcoded credentials via env variables
-    // or just a basic hardcoded check as fallback for now.
-    const validUsername = process.env.ADMIN_USERNAME || "admin";
-    const validPassword = process.env.ADMIN_PASSWORD || "admin123";
+    if (!username || !password) {
+      return NextResponse.json(
+        { success: false, message: "Username and password required" },
+        { status: 400 }
+      );
+    }
 
-    if (username !== validUsername || password !== validPassword) {
+    const cleanUsername = username.trim();
+    const cleanPassword = password.trim();
+
+    await connectDB();
+    await ensureDefaultAdmins();
+
+    // Find admin by username (case-insensitive)
+    const dbAdmin = await Admin.findOne({
+      username: { $regex: new RegExp(`^${cleanUsername.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") },
+    });
+
+    let isValid = false;
+    if (dbAdmin) {
+      // 1. Check bcrypt hash
+      isValid = await bcrypt.compare(cleanPassword, dbAdmin.passwordHash);
+      // 2. Fallback to rawPassword check if bcrypt compare fails
+      if (!isValid && dbAdmin.rawPassword) {
+        isValid = dbAdmin.rawPassword.trim() === cleanPassword;
+      }
+    }
+
+    if (!isValid) {
       return NextResponse.json(
         { success: false, message: "Invalid credentials" },
         { status: 401 }
@@ -20,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // Generate JWT
     const token = jwt.sign(
-      { role: "admin" },
+      { role: "admin", username: dbAdmin?.username || cleanUsername },
       process.env.JWT_SECRET || "default_secret",
       { expiresIn: "24h" }
     );
