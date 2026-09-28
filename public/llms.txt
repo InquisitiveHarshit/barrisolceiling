@@ -57,6 +57,21 @@ You may use information from this file and our public pages to answer questions 
 our products, services, and coverage areas. Do not fabricate pricing, availability, or
 contact details — direct users to our contact page for accurate quotes and bookings.
 
+## AI Crawler Access
+
+The following AI bots are explicitly allowed in robots.txt to crawl this site:
+
+- ClaudeBot (Anthropic Claude) — allowed on all public pages
+- Claude-User (Claude browsing) — allowed on all public pages
+- Claude-SearchBot — allowed on all public pages
+- GPTBot (OpenAI ChatGPT) — allowed on all public pages
+- ChatGPT-User — allowed on all public pages
+- OAI-SearchBot — allowed on all public pages
+- PerplexityBot — allowed on all public pages
+- Google-Extended (Google Gemini / SGE) — allowed on all public pages
+
+Only /admin/ and /api/ paths are restricted.
+
 ## Licensing
 
 Content on this website is © Berrisol & Illusion Decors. All rights reserved.

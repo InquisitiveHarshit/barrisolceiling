@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "accessibility": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/accessibility/SKILL.md",
+      "computedHash": "88c64dead9bb55925c7b983f5fd95cfecf30bd8c076fd384cdb17019d1becd87"
+    },
     "animate": {
       "source": "emilkowalski/skills",
       "sourceType": "github",
@@ -31,6 +37,18 @@
       "skillPath": "skills/ask-sonner/SKILL.md",
       "computedHash": "f971641be0de21b2bb5dae38bc8ef5e0ee963844e71b7fae464ec9274d2507eb"
     },
+    "best-practices": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/best-practices/SKILL.md",
+      "computedHash": "fc34a8d4aea22d0158e0560457c82432e9d2d0ac74cf3e9aaccb599905f3f711"
+    },
+    "core-web-vitals": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/core-web-vitals/SKILL.md",
+      "computedHash": "ceaa3e9c9dfa6209ffe923714c0a093b950d0922213d0cf375c27f3d602cc857"
+    },
     "design-taste-frontend": {
       "source": "Leonxlnx/taste-skill",
       "sourceType": "github",
@@ -55,6 +73,12 @@
       "skillPath": "skills/improve-animations/SKILL.md",
       "computedHash": "9cd956e91139211efa5e17fc5e1675b9a3f711ef38cbc92aa8f3fa5b626b7e12"
     },
+    "performance": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/performance/SKILL.md",
+      "computedHash": "25074989a0bbf636fd92e9079270b262a1c63422ed72a854494a8241dea0fcc5"
+    },
     "pick-ui-library": {
       "source": "emilkowalski/skills",
       "sourceType": "github",
@@ -72,6 +96,18 @@
       "sourceType": "github",
       "skillPath": "skills/review-animations/SKILL.md",
       "computedHash": "6f8d633d7884c1390eff7af4bfaf7a450e798f117e1d49a555e00819dc877f64"
+    },
+    "seo": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/SKILL.md",
+      "computedHash": "aa081d7ee9f44d1b09ac521051630adac2fca0e595e3d0d0ec881d0b2644676f"
+    },
+    "web-quality-audit": {
+      "source": "addyosmani/web-quality-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-quality-audit/SKILL.md",
+      "computedHash": "10c0b018ce77d2c6dd17aecf1ab58a64abb2beee945354d83c4ba8883527120a"
     },
     "write-swift": {
       "source": "emilkowalski/skills",

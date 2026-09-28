@@ -40,13 +40,89 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "LocalBusiness"],
+      "@id": "https://barrisolceiling.com/#organization",
+      name: "Berrisol & Illusion Decors",
+      alternateName: ["Barrisol Ceiling", "Berrisol Ceiling"],
+      url: "https://barrisolceiling.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://barrisolceiling.com/logo.png",
+        width: 200,
+        height: 60,
+      },
+      image: "https://barrisolceiling.com/hero-stretch-ceiling.jpg",
+      description:
+        "Premium stretch ceiling solutions for residential, commercial, and institutional spaces. Specialists in PVC and fabric stretch ceilings with LED lighting, 3D designs, printed and acoustic systems.",
+      telephone: "+919540593079",
+      email: "info@barrisolceiling.com",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Delhi",
+        addressRegion: "Delhi",
+        addressCountry: "IN",
+      },
+      areaServed: [
+        { "@type": "City", name: "Delhi" },
+        { "@type": "City", name: "Noida" },
+        { "@type": "City", name: "Gurgaon" },
+        { "@type": "City", name: "Ghaziabad" },
+        { "@type": "City", name: "Bangalore" },
+        { "@type": "City", name: "Lucknow" },
+        { "@type": "Country", name: "India" },
+      ],
+      knowsAbout: [
+        "Stretch Ceilings",
+        "PVC Ceilings",
+        "LED Ceiling Lighting",
+        "3D Stretch Ceilings",
+        "Acoustic Ceilings",
+        "Printed Ceilings",
+        "Interior Design",
+      ],
+      sameAs: [],
+      priceRange: "₹₹₹",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://barrisolceiling.com/#website",
+      url: "https://barrisolceiling.com",
+      name: "Berrisol & Illusion Decors",
+      publisher: { "@id": "https://barrisolceiling.com/#organization" },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://barrisolceiling.com/blog?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={cn("dark", "font-sans", geist.variable)}>
       <head>
         <meta name="google-site-verification" content="k1vOl6gSCn1EBAG3SE7CLN1l9xE3NPMwEsXMNvUorXo" />
+        {/* AI-readable site summary — lets Claude, ChatGPT, Perplexity etc. find content */}
+        <link rel="alternate" type="text/plain" href="https://barrisolceiling.com/llms.txt" title="LLMs.txt" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* ── Organization + LocalBusiness structured data ── */}
+        <Script
+          id="organization-schema"
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F8JDH2R0ML"
           strategy="lazyOnload"

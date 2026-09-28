@@ -4,10 +4,12 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
-        "build": "next build",
+        "build": "cross-env NODE_OPTIONS= next build --webpack",
         "start": "next start",
         "lint": "eslint",
         "zip": "npx bestzip ../deploy.zip app assets backend components lib public package.json package-lock.json next.config.ts postcss.config.mjs eslint.config.mjs tsconfig.json .env.local",
+        "deploy:zip": "node scripts/create-deploy-zip.mjs",
+        "deploy:zip:fast": "node scripts/create-deploy-zip.mjs --skip-build",
         "seed": "node scripts/seed-pages.mjs"
     },
     "dependencies": {
@@ -46,6 +48,7 @@
         "@types/react": "^19.2.18",
         "@types/react-dom": "^19.2.4",
         "archiver": "^8.0.0",
+        "cross-env": "^7.0.3",
         "eslint": "^9",
         "eslint-config-next": "16.3.1",
         "tailwindcss": "^4",
