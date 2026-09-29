@@ -14,6 +14,7 @@ interface GalleryImage {
 
 interface GalleryProps {
   showViewAll?: boolean;
+  initialImages?: GalleryImage[];
 }
 
 const FALLBACK: GalleryImage[] = [
@@ -23,11 +24,15 @@ const FALLBACK: GalleryImage[] = [
   { _id: "f4", url: "/hero-stretch-ceiling.jpg", title: "3D Design", location: "Faridabad, India" },
 ];
 
-export default function Gallery({ showViewAll = true }: GalleryProps) {
-  const [images, setImages] = useState<GalleryImage[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Gallery({ showViewAll = true, initialImages }: GalleryProps) {
+  const [images, setImages] = useState<GalleryImage[]>(
+    initialImages && initialImages.length > 0 ? initialImages : []
+  );
+  const [loading, setLoading] = useState(!initialImages || initialImages.length === 0);
 
   useEffect(() => {
+    if (initialImages && initialImages.length > 0) return;
+
     fetch("/api/gallery")
       .then((r) => r.json())
       .then((data) => {
@@ -36,9 +41,9 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
       })
       .catch(() => setImages(FALLBACK))
       .finally(() => setLoading(false));
-  }, []);
+  }, [initialImages]);
 
-  const displayImages = showViewAll ? images.slice(0, 4) : images;
+  const displayImages = showViewAll ? (images.length > 0 ? images.slice(0, 4) : FALLBACK) : (images.length > 0 ? images : FALLBACK);
 
   return (
     <section
@@ -159,7 +164,7 @@ export default function Gallery({ showViewAll = true }: GalleryProps) {
           <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
             {displayImages.map((img, i) => (
               <motion.div
-                key={img._id}
+                key={img._id || i}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.1 }}

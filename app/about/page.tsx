@@ -5,6 +5,7 @@ import AboutContent from "@/components/AboutContent";
 export const metadata = {
   title: "About Us | Borocelling",
   description: "Leading Stretch Ceiling Experts Delivering Premium Modern Interior Solutions in Delhi.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
 import { authenticateAdmin } from "@/lib/auth";
@@ -60,6 +61,10 @@ export async function POST(req: NextRequest) {
     }
 
     const blog = await Blog.create(body);
+
+    revalidatePath("/blog");
+    revalidatePath("/");
+
     return NextResponse.json({ success: true, data: blog }, { status: 201 });
   } catch (error: any) {
     // Log full error to terminal for easier debugging

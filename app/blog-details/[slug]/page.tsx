@@ -1,14 +1,60 @@
-"use client";
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
+import React from "react";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Tag, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import connectDB from "@/lib/db";
+import Blog from "@/models/Blog";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
-/* ─── helpers ──────────────────────────────────────── */
+export const revalidate = 3600; // ISR 1 hour
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  try {
+    await connectDB();
+    const blogs = await Blog.find({ isPublished: true }, { slug: 1 }).lean();
+    return blogs.map((b: any) => ({ slug: b.slug }));
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  await connectDB();
+  const blog = await Blog.findOne({ slug, isPublished: true }).lean();
+
+  if (!blog) {
+    return {
+      title: "Blog Not Found | Barrisol Ceiling",
+    };
+  }
+
+  const title = (blog as any).metaTitle || (blog as any).title;
+  const description = (blog as any).metaDescription || (blog as any).shortDescription || "";
+  const canonicalUrl = `https://barrisolceiling.com/blog-details/${slug}`;
+
+  return {
+    title: `${title} | Barrisol Ceiling`,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      images: (blog as any).coverImage ? [{ url: (blog as any).coverImage }] : [],
+    },
+  };
+}
+
 const formatDate = (iso: string) => {
   if (!iso) return "";
   return new Date(iso).toLocaleDateString("en-IN", {
@@ -18,192 +64,25 @@ const formatDate = (iso: string) => {
   });
 };
 
-/* ─── Shimmer ──────────────────────────────────────── */
-function Shimmer() {
-  return (
-    <span
-      style={{
-        position: "absolute",
-        inset: 0,
-        background:
-          "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.06) 50%,transparent 100%)",
-        animation: "shimmer 1.4s infinite",
-      }}
-    />
-  );
-}
+export default async function BlogDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  await connectDB();
 
-/* ─── Article Skeleton ─────────────────────────────── */
-function ArticleSkeleton() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      {/* cover image skeleton */}
-      <div
-        style={{
-          width: "100%",
-          height: 320,
-          background: "#1a1d22",
-          position: "relative",
-          overflow: "hidden",
-          marginBottom: 32,
-          border: "2px solid rgba(255,255,255,0.1)",
-          boxShadow: "5px 5px 0px rgba(255,255,255,0.05)",
-        }}
-      >
-        <Shimmer />
-      </div>
-      {/* content skeleton */}
-      <div
-        style={{
-          background: "#111317",
-          border: "1px solid rgba(255,255,255,0.08)",
-          padding: "36px 40px 48px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
-        {[100, 78, 92, 65, 85, 55, 88].map((w, i) => (
-          <div
-            key={i}
-            style={{
-              height: i === 0 ? 20 : 13,
-              background: "#1a1d22",
-              borderRadius: 4,
-              width: `${w}%`,
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <Shimmer />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Sidebar Skeleton ─────────────────────────────── */
-function SidebarRecentSkeleton() {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            gap: 12,
-            alignItems: "flex-start",
-            padding: "14px 0",
-            borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none",
-          }}
-        >
-          <div
-            style={{
-              width: 60,
-              height: 60,
-              background: "#1a1d22",
-              borderRadius: 6,
-              flexShrink: 0,
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <Shimmer />
-          </div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7, paddingTop: 4 }}>
-            {["88%", "60%", "40%"].map((w, j) => (
-              <div
-                key={j}
-                style={{
-                  height: j === 2 ? 9 : 11,
-                  borderRadius: 4,
-                  background: "#1a1d22",
-                  width: w,
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <Shimmer />
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Main Page ────────────────────────────────────── */
-export default function BlogDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
-  const contactRef = useRef<HTMLDivElement>(null);
-
-  const [blog, setBlog] = useState<any>(null);
-  const [recent, setRecent] = useState<any>(null);
-  const [heroReady, setHeroReady] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    const t = setTimeout(() => setHeroReady(true), 200);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    if (!slug) return;
-    fetch(`/api/blogs/${slug}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setBlog(d.data);
-        else { setBlog({}); setError(d.message || "Blog not found"); }
-      })
-      .catch(() => { setBlog({}); setError("Failed to load blog"); });
-
-    fetch("/api/blogs")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success) setRecent(d.data.slice(0, 4));
-        else setRecent([]);
-      })
-      .catch(() => setRecent([]));
-  }, [slug]);
-
-  const scrollToContact = () => {
-    if (contactRef.current) {
-      const top = contactRef.current.getBoundingClientRect().top + window.scrollY - 20;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
-  };
-
-  /* ─── Error ─── */
-  if (error) {
-    return (
-      <main className="min-h-screen pt-32" style={{ background: "#0C0E12" }}>
-        <Navbar />
-        <div className="max-w-3xl mx-auto px-5 text-center">
-          <h1 className="font-headline-lg text-4xl mb-4" style={{ color: "#E2E2E6" }}>Oops!</h1>
-          <p className="mb-6" style={{ color: "#8E94A0" }}>{error}</p>
-          <Link href="/blog" className="text-brand-vibrancy hover:underline font-label-caps">
-            ← Back to Insights
-          </Link>
-        </div>
-      </main>
-    );
+  const blogDoc = await Blog.findOne({ slug, isPublished: true }).lean();
+  if (!blogDoc) {
+    notFound();
   }
+  const blog = JSON.parse(JSON.stringify(blogDoc));
+
+  const recentDocs = await Blog.find({ isPublished: true, slug: { $ne: slug } })
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .lean();
+  const recent = JSON.parse(JSON.stringify(recentDocs));
 
   return (
     <>
-      {blog && (
-        <>
-          <title>{blog.metaTitle || blog.title}</title>
-          {blog.metaDescription && <meta name="description" content={blog.metaDescription} />}
-        </>
-      )}
-
       <style>{`
-        @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
-
         /* hero bg — dark, textured */
         .bd-hero-bg {
           position:absolute; inset:0;
@@ -276,7 +155,7 @@ export default function BlogDetailPage() {
             flexDirection: "column",
           }}
         >
-          <motion.p
+          <p
             style={{
               fontSize: 10,
               color: "rgba(255,255,255,0.45)",
@@ -285,14 +164,11 @@ export default function BlogDetailPage() {
               marginBottom: 16,
               fontFamily: "Montserrat,sans-serif",
             }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: heroReady ? 1 : 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
           >
             {blog?.category ? `Berrisol · ${blog.category}` : "Berrisol · Insights"}
-          </motion.p>
+          </p>
 
-          <motion.h1
+          <h1
             style={{
               fontSize: "clamp(1.6rem,4vw,2.8rem)",
               fontWeight: 800,
@@ -303,24 +179,12 @@ export default function BlogDetailPage() {
               fontFamily: "Playfair Display,serif",
               letterSpacing: "-0.01em",
             }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 20 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {blog === null ? (
-              <span style={{ display: "inline-block", width: "60%", height: "1em", background: "rgba(255,255,255,0.1)", position: "relative", overflow: "hidden", verticalAlign: "middle" }}>
-                <Shimmer />
-              </span>
-            ) : (
-              blog?.title || "Blog Article"
-            )}
-          </motion.h1>
+            {blog?.title}
+          </h1>
 
-          <motion.div
+          <div
             style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, marginBottom: 28 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: heroReady ? 1 : 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
           >
             {blog?.createdAt && (
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
@@ -350,18 +214,15 @@ export default function BlogDetailPage() {
                 {tag}
               </span>
             ))}
-          </motion.div>
+          </div>
 
-          <motion.div
+          <div
             style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "Montserrat,sans-serif" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: heroReady ? 1 : 0 }}
-            transition={{ duration: 0.6, delay: 0.55 }}
           >
             <Link href="/" style={{ color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Home</Link>
             <span style={{ opacity: 0.4 }}>/</span>
             <Link href="/blog" style={{ color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Insights</Link>
-          </motion.div>
+          </div>
         </div>
 
         {/* CTA bottom-right */}
@@ -377,40 +238,27 @@ export default function BlogDetailPage() {
             padding: "0 32px 28px",
           }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: heroReady ? 1 : 0, y: heroReady ? 0 : 6 }}
-            transition={{ duration: 0.7, delay: 0.8 }}
+          <a
+            href="#contact"
+            style={{
+              background: "#A3338E",
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: 11,
+              padding: "10px 20px",
+              border: "2px solid #A3338E",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              fontFamily: "Montserrat,sans-serif",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              boxShadow: "4px 4px 0px rgba(163,51,142,0.4)",
+              transition: "all 0.15s",
+              textDecoration: "none",
+            }}
           >
-            <button
-              onClick={scrollToContact}
-              style={{
-                background: "#A3338E",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 11,
-                padding: "10px 20px",
-                border: "2px solid #A3338E",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                fontFamily: "Montserrat,sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                boxShadow: "4px 4px 0px rgba(163,51,142,0.4)",
-                transition: "all 0.15s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translate(4px, 4px)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translate(0, 0)";
-                e.currentTarget.style.boxShadow = "4px 4px 0px rgba(163,51,142,0.4)";
-              }}
-            >
-              Book a Free Site Visit
-            </button>
-          </motion.div>
+            Book a Free Site Visit
+          </a>
         </div>
       </section>
 
@@ -445,46 +293,40 @@ export default function BlogDetailPage() {
                 Back to Insights
               </Link>
 
-              {blog === null ? (
-                <ArticleSkeleton />
-              ) : (
-                <>
-                  {/* cover image */}
-                  {blog?.coverImage && (
-                    <div
-                      style={{
-                        width: "100%",
-                        marginBottom: 32,
-                        overflow: "hidden",
-                        border: "2px solid rgba(255,255,255,0.1)",
-                        boxShadow: "5px 5px 0px rgba(163,51,142,0.3)",
-                      }}
-                    >
-                      <img
-                        src={blog.coverImage}
-                        alt={blog.title}
-                        style={{ width: "100%", height: "auto", display: "block", objectFit: "cover", maxHeight: 480 }}
-                      />
-                    </div>
-                  )}
-
-                  {/* article card */}
-                  <div
-                    className="bd-article-card"
-                    style={{
-                      background: "#111317",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      boxShadow: "0 2px 24px rgba(0,0,0,0.4)",
-                      padding: "40px 44px 56px",
-                    }}
-                  >
-                    <div
-                      className="bd-article-body"
-                      dangerouslySetInnerHTML={{ __html: blog?.content || "" }}
-                    />
-                  </div>
-                </>
+              {/* cover image */}
+              {blog?.coverImage && (
+                <div
+                  style={{
+                    width: "100%",
+                    marginBottom: 32,
+                    overflow: "hidden",
+                    border: "2px solid rgba(255,255,255,0.1)",
+                    boxShadow: "5px 5px 0px rgba(163,51,142,0.3)",
+                  }}
+                >
+                  <img
+                    src={blog.coverImage}
+                    alt={blog.title}
+                    style={{ width: "100%", height: "auto", display: "block", objectFit: "cover", maxHeight: 480 }}
+                  />
+                </div>
               )}
+
+              {/* article card */}
+              <div
+                className="bd-article-card"
+                style={{
+                  background: "#111317",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  boxShadow: "0 2px 24px rgba(0,0,0,0.4)",
+                  padding: "40px 44px 56px",
+                }}
+              >
+                <div
+                  className="bd-article-body"
+                  dangerouslySetInnerHTML={{ __html: blog?.content || "" }}
+                />
+              </div>
             </div>
 
             {/* ── RIGHT: Sidebar ── */}
@@ -524,9 +366,7 @@ export default function BlogDetailPage() {
                   </h3>
                 </div>
 
-                {recent === null ? (
-                  <SidebarRecentSkeleton />
-                ) : recent.length > 0 ? (
+                {recent.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     {recent.map((item: any, i: number) => (
                       <Link
@@ -621,8 +461,8 @@ export default function BlogDetailPage() {
                 >
                   Free site visit · Custom quote · Expert installation.
                 </p>
-                <button
-                  onClick={scrollToContact}
+                <a
+                  href="#contact"
                   style={{
                     width: "100%",
                     background: "#0C0E12",
@@ -641,18 +481,11 @@ export default function BlogDetailPage() {
                     gap: 6,
                     boxShadow: "3px 3px 0px rgba(0,0,0,0.4)",
                     transition: "all 0.15s",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translate(3px, 3px)";
-                    e.currentTarget.style.boxShadow = "none";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translate(0, 0)";
-                    e.currentTarget.style.boxShadow = "3px 3px 0px rgba(0,0,0,0.4)";
+                    textDecoration: "none",
                   }}
                 >
                   Book Free Site Visit <ArrowRight size={12} />
-                </button>
+                </a>
               </div>
             </div>
 
@@ -660,7 +493,7 @@ export default function BlogDetailPage() {
         </div>
       </section>
 
-      <div ref={contactRef}>
+      <div id="contact">
         <ContactForm />
       </div>
       <Footer />

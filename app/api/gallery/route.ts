@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { v2 as cloudinary } from "cloudinary";
 import { authenticateAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
@@ -77,6 +78,9 @@ export async function POST(req: NextRequest) {
       title: title || file.name,
     });
 
+    revalidatePath("/gallery");
+    revalidatePath("/");
+
     return NextResponse.json(
       { success: true, image: newImage },
       { status: 201 }
@@ -135,6 +139,9 @@ export async function DELETE(req: NextRequest) {
     // Then delete from MongoDB
     await GalleryImage.findByIdAndDelete(id);
 
+    revalidatePath("/gallery");
+    revalidatePath("/");
+
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
@@ -184,6 +191,9 @@ export async function PATCH(req: NextRequest) {
         { status: 404 }
       );
     }
+
+    revalidatePath("/gallery");
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, image: updated }, { status: 200 });
   } catch (error: any) {

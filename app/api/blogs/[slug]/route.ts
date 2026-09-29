@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
 import { authenticateAdmin } from "@/lib/auth";
@@ -60,6 +61,10 @@ export async function PUT(
       );
     }
 
+    revalidatePath("/blog");
+    revalidatePath(`/blog-details/${slug}`);
+    revalidatePath("/");
+
     return NextResponse.json({ success: true, data: blog }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
@@ -93,6 +98,10 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    revalidatePath("/blog");
+    revalidatePath(`/blog-details/${slug}`);
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, data: {} }, { status: 200 });
   } catch (error: any) {

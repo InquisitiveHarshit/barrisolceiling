@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import { authenticateAdmin } from "@/lib/auth";
@@ -36,6 +37,9 @@ export async function POST(req: NextRequest) {
     await connectDB();
     const body = await req.json();
     const service = await Service.create(body);
+
+    revalidatePath("/service");
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, data: service }, { status: 201 });
   } catch (error: any) {

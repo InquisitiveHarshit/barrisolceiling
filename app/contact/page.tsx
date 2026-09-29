@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 export const metadata = {
   title: "Contact Us | Borocelling",
   description: "Get in touch for a free consultation on premium stretch ceiling installations.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

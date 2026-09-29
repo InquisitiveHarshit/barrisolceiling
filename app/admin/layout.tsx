@@ -56,6 +56,7 @@ export default function AdminLayout({
     { name: "Blogs", href: "/admin/blogs", icon: FileText },
     { name: "Services", href: "/admin/services", icon: Briefcase },
     { name: "Gallery", href: "/admin/gallery", icon: ImageIcon },
+    { name: "Home Settings", href: "/admin/settings/home", icon: FileText }, // Reusing FileText or something similar
   ];
 
   return (

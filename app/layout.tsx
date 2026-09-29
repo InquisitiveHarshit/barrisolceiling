@@ -32,9 +32,6 @@ export const metadata: Metadata = {
     shortcut: "/icon.png",
     apple: "/icon.png",
   },
-  alternates: {
-    canonical: "/",
-  },
   verification: {
     google: "k1vOl6gSCn1EBAG3SE7CLN1l9xE3NPMwEsXMNvUorXo",
   },
