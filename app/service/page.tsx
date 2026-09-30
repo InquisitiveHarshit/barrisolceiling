@@ -10,8 +10,8 @@ import { Metadata } from "next";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Our Services | Berrisol & Illusion Decors",
-  description: "Explore our full range of premium stretch ceiling services — PVC, fabric, acoustic, printed, 3D, and LED lighting systems for residential and commercial spaces.",
+  title: "Stretch Ceiling Services | Pan India Installation",
+  description: "Explore our Stretch Ceilings services: printed, translucent, glossy and acoustic ceilings. Professional installation across India from our Delhi office.",
   alternates: { canonical: "/service" },
 };
 

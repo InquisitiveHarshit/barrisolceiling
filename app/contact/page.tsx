@@ -3,8 +3,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Contact Us | Borocelling",
-  description: "Get in touch for a free consultation on premium stretch ceiling installations.",
+  title: "Contact Us | Stretch Ceilings Delhi & Pan India",
+  description: "Contact Barrisol Ceiling, Delhi for Stretch Ceilings quotes and site visits. We serve all major cities across India. Call or message us today!",
   alternates: { canonical: "/contact" },
 };
 

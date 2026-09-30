@@ -8,8 +8,8 @@ import { GalleryImage } from "@/models/GalleryImage";
 export const revalidate = 3600; // ISR 1 hour
 
 export const metadata = {
-  title: "Gallery | Borocelling",
-  description: "View our portfolio of premium stretch ceiling installations across India.",
+  title: "Stretch Ceilings Gallery | Design Ideas & Projects",
+  description: "Browse our Stretch Ceilings gallery for living rooms, bedrooms, offices and showrooms. Get design inspiration from our completed projects across India.",
   alternates: { canonical: "/gallery" },
 };
 

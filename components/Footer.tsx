@@ -154,8 +154,12 @@ export default function Footer() {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-[#8E94A0]">
           <div>© {new Date().getFullYear()} Berrisol &amp; Illusion Decors. All rights reserved.</div>
           <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
+            <Link href="/privacypolicy" className="hover:text-[#E4B5FF] transition-colors">Privacy Policy</Link>
+            <span className="hidden sm:inline">•</span>
+            <Link href="/termscondition" className="hover:text-[#E4B5FF] transition-colors">Terms & Conditions</Link>
+            <span className="hidden sm:inline">•</span>
             <span>BS EN 14716 Compliant</span>
-            <span>•</span>
+            <span className="hidden sm:inline">•</span>
             <span>DIN 4102-B1 Fire Certified</span>
           </div>
         </div>

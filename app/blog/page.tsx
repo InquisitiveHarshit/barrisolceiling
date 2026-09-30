@@ -8,6 +8,12 @@ import Blog from "@/models/Blog";
 
 export const revalidate = 3600; // ISR 1 hour
 
+export const metadata = {
+  title: "Stretch Ceilings Blog | Tips, Trends & Ideas",
+  description: "Read expert tips, cost guides and latest design trends on Stretch Ceilings. Learn how to choose the right ceiling for your home or office.",
+  alternates: { canonical: "/blog" },
+};
+
 export default async function BlogsPage() {
   await connectDB();
   const blogsData = await Blog.find({ isPublished: true }).sort({ createdAt: -1 }).lean();
