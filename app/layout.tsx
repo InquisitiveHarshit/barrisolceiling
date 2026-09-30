@@ -9,14 +9,12 @@ const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
   variable: "--font-montserrat",
   display: "swap",
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["600", "700"],
   style: ["normal", "italic"],
   variable: "--font-playfair",
   display: "swap",
