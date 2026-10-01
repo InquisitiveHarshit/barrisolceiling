@@ -222,55 +222,56 @@ export default function Hero() {
                 </div>{/* end padding wrapper */}
 
                 {/* ── Spec row ── */}
-                <div className="mt-0 border-t border-white/10 bg-[#0C0E12]">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 divide-x divide-white/10">
-                    <div className="px-3 py-2.5">
-                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Project Reference</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">
-                        {img.title || "—"}
-                      </p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">
-                        {img.location || "—"}
-                      </p>
+                <div className="mt-0 border-t border-white/[0.08] bg-gradient-to-b from-[#0e1015] to-[#0C0E12]">
+                  <div className="grid grid-cols-2 sm:grid-cols-4">
+                    {/* Project */}
+                    <div className="px-4 py-4 border-r border-white/[0.07]">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#7A8394] mb-2">Project</p>
+                      <p className="font-mono text-[12px] font-semibold text-white leading-snug line-clamp-1">{img.title || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#5A6475] mt-1 uppercase tracking-wide line-clamp-1">{img.location || "—"}</p>
                     </div>
-                    <div className="px-3 py-2.5">
-                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Tension Material</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.material || "—"}</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.materialSpec || "—"}</p>
+                    {/* Material */}
+                    <div className="px-4 py-4 border-r border-white/[0.07]">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#7A8394] mb-2">Material</p>
+                      <p className="font-mono text-[12px] font-semibold text-white leading-snug line-clamp-1">{img.material || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#5A6475] mt-1 uppercase tracking-wide line-clamp-1">{img.materialSpec || "—"}</p>
                     </div>
-                    <div className="px-3 py-2.5">
-                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Lighting CCT</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.lightingCCT || "—"}</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.lightingDimming || "—"}</p>
+                    {/* Lighting CCT */}
+                    <div className="px-4 py-4 border-r border-white/[0.07] border-t border-t-white/[0.07] sm:border-t-0">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#7A8394] mb-2">Lighting CCT</p>
+                      <p className="font-mono text-[12px] font-semibold text-white leading-snug">{img.lightingCCT || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#5A6475] mt-1 uppercase tracking-wide opacity-0 select-none">·</p>
                     </div>
-                    <div className="px-3 py-2.5">
-                      <p className="font-mono text-[8px] uppercase tracking-[0.18em] text-[#8E94A0] mb-0.5">Photometrics</p>
-                      <p className="font-mono text-[11px] font-bold text-white uppercase leading-tight truncate">{img.photometrics || "—"}</p>
-                      <p className="font-mono text-[10px] text-[#8E94A0] uppercase truncate">{img.warranty || "—"}</p>
+                    {/* Warranty */}
+                    <div className="px-4 py-4 border-t border-t-white/[0.07] sm:border-t-0">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#7A8394] mb-2">Warranty</p>
+                      <p className="font-mono text-[12px] font-semibold text-white leading-snug">{img.warranty || "—"}</p>
+                      <p className="font-mono text-[10px] text-[#5A6475] mt-1 uppercase tracking-wide opacity-0 select-none">·</p>
                     </div>
                   </div>
 
                   {/* Dots + progress */}
                   {images.length > 1 && (
-                    <div className="flex items-center justify-between px-3 py-2 border-t border-white/10">
-                      <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-between px-4 py-2.5 border-t border-white/[0.06]">
+                      <div className="flex items-center gap-2">
                         {images.map((_, i) => (
                           <button
                             key={i}
                             onClick={() => setCurrent(i)}
                             aria-label={`Go to image ${i + 1}`}
-                            className="transition-all duration-300"
+                            className="transition-all duration-500 rounded-full"
                             style={{
-                              width: i === current ? "20px" : "6px",
-                              height: "4px",
-                              borderRadius: "2px",
-                              background: i === current ? "#A62681" : "rgba(255,255,255,0.15)",
+                              width: i === current ? "22px" : "5px",
+                              height: "3px",
+                              borderRadius: "999px",
+                              background: i === current
+                                ? "linear-gradient(90deg,#6A2C91,#A62681)"
+                                : "rgba(255,255,255,0.1)",
                             }}
                           />
                         ))}
                       </div>
-                      {/* Slim progress bar */}
-                      <div className="flex-1 ml-4 h-px bg-white/5 overflow-hidden rounded-full">
+                      <div className="flex-1 ml-5 h-[1px] bg-white/[0.04] overflow-hidden rounded-full">
                         <div
                           key={current}
                           className="h-full bg-gradient-to-r from-[#6A2C91] to-[#A62681]"

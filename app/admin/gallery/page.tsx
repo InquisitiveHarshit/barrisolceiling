@@ -14,8 +14,6 @@ interface GalleryImg {
   material?: string;
   materialSpec?: string;
   lightingCCT?: string;
-  lightingDimming?: string;
-  photometrics?: string;
   warranty?: string;
 }
 
@@ -28,8 +26,7 @@ export default function GalleryPage() {
   const [editDraft, setEditDraft] = useState({
     title: "", location: "", showInHero: false,
     material: "", materialSpec: "",
-    lightingCCT: "", lightingDimming: "",
-    photometrics: "", warranty: "",
+    lightingCCT: "", warranty: "",
   });
   const [savingId, setSavingId] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
@@ -106,8 +103,7 @@ export default function GalleryPage() {
     setEditDraft({
       title: img.title || "", location: img.location || "", showInHero: !!img.showInHero,
       material: img.material || "", materialSpec: img.materialSpec || "",
-      lightingCCT: img.lightingCCT || "", lightingDimming: img.lightingDimming || "",
-      photometrics: img.photometrics || "", warranty: img.warranty || "",
+      lightingCCT: img.lightingCCT || "", warranty: img.warranty || "",
     });
   };
 
@@ -116,8 +112,7 @@ export default function GalleryPage() {
     setEditDraft({
       title: "", location: "", showInHero: false,
       material: "", materialSpec: "",
-      lightingCCT: "", lightingDimming: "",
-      photometrics: "", warranty: "",
+      lightingCCT: "", warranty: "",
     });
   };
 
@@ -344,35 +339,14 @@ export default function GalleryPage() {
                 </div>
               </div>
 
-              {/* ── Lighting CCT ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Lighting CCT</p>
+              {/* ── Lighting & Warranty ── */}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Lighting &amp; Warranty</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">CCT Value</label>
+                  <label className="block text-xs font-medium text-zinc-500 mb-1">Lighting CCT</label>
                   <input type="text" value={editDraft.lightingCCT}
                     onChange={(e) => setEditDraft((d) => ({ ...d, lightingCCT: e.target.value }))}
-                    placeholder="e.g. 2700K Dim-Warm"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Dimming Type</label>
-                  <input type="text" value={editDraft.lightingDimming}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, lightingDimming: e.target.value }))}
-                    placeholder="e.g. DALI-2 Dimming"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-              </div>
-
-              {/* ── Photometrics ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Photometrics</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Photometrics</label>
-                  <input type="text" value={editDraft.photometrics}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, photometrics: e.target.value }))}
-                    placeholder="e.g. CRI 98+ / 650 Lux"
+                    placeholder="e.g. 2700K / 6000K"
                     className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
                   />
                 </div>
@@ -380,7 +354,7 @@ export default function GalleryPage() {
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Warranty</label>
                   <input type="text" value={editDraft.warranty}
                     onChange={(e) => setEditDraft((d) => ({ ...d, warranty: e.target.value }))}
-                    placeholder="e.g. Zero Sag Warranty"
+                    placeholder="e.g. 21 Years"
                     className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
                   />
                 </div>
