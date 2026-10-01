@@ -31,7 +31,7 @@ export default function About() {
               alt="Professional installing a premium stretch ceiling"
               fill
               className="object-cover filter brightness-95"
-              src="/hero-stretch-ceiling.jpg"
+              src="/hero-stretch-ceiling.webp"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
             {/* Accent badge */}
