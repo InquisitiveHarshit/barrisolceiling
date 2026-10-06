@@ -6,6 +6,8 @@ import { ArrowRight } from "lucide-react";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import { Metadata } from "next";
+import FaqSection from "@/components/FaqSection";
+
 
 export const revalidate = 3600;
 
@@ -22,6 +24,9 @@ export default async function ServicesPage() {
     .lean();
 
   const services = JSON.parse(JSON.stringify(servicesRaw));
+
+  // Aggregate FAQs from all services into one list
+  const allFaqs = services.flatMap((s: any) => s.faqs ?? []);
 
   return (
     <main className="bg-[#0C0E12] min-h-screen">
@@ -90,6 +95,13 @@ export default async function ServicesPage() {
         </div>
       </section>
 
+      <FaqSection
+        faqs={allFaqs}
+        theme="dark"
+        heading="Frequently Asked Questions"
+        subheading="Got Questions?"
+        pageUrl="https://barrisoindia.com/service"
+      />
       <ContactForm />
       <Footer />
     </main>

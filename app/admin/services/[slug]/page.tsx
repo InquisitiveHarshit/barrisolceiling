@@ -9,6 +9,8 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
+import FaqEditor, { FaqItem } from "@/components/admin/FaqEditor";
+
 
 export default function EditService({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -24,6 +26,9 @@ export default function EditService({ params }: { params: Promise<{ slug: string
   const [isPublished, setIsPublished] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
+  const [author, setAuthor] = useState("");
+  const [publishedAt, setPublishedAt] = useState("");
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +73,15 @@ export default function EditService({ params }: { params: Promise<{ slug: string
           setMetaDescription(data.data.metaDescription || "");
           setTags(data.data.tags?.join(", ") || "");
           setIsPublished(data.data.isPublished);
+          setFaqs(data.data.faqs || []);
+          setAuthor(data.data.author || "");
+          setPublishedAt(
+            data.data.publishedAt
+              ? new Date(data.data.publishedAt).toISOString().split("T")[0]
+              : data.data.createdAt
+              ? new Date(data.data.createdAt).toISOString().split("T")[0]
+              : ""
+          );
           if (editor && data.data.content) {
             editor.commands.setContent(data.data.content);
           }
@@ -113,7 +127,7 @@ export default function EditService({ params }: { params: Promise<{ slug: string
       if (file) coverImage = await handleImageUpload();
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      const payload: any = { title, slug: editSlug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished };
+      const payload: any = { title, slug: editSlug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished, faqs, author, publishedAt: publishedAt ? new Date(publishedAt) : undefined };
       if (coverImage) payload.coverImage = coverImage;
 
       const res = await fetch(`/api/services/${slug}`, {
@@ -223,6 +237,29 @@ export default function EditService({ params }: { params: Promise<{ slug: string
             </div>
           </div>
 
+          {/* Author + Published Date */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">Author</label>
+              <input
+                type="text"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="e.g. Harshit Gaur"
+                className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">Published Date</label>
+              <input
+                type="date"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+              />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">Short Description</label>
             <textarea
@@ -301,6 +338,11 @@ export default function EditService({ params }: { params: Promise<{ slug: string
               placeholder="SEO description shown in Google results (≤160 chars)"
               className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 resize-none transition-colors"
             />
+          </div>
+
+          {/* FAQ Editor */}
+          <div className="space-y-1.5 border border-zinc-100 rounded-xl p-5 bg-zinc-50">
+            <FaqEditor faqs={faqs} onChange={setFaqs} />
           </div>
 
           <div className="flex items-center gap-3 pt-2">

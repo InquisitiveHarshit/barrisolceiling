@@ -48,7 +48,7 @@ export default function Gallery({ showViewAll = true, initialImages }: GalleryPr
   return (
     <section
       id="portfolio"
-      className="py-16 sm:py-24 border-b border-white/10 bg-[#0C0E12] text-[#E2E2E6]"
+      className="py-10 sm:py-20 lg:py-24 border-b border-white/10 bg-[#0C0E12] text-[#E2E2E6]"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 

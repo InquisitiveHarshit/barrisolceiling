@@ -11,6 +11,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
 import GalleryPickerModal from "@/components/admin/GalleryPickerModal";
+import FaqEditor, { FaqItem } from "@/components/admin/FaqEditor";
+
 
 export default function EditBlog({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -24,6 +26,10 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(false);
+
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
+  const [author, setAuthor] = useState("");
+  const [publishedAt, setPublishedAt] = useState("");
 
   // Cover image — two sources: uploaded file OR gallery pick
   // "saved" tracks the URL already stored in DB (shown until replaced)
@@ -81,6 +87,15 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
           setMetaDescription(b.metaDescription || "");
           setTags(b.tags?.join(", ") || "");
           setIsPublished(b.isPublished);
+          setFaqs(b.faqs || []);
+          setAuthor(b.author || "");
+          setPublishedAt(
+            b.publishedAt
+              ? new Date(b.publishedAt).toISOString().split("T")[0]
+              : b.createdAt
+              ? new Date(b.createdAt).toISOString().split("T")[0]
+              : ""
+          );
           // Pre-populate the saved cover so we always show what's currently stored
           if (b.coverImage) setSavedCoverUrl(b.coverImage);
           if (editor && editor.getHTML() !== b.content) {
@@ -144,6 +159,9 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
         metaDescription,
         tags: tagsArray,
         isPublished,
+        faqs,
+        author,
+        publishedAt: publishedAt ? new Date(publishedAt) : undefined,
       };
 
       if (imageSource === "upload" && file) {
@@ -249,6 +267,29 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                 placeholder="e.g. Stretch Ceilings, LED Lighting"
                 className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy transition-shadow text-zinc-900 placeholder:text-zinc-400"
               />
+            </div>
+
+            {/* Author + Published Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Author</label>
+                <input
+                  type="text"
+                  value={author}
+                  onChange={(e) => setAuthor(e.target.value)}
+                  placeholder="e.g. Harshit Gaur"
+                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy transition-shadow text-zinc-900 placeholder:text-zinc-400"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700">Published Date</label>
+                <input
+                  type="date"
+                  value={publishedAt}
+                  onChange={(e) => setPublishedAt(e.target.value)}
+                  className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy transition-shadow text-zinc-900"
+                />
+              </div>
             </div>
 
             {/* Excerpt */}
@@ -444,6 +485,11 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                 placeholder="SEO description shown in Google results (≤160 chars)"
                 className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy transition-shadow text-zinc-900 placeholder:text-zinc-400 resize-none"
               />
+            </div>
+
+            {/* FAQ Editor */}
+            <div className="space-y-1.5 border border-zinc-100 rounded-xl p-5 bg-zinc-50">
+              <FaqEditor faqs={faqs} onChange={setFaqs} />
             </div>
 
             {/* Publish */}

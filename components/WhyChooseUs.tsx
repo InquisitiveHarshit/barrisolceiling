@@ -62,7 +62,7 @@ export default function WhyChooseUs() {
     <section
       ref={sectionRef}
       id="why-choose-us"
-      className="py-24 lg:py-32 bg-[#0C0E12] text-[#E2E2E6] border-b border-white/10 overflow-hidden"
+      className="py-10 sm:py-20 lg:py-24 bg-[#0C0E12] text-[#E2E2E6] border-b border-white/10 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 

@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CheckCircle, Tag } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Tag, Calendar, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import FaqSection from "@/components/FaqSection";
 import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import { notFound } from "next/navigation";
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `https://barrisolceiling.com/service-detail/${slug}`;
 
   return {
-    title: `${title} | Barrisol Ceiling`,
+    title: `${title}`,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -54,6 +55,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
   };
 }
+
+const formatDate = (iso: string) => {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 export default async function ServiceDetailPage({ params }: PageProps) {
   const { slug } = await params;
@@ -222,6 +232,27 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             </p>
           )}
 
+          {/* Author and Date Metadata */}
+          <div
+            style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, marginBottom: 28 }}
+          >
+            {(service?.publishedAt || service?.createdAt) && (
+              <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
+                <Calendar size={11} />
+                {formatDate(service.publishedAt || service.createdAt)}
+              </span>
+            )}
+            {service?.author && (
+              <>
+                <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.2)" }} />
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
+                  <User size={11} />
+                  {service.author}
+                </span>
+              </>
+            )}
+          </div>
+
           {/* Breadcrumb */}
           <div
             style={{
@@ -282,9 +313,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
       {/* ═══ BODY ═══ */}
       <section
+        className="py-8 sm:py-14 lg:py-16"
         style={{
           background: "#0C0E12",
-          padding: "56px 0 80px",
         }}
       >
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
@@ -554,6 +585,14 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {service?.faqs && service.faqs.length > 0 && (
+        <FaqSection
+          faqs={service.faqs}
+          theme="dark"
+          pageUrl={`https://barrisolceiling.com/service-detail/${slug}`}
+        />
+      )}
 
       <div id="contact">
         <ContactForm />

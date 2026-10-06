@@ -5,6 +5,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
+import FaqSection from "@/components/FaqSection";
+
 
 export const revalidate = 3600; // ISR 1 hour
 
@@ -18,6 +20,9 @@ export default async function BlogsPage() {
   await connectDB();
   const blogsData = await Blog.find({ isPublished: true }).sort({ createdAt: -1 }).lean();
   const blogs = JSON.parse(JSON.stringify(blogsData));
+
+  // Aggregate FAQs from all blog posts
+  const allFaqs = blogs.flatMap((b: any) => b.faqs ?? []);
 
   return (
     <main className="bg-surface-bright min-h-screen">
@@ -85,6 +90,13 @@ export default async function BlogsPage() {
         </div>
       </section>
 
+      <FaqSection
+        faqs={allFaqs}
+        theme="light"
+        heading="Frequently Asked Questions"
+        subheading="Got Questions?"
+        pageUrl="https://barrisoindia.com/blog"
+      />
       <ContactForm />
       <Footer />
     </main>

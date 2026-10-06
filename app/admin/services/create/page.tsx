@@ -10,6 +10,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
+import FaqEditor, { FaqItem } from "@/components/admin/FaqEditor";
 
 export default function CreateService() {
   const [title, setTitle] = useState("");
@@ -26,6 +27,11 @@ export default function CreateService() {
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [faqs, setFaqs] = useState<FaqItem[]>([]);
+  const [author, setAuthor] = useState("");
+  const [publishedAt, setPublishedAt] = useState(
+    () => new Date().toISOString().split("T")[0]
+  );
   const router = useRouter();
 
   // Auto-derive slug from title unless manually edited
@@ -92,7 +98,7 @@ export default function CreateService() {
       if (file) coverImage = await handleImageUpload();
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      const payload = { title, slug: slug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage };
+      const payload = { title, slug: slug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage, faqs, author, publishedAt: publishedAt ? new Date(publishedAt) : undefined };
 
       const res = await fetch("/api/services", {
         method: "POST",
@@ -204,6 +210,32 @@ export default function CreateService() {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Author
+              </label>
+              <input
+                type="text"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="e.g. Harshit Gaur"
+                className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                Published Date
+              </label>
+              <input
+                type="date"
+                value={publishedAt}
+                onChange={(e) => setPublishedAt(e.target.value)}
+                className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 transition-colors"
+              />
+            </div>
+          </div>
+
           <div className="space-y-1.5">
             <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-500">
               Short Description
@@ -287,6 +319,11 @@ export default function CreateService() {
               placeholder="SEO description shown in Google results (≤160 chars)"
               className="w-full px-4 py-3 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-zinc-900 resize-none transition-colors"
             />
+          </div>
+
+          {/* FAQ Editor */}
+          <div className="space-y-1.5 border border-zinc-100 rounded-xl p-5 bg-zinc-50">
+            <FaqEditor faqs={faqs} onChange={setFaqs} />
           </div>
 
           <div className="flex items-center gap-3 pt-2">

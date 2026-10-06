@@ -26,7 +26,7 @@ export default function BlogsSSR({ posts }: BlogsSSRProps) {
   return (
     <section
       id="blogs"
-      className="py-16 sm:py-24 bg-[#0C0E12] text-[#E2E2E6] border-b border-white/10"
+      className="py-10 sm:py-20 lg:py-24 bg-[#0C0E12] text-[#E2E2E6] border-b border-white/10"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
 

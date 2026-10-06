@@ -86,7 +86,7 @@ export default function Hero() {
   return (
     <section
       id="overview"
-      className="relative min-h-[92dvh] flex items-center bg-[#0C0E12] text-[#E2E2E6] overflow-hidden border-b border-white/10 pt-20 pb-16 lg:py-0"
+      className="relative min-h-[92dvh] flex items-center bg-[#0C0E12] text-[#E2E2E6] overflow-hidden border-b border-white/10 pt-14 pb-10 lg:py-0"
     >
       {/* Grid pattern */}
       <div

@@ -108,7 +108,7 @@ export default function OurClients() {
   return (
     <section
       ref={sectionRef}
-      className="py-16 sm:py-20 bg-[#07090E] text-[#E2E2E6] overflow-hidden border-b border-white/10"
+      className="py-10 sm:py-20 bg-[#07090E] text-[#E2E2E6] overflow-hidden border-b border-white/10"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 mb-10">
         <motion.div

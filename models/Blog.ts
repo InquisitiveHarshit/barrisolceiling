@@ -1,16 +1,24 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import slugify from "slugify";
 
+export interface IFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface IBlog extends Document {
   title: string;
   slug: string;
   category?: string;
   content: string;
   excerpt?: string;
+  author?: string;
+  publishedAt?: Date;
   metaTitle?: string;
   metaDescription?: string;
   coverImage?: string;
   tags?: string[];
+  faqs?: IFaqItem[];
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +48,13 @@ const BlogSchema = new Schema<IBlog>(
     excerpt: {
       type: String,
     },
+    author: {
+      type: String,
+      default: "",
+    },
+    publishedAt: {
+      type: Date,
+    },
     metaTitle: {
       type: String,
     },
@@ -51,6 +66,15 @@ const BlogSchema = new Schema<IBlog>(
     },
     tags: {
       type: [String],
+      default: [],
+    },
+    faqs: {
+      type: [
+        {
+          question: { type: String, required: true },
+          answer: { type: String, required: true },
+        },
+      ],
       default: [],
     },
     isPublished: {

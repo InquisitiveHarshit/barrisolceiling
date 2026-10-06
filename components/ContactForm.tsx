@@ -147,7 +147,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
   return (
     <section
       id="consultation"
-      className="py-16 sm:py-24 bg-[#0C0E12] border-b border-white/10"
+      className="py-10 sm:py-20 lg:py-24 bg-[#0C0E12] border-b border-white/10"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-16 items-start">
 

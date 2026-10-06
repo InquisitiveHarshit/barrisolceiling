@@ -1,9 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Tag, ArrowRight } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, ArrowRight, User } from "lucide-react";
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
+import FaqSection from "@/components/FaqSection";
 import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
 import { notFound } from "next/navigation";
@@ -41,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const canonicalUrl = `https://barrisolceiling.com/blog-details/${slug}`;
 
   return {
-    title: `${title} | Barrisol Ceiling`,
+    title: `${title}`,
     description,
     alternates: {
       canonical: canonicalUrl,
@@ -186,11 +188,20 @@ export default async function BlogDetailPage({ params }: PageProps) {
           <div
             style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, marginBottom: 28 }}
           >
-            {blog?.createdAt && (
+            {(blog?.publishedAt || blog?.createdAt) && (
               <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
                 <Calendar size={11} />
-                {formatDate(blog.createdAt)}
+                {formatDate(blog.publishedAt || blog.createdAt)}
               </span>
+            )}
+            {blog?.author && (
+              <>
+                <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.2)" }} />
+                <span style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "rgba(255,255,255,0.55)", fontFamily: "Montserrat,sans-serif" }}>
+                  <User size={11} />
+                  {blog.author}
+                </span>
+              </>
             )}
             {blog?.tags?.length > 0 && (
               <span style={{ width: 1, height: 12, background: "rgba(255,255,255,0.2)" }} />
@@ -265,7 +276,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       {/* ══════════════════════════════════════
           BODY
       ══════════════════════════════════════ */}
-      <section style={{ background: "#0C0E12", padding: "56px 0 80px" }}>
+      <section className="py-8 sm:py-14 lg:py-16" style={{ background: "#0C0E12" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
           <div className="bd-layout" style={{ display: "flex", gap: 48, alignItems: "flex-start" }}>
 
@@ -492,6 +503,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {blog?.faqs && blog.faqs.length > 0 && (
+        <FaqSection
+          faqs={blog.faqs}
+          theme="dark"
+          pageUrl={`https://barrisolceiling.com/blog-details/${slug}`}
+        />
+      )}
 
       <div id="contact">
         <ContactForm />
