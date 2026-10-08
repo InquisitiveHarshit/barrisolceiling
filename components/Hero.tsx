@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { trackWhatsAppClick } from "@/lib/gtag";
 
 interface HeroImage {
   _id: string;
@@ -127,7 +128,7 @@ export default function Hero() {
             {/* CTAs */}
             <div className="flex flex-wrap items-center gap-4 mb-10">
               <Link
-                href="#consultation"
+                href="/contact"
                 className="px-6 sm:px-7 py-3.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-all flex items-center gap-2.5 shadow-[0_0_24px_rgba(166,38,129,0.35)] hover:shadow-[0_0_32px_rgba(157,78,221,0.5)] rounded-xs"
               >
                 <span>Commission Site Survey</span>
@@ -137,6 +138,7 @@ export default function Hero() {
                 href="https://wa.me/919540593079"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick("Hero WhatsApp Inquiry")}
                 className="px-6 sm:px-7 py-3.5 border border-white/15 hover:border-[#9D4EDD] bg-white/[0.03] text-[#D8DCE3] hover:text-white text-xs uppercase tracking-[0.18em] font-mono transition-all flex items-center gap-2 rounded-xs"
               >
                 <Phone className="w-3.5 h-3.5 text-[#9D4EDD]" />

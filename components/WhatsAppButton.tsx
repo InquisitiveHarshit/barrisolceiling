@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { trackWhatsAppClick } from "@/lib/gtag";
+
 const WA_NUMBER = "919540593079";
 const WA_URL = `https://wa.me/${WA_NUMBER}?text=Hello%2C%20I%27m%20interested%20in%20your%20stretch%20ceiling%20services.`;
 
@@ -19,6 +21,10 @@ export default function WhatsAppButton() {
   if (pathname?.startsWith("/admin")) {
     return null;
   }
+
+  const handleWaClick = () => {
+    trackWhatsAppClick("WhatsApp Floating Button");
+  };
 
   return (
     <>
@@ -62,6 +68,7 @@ export default function WhatsAppButton() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat with us on WhatsApp"
+              onClick={handleWaClick}
               onMouseEnter={() => setHovered(true)}
               onMouseLeave={() => setHovered(false)}
               className="relative flex items-center justify-center w-14 h-14 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2"

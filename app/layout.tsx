@@ -132,10 +132,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             gtag('config', 'AW-18383636220');
           `}
         </Script>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=AW-18383636220"
-          strategy="lazyOnload"
-        />
       </head>
       <body className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}>
         {children}

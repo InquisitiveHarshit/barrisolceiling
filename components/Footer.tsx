@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { trackPhoneClick } from "@/lib/gtag";
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -101,7 +102,11 @@ export default function Footer() {
             <p className="text-[#D8DCE3]">C-46 2nd Floor, DDA Sheds, Okhla Phase 1, New Delhi 110020</p>
             <p>
               Direct:{" "}
-              <a href="tel:+919540593079" className="text-[#A62681] hover:text-white transition-colors">
+              <a 
+                href="tel:+919540593079" 
+                onClick={() => trackPhoneClick("Footer")}
+                className="text-[#A62681] hover:text-white transition-colors"
+              >
                 +91 9540593079
               </a>
             </p>

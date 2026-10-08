@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, PenTool, Zap, Phone, Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
+import { trackFormSubmission, trackPhoneClick } from "@/lib/gtag";
+
 interface ContactFormProps {
   compact?: boolean;
 }
@@ -27,6 +29,10 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Something went wrong.");
+      
+      // Fire GA4 Event: generate_lead
+      trackFormSubmission(compact ? "compact_site_visit_form" : "main_contact_form");
+
       setStatus("success");
       setForm({ name: "", email: "", phone: "", message: "" });
     } catch (err: any) {
@@ -181,7 +187,11 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
           </ul>
 
           <div className="pt-6 border-t border-white/10 flex flex-col gap-3 font-mono text-xs">
-            <a href="tel:+919540593079" className="flex items-center gap-2 text-[#A62681] hover:text-white transition-colors">
+            <a 
+              href="tel:+919540593079" 
+              onClick={() => trackPhoneClick("ContactForm")}
+              className="flex items-center gap-2 text-[#A62681] hover:text-white transition-colors"
+            >
               <Phone size={14} /> +91 9540593079
             </a>
             <a href="mailto:info@barrisolceiling.com" className="flex items-center gap-2 text-[#A62681] hover:text-white transition-colors">
