@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowUpRight, Phone } from "lucide-react";
 import LeadModal from "./LeadModal";
 
 export default function Navbar() {
@@ -80,13 +80,22 @@ export default function Navbar() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={openModal}
-              className="hidden sm:inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.15em] font-semibold transition-all shadow-[0_0_18px_rgba(166,38,129,0.4)] hover:shadow-[0_0_24px_rgba(157,78,221,0.6)] rounded-xs whitespace-nowrap"
-            >
-              <span>Book Site Survey</span>
-              <ArrowUpRight className="w-4 h-4" />
-            </button>
+            <div className="hidden sm:flex flex-col items-center gap-1">
+              <button
+                onClick={openModal}
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.15em] font-semibold transition-all shadow-[0_0_18px_rgba(166,38,129,0.4)] hover:shadow-[0_0_24px_rgba(157,78,221,0.6)] rounded-xs whitespace-nowrap"
+              >
+                <span>Book Site Survey</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+              <a
+                href="tel:+919540593079"
+                className="font-mono text-[10px] text-[#8E94A0] hover:text-[#A62681] transition-colors whitespace-nowrap"
+              >
+                <span className="text-[#A62681] font-semibold">Direct:</span>{" "}
+                +91 9540593079
+              </a>
+            </div>
 
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -148,12 +157,33 @@ export default function Navbar() {
                 <span>Book Site Survey</span>
                 <ArrowUpRight className="w-5 h-5" />
               </button>
+              <a
+                href="tel:+919540593079"
+                className="mt-3 flex items-center justify-center gap-1.5 font-mono text-xs text-[#8E94A0] hover:text-[#A62681] transition-colors"
+              >
+                <span className="text-[#A62681]">Direct:</span>
+                +91 9540593079
+              </a>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
       <LeadModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+
+      {/* Floating call button — mobile only, bottom-left */}
+      <motion.a
+        href="tel:+919540593079"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 1, type: "spring", stiffness: 260, damping: 20 }}
+        className="lg:hidden fixed bottom-6 left-5 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-[#6A2C91] to-[#A62681] shadow-[0_0_20px_rgba(166,38,129,0.55)] text-white"
+        aria-label="Call us"
+      >
+        {/* pulse ring */}
+        <span className="absolute inset-0 rounded-full bg-[#A62681]/40 animate-ping" />
+        <Phone className="w-6 h-6 relative z-10" fill="white" strokeWidth={0} />
+      </motion.a>
     </>
   );
 }
