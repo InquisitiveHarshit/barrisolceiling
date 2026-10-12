@@ -217,20 +217,6 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             {service?.title}
           </h1>
 
-          {service?.shortDescription && (
-            <p
-              style={{
-                maxWidth: 580,
-                fontSize: "clamp(0.9rem,1.4vw,1.05rem)",
-                color: "#A0A6B0",
-                lineHeight: 1.7,
-                margin: "0 0 18px",
-                fontFamily: "Montserrat,sans-serif",
-              }}
-            >
-              {service.shortDescription}
-            </p>
-          )}
 
           {/* Author and Date Metadata */}
           <div
@@ -377,6 +363,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                   padding: "40px 44px 56px",
                 }}
               >
+
+
+
                 {/* Short description lead */}
                 {service?.shortDescription && (
                   <p
@@ -396,6 +385,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                 )}
 
                 {/* Rich content */}
+
                 {service?.content ? (
                   <div
                     className="sd-article-body"

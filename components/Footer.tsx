@@ -40,7 +40,7 @@ export default function Footer() {
           );
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -62,9 +62,8 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-[#8E94A0] text-xs leading-relaxed max-w-sm font-light">
-              Premier contractor and specifier of European tension membranes, acoustic
-              micro-perforation, and architectural stretch ceilings in Delhi, Gurugram,
-              Noida, and across Northern India.
+              Premier manufacturer and installer of European tension membranes, acoustic micro-perforation, and architectural stretch ceilings, serving clients Pan India.
+
             </p>
             <div className="font-mono text-[11px] text-[#A62681] font-medium mt-2">
               10+ Years Practice • 1000+ Executed Projects • 10-Year Warranty
@@ -76,18 +75,18 @@ export default function Footer() {
             <div className="text-white uppercase tracking-widest font-semibold text-xs mb-2">Systems</div>
             {services.length > 0
               ? services.map((s) => (
-                  <Link
-                    key={s.slug}
-                    href={`/service-detail/${s.slug}`}
-                    className="hover:text-[#E4B5FF] transition-colors"
-                  >
-                    {s.title}
-                  </Link>
-                ))
+                <Link
+                  key={s.slug}
+                  href={`/service-detail/${s.slug}`}
+                  className="hover:text-[#E4B5FF] transition-colors"
+                >
+                  {s.title}
+                </Link>
+              ))
               : // skeleton placeholders while loading
-                Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i} className="h-3 w-40 bg-white/5 rounded animate-pulse" />
-                ))}
+              Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} className="h-3 w-40 bg-white/5 rounded animate-pulse" />
+              ))}
             <Link
               href="/service"
               className="hover:text-[#A62681] transition-colors text-[#8E94A0] mt-1"
@@ -102,8 +101,8 @@ export default function Footer() {
             <p className="text-[#D8DCE3]">C-46 2nd Floor, DDA Sheds, Okhla Phase 1, New Delhi 110020</p>
             <p>
               Direct:{" "}
-              <a 
-                href="tel:+919540593079" 
+              <a
+                href="tel:+919540593079"
                 onClick={() => trackPhoneClick("Footer")}
                 className="text-[#A62681] hover:text-white transition-colors"
               >
