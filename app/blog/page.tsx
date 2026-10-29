@@ -6,6 +6,7 @@ import Link from "next/link";
 import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
 import FaqSection from "@/components/FaqSection";
+import { toBarrisolUrl } from "@/lib/media";
 
 
 export const revalidate = 3600; // ISR 1 hour
@@ -50,9 +51,10 @@ export default async function BlogsPage() {
               >
                 <div className="h-[220px] overflow-hidden">
                   <img
-                    alt={post.title}
+                    alt={post.coverImageAlt || post.title}
+                    title={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-surface-container"
-                    src={post.coverImage || "/heroimage.webp"}
+                    src={toBarrisolUrl(post.coverImage) || "/heroimage.webp"}
                   />
                 </div>
                 <div className="p-7 flex flex-col flex-1">

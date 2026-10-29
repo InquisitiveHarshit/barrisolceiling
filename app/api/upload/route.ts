@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { authenticateAdmin } from "@/lib/auth";
+import { toBarrisolUrl, generateImageSlug } from "@/lib/media";
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,10 +48,17 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // SEO-friendly slug for Cloudinary public_id
+    const cleanSlug = generateImageSlug(file.name) || "stretch-ceiling";
+
     // Upload to Cloudinary using a stream
     const uploadResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "borocelling/blogs" },
+        {
+          folder: "borocelling/blogs",
+          public_id: `${cleanSlug}-${Date.now().toString().slice(-6)}`,
+          resource_type: "image",
+        },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -59,8 +67,11 @@ export async function POST(req: NextRequest) {
       uploadStream.end(buffer);
     });
 
+    // Return first-party Barrisol URL (/media/...)
+    const barrisolUrl = toBarrisolUrl((uploadResult as any).secure_url);
+
     return NextResponse.json(
-      { success: true, url: (uploadResult as any).secure_url },
+      { success: true, url: barrisolUrl },
       { status: 200 }
     );
   } catch (error: any) {

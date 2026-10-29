@@ -4,11 +4,16 @@ import { v2 as cloudinary } from "cloudinary";
 import { authenticateAdmin } from "@/lib/auth";
 import connectDB from "@/lib/db";
 import { GalleryImage } from "@/models/GalleryImage";
+import { toBarrisolUrl, generateImageSlug } from "@/lib/media";
 
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    const images = await GalleryImage.find().sort({ createdAt: -1 });
+    const docs = await GalleryImage.find().sort({ createdAt: -1 }).lean();
+    const images = docs.map((img: any) => ({
+      ...img,
+      url: toBarrisolUrl(img.url),
+    }));
     return NextResponse.json({ success: true, images }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json(
@@ -46,6 +51,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const title = formData.get("title") as string | null;
+    const alt = formData.get("alt") as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -57,10 +63,16 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    const cleanSlug = generateImageSlug(title || file.name) || "gallery-image";
+
     // Upload to Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "borocelling/gallery" },
+        {
+          folder: "borocelling/gallery",
+          public_id: `${cleanSlug}-${Date.now().toString().slice(-6)}`,
+          resource_type: "image",
+        },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -71,11 +83,12 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
     
-    // Save metadata to MongoDB
+    // Save metadata to MongoDB with first-party Barrisol URL
     const newImage = await GalleryImage.create({
-      url: uploadResult.secure_url,
+      url: toBarrisolUrl(uploadResult.secure_url),
       publicId: uploadResult.public_id,
-      title: title || file.name,
+      title: title?.trim() || file.name.replace(/\.[^/.]+$/, ""),
+      alt: alt ? alt.trim() : "",
     });
 
     revalidatePath("/gallery");
@@ -161,7 +174,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { id, title, location, showInHero, material, materialSpec, lightingCCT, lightingDimming, photometrics, warranty } = await req.json();
+    const { id, title, alt, location, showInHero, material, materialSpec, lightingCCT, lightingDimming, photometrics, warranty } = await req.json();
     if (!id) {
       return NextResponse.json(
         { success: false, message: "Image ID is required." },
@@ -171,6 +184,7 @@ export async function PATCH(req: NextRequest) {
 
     await connectDB();
     const updateFields: Record<string, unknown> = { title, location };
+    if (alt           !== undefined) updateFields.alt           = alt;
     if (typeof showInHero === "boolean") updateFields.showInHero = showInHero;
     if (material      !== undefined) updateFields.material      = material;
     if (materialSpec  !== undefined) updateFields.materialSpec  = materialSpec;

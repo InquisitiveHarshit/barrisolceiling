@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
 
     revalidatePath("/blog");
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: blog }, { status: 201 });
   } catch (error: any) {

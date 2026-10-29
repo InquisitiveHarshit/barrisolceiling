@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import ImageExtension from '@tiptap/extension-image';
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
@@ -12,6 +13,7 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
 import GalleryPickerModal from "@/components/admin/GalleryPickerModal";
 import FaqEditor, { FaqItem } from "@/components/admin/FaqEditor";
+import TiptapImageModal from "@/components/admin/TiptapImageModal";
 
 
 export default function EditBlog({ params }: { params: Promise<{ slug: string }> }) {
@@ -39,7 +41,10 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [galleryUrl, setGalleryUrl] = useState<string>("");
+  const [galleryAlt, setGalleryAlt] = useState<string>("");
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [tiptapImageModalOpen, setTiptapImageModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
@@ -49,6 +54,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
   const editor = useEditor({
     extensions: [
       StarterKit,
+      ImageExtension.configure({ inline: false, allowBase64: true }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -98,6 +104,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
           );
           // Pre-populate the saved cover so we always show what's currently stored
           if (b.coverImage) setSavedCoverUrl(b.coverImage);
+          if (b.coverImageAlt) setCoverImageAlt(b.coverImageAlt);
           if (editor && editor.getHTML() !== b.content) {
             editor.commands.setContent(b.content);
           }
@@ -159,6 +166,7 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
         metaDescription,
         tags: tagsArray,
         isPublished,
+        coverImageAlt: (imageSource === "gallery" && galleryAlt ? galleryAlt : coverImageAlt).trim(),
         faqs,
         author,
         publishedAt: publishedAt ? new Date(publishedAt) : undefined,
@@ -414,6 +422,20 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                   </div>
                 </div>
               )}
+
+              {/* Cover image alt text */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1 mt-2">
+                  Cover Image Alt Text <span className="text-xs text-zinc-400 normal-case font-normal">(for screen readers &amp; SEO)</span>
+                </label>
+                <input
+                  type="text"
+                  value={coverImageAlt}
+                  onChange={(e) => setCoverImageAlt(e.target.value)}
+                  placeholder="e.g. Luxurious backlit stretch ceiling in modern bedroom"
+                  className="w-full px-4 py-2.5 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy text-sm text-zinc-900 placeholder:text-zinc-400"
+                />
+              </div>
             </div>
 
             {/* Content */}
@@ -439,9 +461,27 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
                         <btn.icon size={16} />
                       </button>
                     ))}
+                    <div className="w-px h-4 bg-zinc-200 mx-1" />
+                    <button
+                      type="button"
+                      onClick={() => setTiptapImageModalOpen(true)}
+                      title="Insert image with alt text"
+                      className="p-2 rounded-lg transition-colors text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                    >
+                      <ImageIcon size={16} />
+                    </button>
                   </div>
                 )}
                 <EditorContent editor={editor} className="min-h-[300px] p-2 text-zinc-900" />
+                <TiptapImageModal
+                  open={tiptapImageModalOpen}
+                  onClose={() => setTiptapImageModalOpen(false)}
+                  onInsert={({ url, alt, title: imgTitle }) => {
+                    if (editor) {
+                      editor.chain().focus().setImage({ src: url, alt, title: imgTitle }).run();
+                    }
+                  }}
+                />
               </div>
             </div>
 
@@ -528,7 +568,13 @@ export default function EditBlog({ params }: { params: Promise<{ slug: string }>
       <GalleryPickerModal
         open={galleryOpen}
         currentUrl={galleryUrl || savedCoverUrl}
-        onSelect={(url) => setGalleryUrl(url)}
+        onSelect={(url, alt, title) => {
+          setGalleryUrl(url);
+          if (alt || title) {
+            setGalleryAlt(alt || title || "");
+            setCoverImageAlt(alt || title || "");
+          }
+        }}
         onClose={() => setGalleryOpen(false)}
       />
     </div>

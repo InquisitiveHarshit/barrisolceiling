@@ -10,6 +10,7 @@ import connectDB from "@/lib/db";
 import Blog from "@/models/Blog";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { toBarrisolUrl } from "@/lib/media";
 
 export const revalidate = 3600; // ISR 1 hour
 
@@ -52,7 +53,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonicalUrl,
-      images: (blog as any).coverImage ? [{ url: (blog as any).coverImage }] : [],
+      images: (blog as any).coverImage
+        ? [{ url: toBarrisolUrl((blog as any).coverImage, true), alt: (blog as any).coverImageAlt || title }]
+        : [],
     },
   };
 }
@@ -316,8 +319,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   }}
                 >
                   <img
-                    src={blog.coverImage}
-                    alt={blog.title}
+                    src={toBarrisolUrl(blog.coverImage)}
+                    alt={blog.coverImageAlt || blog.title}
+                    title={blog.title}
                     style={{ width: "100%", height: "auto", display: "block", objectFit: "cover", maxHeight: 480 }}
                   />
                 </div>
@@ -407,7 +411,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                           }}
                         >
                           {item.coverImage && (
-                            <img src={item.coverImage} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            <img src={toBarrisolUrl(item.coverImage)} alt={item.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           )}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>

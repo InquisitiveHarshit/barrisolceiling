@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
 
     revalidatePath("/service");
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: service }, { status: 201 });
   } catch (error: any) {

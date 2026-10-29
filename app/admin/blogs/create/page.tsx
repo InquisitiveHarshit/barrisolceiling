@@ -1,16 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Images, X, UploadCloud, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import ImageExtension from '@tiptap/extension-image';
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
 import GalleryPickerModal from "@/components/admin/GalleryPickerModal";
+import TiptapImageModal from "@/components/admin/TiptapImageModal";
 
 export default function CreateBlog() {
   const [title, setTitle] = useState("");
@@ -30,7 +32,10 @@ export default function CreateBlog() {
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [galleryUrl, setGalleryUrl] = useState<string>("");
+  const [galleryAlt, setGalleryAlt] = useState<string>("");
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [tiptapImageModalOpen, setTiptapImageModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +59,7 @@ export default function CreateBlog() {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      ImageExtension.configure({ inline: false, allowBase64: true }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -110,7 +116,9 @@ export default function CreateBlog() {
       }
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      const payload = { title, slug: slug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage };
+      // Use gallery alt if gallery source, otherwise use coverImageAlt
+      const resolvedCoverAlt = imageSource === "gallery" ? galleryAlt : coverImageAlt;
+      const payload = { title, slug: slug || undefined, category, content, excerpt, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage, coverImageAlt: resolvedCoverAlt.trim() };
 
       const res = await fetch("/api/blogs", {
         method: "POST",
@@ -294,7 +302,7 @@ export default function CreateBlog() {
                       type="button"
                       onClick={() => {
                         if (imageSource === "upload") { setFile(null); }
-                        else { setGalleryUrl(""); }
+                        else { setGalleryUrl(""); setGalleryAlt(""); }
                       }}
                       className="bg-white/90 hover:bg-white p-1 rounded-full shadow text-zinc-600 hover:text-red-500 transition-colors"
                       aria-label="Remove cover image"
@@ -306,6 +314,26 @@ export default function CreateBlog() {
                     <p className="text-xs text-zinc-500">Cover preview</p>
                   </div>
                 </div>
+              )}
+              {/* Cover image alt — separate field */}
+              {(imageSource === "upload" || (imageSource === "gallery" && !galleryAlt)) && (
+                <div>
+                  <label className="block font-label-caps text-zinc-700 mb-1 mt-3">
+                    Cover Image Alt Text <span className="text-xs text-zinc-400 normal-case font-normal">(for screen readers &amp; SEO)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={coverImageAlt}
+                    onChange={(e) => setCoverImageAlt(e.target.value)}
+                    placeholder="e.g. Luxurious backlit stretch ceiling in modern bedroom"
+                    className="w-full px-4 py-3 bg-white border border-zinc-300 rounded-lg focus:outline-none focus:border-brand-vibrancy text-zinc-900 placeholder:text-zinc-400"
+                  />
+                </div>
+              )}
+              {imageSource === "gallery" && galleryAlt && (
+                <p className="text-xs text-zinc-500 mt-2">
+                  <span className="font-semibold">Alt from gallery:</span> {galleryAlt}
+                </p>
               )}
             </div>
 
@@ -321,9 +349,27 @@ export default function CreateBlog() {
                     <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`p-2 rounded ${editor.isActive('bulletList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><List size={16} /></button>
                     <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`p-2 rounded ${editor.isActive('orderedList') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><ListOrdered size={16} /></button>
                     <button type="button" onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} className={`p-2 rounded ${editor.isActive('table') ? 'bg-zinc-200 text-zinc-900' : 'hover:bg-zinc-100 text-zinc-600'}`}><TableIcon size={16} /></button>
+                    <div className="w-px h-4 bg-zinc-200 mx-1" />
+                    <button
+                      type="button"
+                      onClick={() => setTiptapImageModalOpen(true)}
+                      title="Insert image with alt text"
+                      className={`p-2 rounded hover:bg-zinc-100 text-zinc-600`}
+                    >
+                      <ImageIcon size={16} />
+                    </button>
                   </div>
                 )}
                 <EditorContent editor={editor} className="min-h-[250px]" />
+                <TiptapImageModal
+                  open={tiptapImageModalOpen}
+                  onClose={() => setTiptapImageModalOpen(false)}
+                  onInsert={({ url, alt, title: imgTitle }) => {
+                    if (editor) {
+                      editor.chain().focus().setImage({ src: url, alt, title: imgTitle }).run();
+                    }
+                  }}
+                />
               </div>
             </div>
 
@@ -403,7 +449,10 @@ export default function CreateBlog() {
       <GalleryPickerModal
         open={galleryOpen}
         currentUrl={galleryUrl}
-        onSelect={(url) => setGalleryUrl(url)}
+        onSelect={(url, alt, title) => {
+          setGalleryUrl(url);
+          setGalleryAlt(alt || title || "");
+        }}
         onClose={() => setGalleryOpen(false)}
       />
     </div>

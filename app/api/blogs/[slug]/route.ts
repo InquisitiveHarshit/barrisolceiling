@@ -50,7 +50,7 @@ export async function PUT(
 
     const query = mongoose.isValidObjectId(slug) ? { $or: [{ slug }, { _id: slug }] } : { slug };
     const blog = await Blog.findOneAndUpdate(query, body, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 
@@ -64,6 +64,7 @@ export async function PUT(
     revalidatePath("/blog");
     revalidatePath(`/blog-details/${slug}`);
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: blog }, { status: 200 });
   } catch (error: any) {
@@ -102,6 +103,7 @@ export async function DELETE(
     revalidatePath("/blog");
     revalidatePath(`/blog-details/${slug}`);
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: {} }, { status: 200 });
   } catch (error: any) {

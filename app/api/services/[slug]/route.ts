@@ -48,7 +48,7 @@ export async function PUT(
     const service = await Service.findOneAndUpdate(
       { slug },
       body,
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
 
     if (!service) {
@@ -61,6 +61,7 @@ export async function PUT(
     revalidatePath("/service");
     revalidatePath(`/service-detail/${slug}`);
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: service }, { status: 200 });
   } catch (error: any) {
@@ -98,6 +99,7 @@ export async function DELETE(
     revalidatePath("/service");
     revalidatePath(`/service-detail/${slug}`);
     revalidatePath("/");
+    revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true, data: {} }, { status: 200 });
   } catch (error: any) {

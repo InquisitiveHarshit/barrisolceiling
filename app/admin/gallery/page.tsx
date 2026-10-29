@@ -9,6 +9,7 @@ interface GalleryImg {
   _id: string;
   url: string;
   title?: string;
+  alt?: string;
   location?: string;
   showInHero?: boolean;
   material?: string;
@@ -24,7 +25,7 @@ export default function GalleryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState({
-    title: "", location: "", showInHero: false,
+    title: "", alt: "", location: "", showInHero: false,
     material: "", materialSpec: "",
     lightingCCT: "", warranty: "",
   });
@@ -101,7 +102,7 @@ export default function GalleryPage() {
   const startEdit = (img: GalleryImg) => {
     setEditingId(img._id);
     setEditDraft({
-      title: img.title || "", location: img.location || "", showInHero: !!img.showInHero,
+      title: img.title || "", alt: img.alt || "", location: img.location || "", showInHero: !!img.showInHero,
       material: img.material || "", materialSpec: img.materialSpec || "",
       lightingCCT: img.lightingCCT || "", warranty: img.warranty || "",
     });
@@ -110,7 +111,7 @@ export default function GalleryPage() {
   const cancelEdit = () => {
     setEditingId(null);
     setEditDraft({
-      title: "", location: "", showInHero: false,
+      title: "", alt: "", location: "", showInHero: false,
       material: "", materialSpec: "",
       lightingCCT: "", warranty: "",
     });
@@ -230,7 +231,7 @@ export default function GalleryPage() {
             >
               <Image
                 src={img.url}
-                alt={img.title || "Gallery image"}
+                alt={img.alt || img.title || "Gallery image"}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 25vw"
@@ -267,11 +268,16 @@ export default function GalleryPage() {
                   </button>
                 </div>
 
-                {/* Bottom: title + location */}
+                {/* Bottom: title + location + alt */}
                 <div>
                   <p className="text-white text-xs font-semibold truncate">{img.title || "Untitled"}</p>
                   {img.location && (
                     <p className="text-white/70 text-[10px] truncate">{img.location}</p>
+                  )}
+                  {img.alt && (
+                    <p className="text-amber-300/90 text-[9px] truncate mt-0.5" title={img.alt}>
+                      <span className="opacity-60">ALT:</span> {img.alt}
+                    </p>
                   )}
                 </div>
               </div>
@@ -292,13 +298,13 @@ export default function GalleryPage() {
             {/* Modal header */}
             <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-zinc-100 z-10">
               <h3 className="text-base font-semibold text-zinc-900">Edit Image Metadata</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">These fields appear in the Hero carousel spec row</p>
+              <p className="text-xs text-zinc-400 mt-0.5">Edit title, alt text for SEO/accessibility, and spec details</p>
             </div>
 
             <div className="px-6 py-4 space-y-4">
 
               {/* ── Basic info ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Basic Info</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Basic Info &amp; SEO</p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-500 mb-1">Title <span className="text-zinc-400">(Project Reference)</span></label>
@@ -316,6 +322,19 @@ export default function GalleryPage() {
                     className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                  Alt Text <span className="text-zinc-400 font-normal">(Alternative text for screen readers &amp; image SEO)</span>
+                </label>
+                <input
+                  type="text"
+                  value={editDraft.alt}
+                  onChange={(e) => setEditDraft((d) => ({ ...d, alt: e.target.value }))}
+                  placeholder="e.g. Translucent backlit stretch ceiling installation in luxury residential dining room"
+                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                />
               </div>
 
               {/* ── Tension Material ── */}

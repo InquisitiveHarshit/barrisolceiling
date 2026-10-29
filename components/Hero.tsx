@@ -117,7 +117,7 @@ export default function Hero() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl text-white font-normal leading-[1.1] tracking-tight mb-6 font-serif">
-              Bespoke Stretch Ceilings &amp; Architectural Lighting
+              Stretch Ceiling Manufacturer &amp; Installer in India
             </h1>
 
             <p className="text-base sm:text-lg text-[#8E94A0] leading-relaxed max-w-xl font-light mb-8">

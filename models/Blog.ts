@@ -17,6 +17,7 @@ export interface IBlog extends Document {
   metaTitle?: string;
   metaDescription?: string;
   coverImage?: string;
+  coverImageAlt?: string;
   tags?: string[];
   faqs?: IFaqItem[];
   isPublished: boolean;
@@ -63,6 +64,10 @@ const BlogSchema = new Schema<IBlog>(
     },
     coverImage: {
       type: String,
+    },
+    coverImageAlt: {
+      type: String,
+      default: "",
     },
     tags: {
       type: [String],

@@ -6,13 +6,14 @@ interface GalleryImage {
   _id: string;
   url: string;
   title?: string;
+  alt?: string;
   location?: string;
 }
 
 interface GalleryPickerModalProps {
   open: boolean;
   currentUrl?: string;
-  onSelect: (url: string) => void;
+  onSelect: (url: string, alt?: string, title?: string) => void;
   onClose: () => void;
 }
 
@@ -214,7 +215,8 @@ export default function GalleryPickerModal({
               type="button"
               disabled={!selected}
               onClick={() => {
-                onSelect(selected);
+                const selectedImg = images.find((i) => i.url === selected);
+                onSelect(selected, selectedImg?.alt, selectedImg?.title);
                 onClose();
               }}
               className="px-4 py-2 text-sm font-medium text-white bg-brand-vibrancy rounded-lg hover:bg-brand-vibrancy/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

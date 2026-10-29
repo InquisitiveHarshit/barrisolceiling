@@ -4,6 +4,7 @@ export interface IGalleryImage extends Document {
   url: string;
   publicId: string;
   title?: string;
+  alt?: string;
   location?: string;
   showInHero: boolean;
   // Spec row metadata
@@ -21,6 +22,7 @@ const GalleryImageSchema = new Schema<IGalleryImage>(
     url:       { type: String, required: true },
     publicId:  { type: String, required: true },
     title:     { type: String, default: "" },
+    alt:       { type: String, default: "" },
     location:  { type: String, default: "" },
     showInHero:{ type: Boolean, default: false },
     material:      { type: String, default: "" },

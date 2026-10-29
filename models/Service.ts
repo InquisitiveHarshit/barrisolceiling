@@ -17,6 +17,7 @@ export interface IService extends Document {
   metaTitle?: string;
   metaDescription?: string;
   coverImage?: string;
+  coverImageAlt?: string;
   tags?: string[];
   faqs?: IFaqItem[];
   isPublished: boolean;
@@ -64,6 +65,10 @@ const ServiceSchema = new Schema<IService>(
     },
     coverImage: {
       type: String,
+    },
+    coverImageAlt: {
+      type: String,
+      default: "",
     },
     tags: {
       type: [String],

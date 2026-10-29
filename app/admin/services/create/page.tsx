@@ -1,16 +1,18 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon } from "lucide-react";
+import { ArrowLeft, Bold, Italic, List, ListOrdered, Heading2, Table as TableIcon, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import ImageExtension from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import slugify from "slugify";
 import FaqEditor, { FaqItem } from "@/components/admin/FaqEditor";
+import TiptapImageModal from "@/components/admin/TiptapImageModal";
 
 export default function CreateService() {
   const [title, setTitle] = useState("");
@@ -24,7 +26,9 @@ export default function CreateService() {
   const [tags, setTags] = useState("");
   const [isPublished, setIsPublished] = useState(true);
   const [file, setFile] = useState<File | null>(null);
+  const [coverImageAlt, setCoverImageAlt] = useState("");
   const [blackAndWhite, setBlackAndWhite] = useState(false);
+  const [tiptapImageModalOpen, setTiptapImageModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -44,6 +48,10 @@ export default function CreateService() {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      ImageExtension.configure({
+        inline: false,
+        allowBase64: true,
+      }),
       Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
@@ -98,7 +106,7 @@ export default function CreateService() {
       if (file) coverImage = await handleImageUpload();
 
       const tagsArray = tags.split(",").map((t) => t.trim()).filter(Boolean);
-      const payload = { title, slug: slug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage, faqs, author, publishedAt: publishedAt ? new Date(publishedAt) : undefined };
+      const payload = { title, slug: slug || undefined, category, shortDescription, content, metaTitle, metaDescription, tags: tagsArray, isPublished, coverImage, coverImageAlt: coverImageAlt.trim(), faqs, author, publishedAt: publishedAt ? new Date(publishedAt) : undefined };
 
       const res = await fetch("/api/services", {
         method: "POST",
@@ -207,6 +215,14 @@ export default function CreateService() {
                   <span className="text-xs font-medium text-zinc-700">B&W</span>
                 </label>
               </div>
+              {/* Cover image alt — separate from title */}
+              <input
+                type="text"
+                value={coverImageAlt}
+                onChange={(e) => setCoverImageAlt(e.target.value)}
+                placeholder="Cover image alt text (for SEO & screen readers)"
+                className="w-full px-4 py-2.5 bg-white border border-zinc-200 rounded-xl focus:outline-none focus:border-zinc-900 text-sm text-zinc-900 transition-colors"
+              />
             </div>
           </div>
 
@@ -274,9 +290,27 @@ export default function CreateService() {
                       <btn.icon size={16} />
                     </button>
                   ))}
+                  <div className="w-px h-4 bg-zinc-200 mx-1" />
+                  <button
+                    type="button"
+                    onClick={() => setTiptapImageModalOpen(true)}
+                    title="Insert image with alt text"
+                    className="p-2 rounded-lg transition-colors text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                  >
+                    <ImageIcon size={16} />
+                  </button>
                 </div>
               )}
               <EditorContent editor={editor} className="min-h-[250px]" />
+              <TiptapImageModal
+                open={tiptapImageModalOpen}
+                onClose={() => setTiptapImageModalOpen(false)}
+                onInsert={({ url, alt, title: imgTitle }) => {
+                  if (editor) {
+                    editor.chain().focus().setImage({ src: url, alt, title: imgTitle }).run();
+                  }
+                }}
+              />
             </div>
           </div>
 

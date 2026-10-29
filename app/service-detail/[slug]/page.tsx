@@ -9,6 +9,7 @@ import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { toBarrisolUrl } from "@/lib/media";
 
 export const revalidate = 3600; // ISR 1 hour
 
@@ -51,7 +52,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonicalUrl,
-      images: (service as any).coverImage ? [{ url: (service as any).coverImage }] : [],
+      images: (service as any).coverImage
+        ? [{ url: toBarrisolUrl((service as any).coverImage, true), alt: (service as any).coverImageAlt || title }]
+        : [],
     },
   };
 }
@@ -142,7 +145,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             style={{
               position: "absolute",
               inset: 0,
-              backgroundImage: `url('${service.coverImage}')`,
+              backgroundImage: `url('${toBarrisolUrl(service.coverImage)}')`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               filter: "brightness(0.35) contrast(1.05)",
@@ -342,8 +345,9 @@ export default async function ServiceDetailPage({ params }: PageProps) {
                   }}
                 >
                   <img
-                    src={service.coverImage}
-                    alt={service.title}
+                    src={toBarrisolUrl(service.coverImage)}
+                    alt={service.coverImageAlt || service.title}
+                    title={service.title}
                     style={{
                       width: "100%",
                       display: "block",

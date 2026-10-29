@@ -7,6 +7,7 @@ import connectDB from "@/lib/db";
 import Service from "@/models/Service";
 import { Metadata } from "next";
 import FaqSection from "@/components/FaqSection";
+import { toBarrisolUrl } from "@/lib/media";
 
 
 export const revalidate = 3600;
@@ -65,9 +66,10 @@ export default async function ServicesPage() {
                   <div className="bg-[#111317] border border-white/5 group-hover:border-[#A62681]/40 transition-all duration-300 overflow-hidden flex flex-col group-hover:-translate-y-1 group-hover:shadow-[0_8px_32px_-8px_rgba(166,38,129,0.25)] rounded-xs h-full">
                     <div className="h-[200px] sm:h-[220px] overflow-hidden">
                       <img
-                        alt={service.title}
+                        alt={service.coverImageAlt || service.title}
+                        title={service.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
-                        src={service.coverImage || "/heroimage.webp"}
+                        src={toBarrisolUrl(service.coverImage) || "/heroimage.webp"}
                       />
                     </div>
                     <div className="p-5 sm:p-7 flex flex-col flex-1">

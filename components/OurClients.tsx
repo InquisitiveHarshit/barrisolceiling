@@ -4,20 +4,20 @@ import { motion, useInView, useAnimationFrame, useMotionValue } from "framer-mot
 
 /* ─── Client data ──────────────────────────────────────────────── */
 const CLIENTS = [
-  { name: "Concept Kitchen",                  src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772755/borocelling/clients/IMG-20250812-WA0038.jpg" },
-  { name: "F Lounge",                         src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772756/borocelling/clients/IMG-20250812-WA0039.jpg" },
-  { name: "Army College of Medical Sciences", src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772756/borocelling/clients/IMG-20250812-WA0040.jpg" },
-  { name: "FashionTV",                        src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772757/borocelling/clients/IMG-20250812-WA0041.jpg" },
-  { name: "Madame",                           src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772758/borocelling/clients/IMG-20250812-WA0042.jpg" },
-  { name: "Concept Kitchen 2",                src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772759/borocelling/clients/IMG-20250812-WA0043.jpg" },
-  { name: "Partner",                          src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1788772753/borocelling/clients/01123333.jpg" },
-  { name: "Ankur Lighting",                   src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022305/borocelling/clients/ankur-lighting.jpg" },
-  { name: "Sir Ganga Ram Hospital",           src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022306/borocelling/clients/sir-ganga-ram-hospital.jpg" },
-  { name: "Geetanjali Salon",                 src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022306/borocelling/clients/geetanjali-salon.png" },
-  { name: "Rippl",                            src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022307/borocelling/clients/rippl.png" },
-  { name: "Mahindra",                         src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022309/borocelling/clients/client-logo-1.jpg" },
-  { name: "Payoneer",                         src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789022310/borocelling/clients/client-logo-2.jpg" },
-  { name: "Looks Salon",                      src: "https://res.cloudinary.com/fifvpxxi/image/upload/v1789024713/borocelling/clients/looks-salon.png" },
+  { name: "Concept Kitchen",                  src: "/media/v1788772755/borocelling/clients/IMG-20250812-WA0038.jpg" },
+  { name: "F Lounge",                         src: "/media/v1788772756/borocelling/clients/IMG-20250812-WA0039.jpg" },
+  { name: "Army College of Medical Sciences", src: "/media/v1788772756/borocelling/clients/IMG-20250812-WA0040.jpg" },
+  { name: "FashionTV",                        src: "/media/v1788772757/borocelling/clients/IMG-20250812-WA0041.jpg" },
+  { name: "Madame",                           src: "/media/v1788772758/borocelling/clients/IMG-20250812-WA0042.jpg" },
+  { name: "Concept Kitchen 2",                src: "/media/v1788772759/borocelling/clients/IMG-20250812-WA0043.jpg" },
+  { name: "Partner",                          src: "/media/v1788772753/borocelling/clients/01123333.jpg" },
+  { name: "Ankur Lighting",                   src: "/media/v1789022305/borocelling/clients/ankur-lighting.jpg" },
+  { name: "Sir Ganga Ram Hospital",           src: "/media/v1789022306/borocelling/clients/sir-ganga-ram-hospital.jpg" },
+  { name: "Geetanjali Salon",                 src: "/media/v1789022306/borocelling/clients/geetanjali-salon.png" },
+  { name: "Rippl",                            src: "/media/v1789022307/borocelling/clients/rippl.png" },
+  { name: "Mahindra",                         src: "/media/v1789022309/borocelling/clients/client-logo-1.jpg" },
+  { name: "Payoneer",                         src: "/media/v1789022310/borocelling/clients/client-logo-2.jpg" },
+  { name: "Looks Salon",                      src: "/media/v1789024713/borocelling/clients/looks-salon.png" },
 ];
 
 /* 3× duplication for seamless infinite loop */

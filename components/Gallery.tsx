@@ -4,11 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { toBarrisolUrl } from "@/lib/media";
 
 interface GalleryImage {
   _id: string;
   url: string;
   title?: string;
+  alt?: string;
   location?: string;
 }
 
@@ -107,8 +109,9 @@ export default function Gallery({ showViewAll = true, initialImages }: GalleryPr
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-[#0C0E12] rounded-xs">
                 <Image
-                  src={displayImages[0]?.url || "/heroimage.webp"}
-                  alt={displayImages[0]?.title || "Stretch ceiling commission"}
+                  src={toBarrisolUrl(displayImages[0]?.url) || "/heroimage.webp"}
+                  alt={displayImages[0]?.alt || displayImages[0]?.title || "Stretch ceiling commission"}
+                  title={displayImages[0]?.title}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105 brightness-90 group-hover:brightness-100"
                   sizes="(max-width: 1024px) 100vw, 66vw"
@@ -140,8 +143,9 @@ export default function Gallery({ showViewAll = true, initialImages }: GalleryPr
                 >
                   <div className="relative aspect-[16/10] overflow-hidden bg-[#0C0E12] rounded-xs">
                     <Image
-                      src={img.url}
-                      alt={img.title || "Stretch ceiling"}
+                      src={toBarrisolUrl(img.url)}
+                      alt={img.alt || img.title || "Stretch ceiling"}
+                      title={img.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-90 group-hover:brightness-100"
                       sizes="(max-width: 1024px) 100vw, 33vw"
@@ -172,8 +176,9 @@ export default function Gallery({ showViewAll = true, initialImages }: GalleryPr
                 className="break-inside-avoid relative group overflow-hidden border border-white/10 bg-[#111317] shadow-md hover:shadow-xl hover:border-[#A62681]/30 transition-all duration-300"
               >
                 <img
-                  src={img.url}
-                  alt={img.title || "Gallery image"}
+                  src={toBarrisolUrl(img.url)}
+                  alt={img.alt || img.title || "Gallery image"}
+                  title={img.title}
                   className="w-full h-auto block group-hover:scale-105 transition-transform duration-700 ease-out brightness-90 group-hover:brightness-100"
                   loading="lazy"
                 />

@@ -32,16 +32,17 @@ export async function PUT(req: NextRequest) {
 
     await connectDB();
     const body = await req.json();
-    
+
     let settings = await HomePageSettings.findOne({});
     if (!settings) {
       settings = await HomePageSettings.create(body);
     } else {
-      settings = await HomePageSettings.findOneAndUpdate({}, body, { new: true });
+      settings = await HomePageSettings.findOneAndUpdate({}, body, { returnDocument: 'after' });
     }
-    
+
     revalidatePath("/");
-    
+
+
     return NextResponse.json({ success: true, settings });
   } catch (error: any) {
     return NextResponse.json(

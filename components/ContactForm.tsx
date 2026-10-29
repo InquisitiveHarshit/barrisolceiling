@@ -44,7 +44,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
   const fields = [
     { id: "name",  label: "Full Name",     type: "text",  required: true  },
     { id: "email", label: "Email Address", type: "email", required: true  },
-    { id: "phone", label: "Phone Number",  type: "tel",   required: false },
+    { id: "phone", label: "Phone Number",  type: "tel",   required: true  },
   ];
 
   const formBlock = (
@@ -109,6 +109,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                 id="message"
                 rows={3}
                 placeholder=" "
+                required
                 value={form.message}
                 onChange={handleChange}
                 disabled={status === "loading"}
@@ -118,7 +119,7 @@ export default function ContactForm({ compact = false }: ContactFormProps) {
                 htmlFor="message"
                 className="absolute font-mono text-xs uppercase tracking-wider text-[#8E94A0] duration-300 transform -translate-y-5 scale-75 top-3 origin-[0] peer-focus:text-[#A62681] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-5 transition-all pointer-events-none"
               >
-                Message (optional)
+                Message / Requirement *
               </label>
             </div>
 
