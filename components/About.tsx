@@ -34,13 +34,6 @@ export default function About() {
               src="/hero-stretch-ceiling.webp"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
-            {/* Accent badge */}
-            <div className="absolute bottom-6 left-6 bg-gradient-to-r from-[#6A2C91] to-[#A62681] text-white px-5 py-4 rounded-xs shadow-xl backdrop-blur-md">
-              <p className="font-mono text-3xl font-light mb-0.5">10+</p>
-              <p className="font-mono text-[10px] uppercase tracking-wider text-white/80">
-                Years of Excellence
-              </p>
-            </div>
           </motion.div>
 
           {/* Content */}
@@ -55,8 +48,8 @@ export default function About() {
               <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#A62681] dark:text-[#E4B5FF] font-semibold block mb-3">
                 India Atelier
               </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl text-zinc-900 dark:text-white font-serif font-normal leading-tight">
-                Leading Stretch Ceiling Experts in India
+              <h2 className="text-2xl sm:text-3xl lg:text-[2.5rem] text-zinc-900 dark:text-white font-serif font-normal leading-tight">
+                Leading Stretch Ceiling Experts with 10+ Years Experience
               </h2>
             </motion.div>
 

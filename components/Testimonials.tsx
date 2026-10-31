@@ -129,7 +129,7 @@ export default function Testimonials() {
               Architectural Dialogue
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl text-zinc-900 dark:text-white font-serif font-normal">
-              Endorsements &amp; Testimonials
+              What Our Customers Across India Say
             </h2>
           </div>
           <p className="text-sm text-zinc-600 dark:text-[#8E94A0] max-w-xs font-light">

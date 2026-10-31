@@ -43,7 +43,7 @@ export default function Blogs() {
               Editorial Insights
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-serif font-normal">
-              Latest Spatial &amp; Lighting Dispatch
+              Stretch Ceiling Tips, Price Guides &amp; Lighting Ideas
             </h2>
           </div>
           <Link

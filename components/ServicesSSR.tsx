@@ -49,7 +49,7 @@ export default function ServicesSSR({ services }: ServicesSSRProps) {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pb-10 sm:pb-12 border-b border-white/10">
             <div>
               <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-serif font-normal">
-                Architectural Systems &amp; Typologies
+                Our Stretch Ceiling Types: Star Light, Glossy, Acoustic & Backlit
               </h2>
             </div>
             <Link

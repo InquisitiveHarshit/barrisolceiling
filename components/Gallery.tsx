@@ -61,7 +61,7 @@ export default function Gallery({ showViewAll = true, initialImages }: GalleryPr
               Spatial Portfolio
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-serif font-normal">
-              {showViewAll ? "Curated Spatial Commissions" : "Craftsmanship Portfolio"}
+              Our Stretch Ceiling Projects & Design Ideas
             </h2>
           </div>
           <div className="flex items-center gap-4">

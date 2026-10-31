@@ -2,14 +2,16 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import ServicesSSR from "@/components/ServicesSSR";
+import IndustriesWeServe from "@/components/IndustriesWeServe";
 import WhyChooseUs from "@/components/WhyChooseUs";
+import CtaBanner from "@/components/CtaBanner";
 import OurClients from "@/components/OurClients";
 import Gallery from "@/components/Gallery";
 import BlogsSSR from "@/components/BlogsSSR";
 import Testimonials from "@/components/Testimonials";
+import Faq from "@/components/Faq";
 import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
-import Faq from "@/components/Faq";
 import connectDB from "@/lib/db";
 import HomePageSettings from "@/models/HomePageSettings";
 import Service from "@/models/Service";
@@ -51,22 +53,39 @@ export default async function Home() {
     ? JSON.parse(JSON.stringify((settingsRaw as any).faqs))
     : [];
 
+  const rawSchema = settingsRaw && (settingsRaw as any).schemaMarkup
+    ? String((settingsRaw as any).schemaMarkup).trim()
+    : "";
+
+  // Strip wrapping <script> tags if user pasted full HTML snippet
+  const cleanSchema = rawSchema.startsWith("<script")
+    ? rawSchema.replace(/^<script[^>]*>/i, "").replace(/<\/script>$/i, "").trim()
+    : rawSchema;
+
   // Serialize for client components (removes Mongoose internals)
   const services = JSON.parse(JSON.stringify(servicesRaw));
   const blogs = JSON.parse(JSON.stringify(blogsRaw));
 
   return (
     <main>
+      {cleanSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: cleanSchema }}
+        />
+      )}
       <Navbar />
       <Hero />
       <About />
       <ServicesSSR services={services} />
+      <IndustriesWeServe />
       <WhyChooseUs />
+      <CtaBanner />
       <OurClients />
       <Gallery />
-      <Faq faqs={faqs} />
       <BlogsSSR posts={blogs} />
       <Testimonials />
+      <Faq faqs={faqs} />
       <ContactForm />
       <Footer />
     </main>

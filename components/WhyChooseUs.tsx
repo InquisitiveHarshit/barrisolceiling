@@ -86,7 +86,7 @@ export default function WhyChooseUs() {
               />
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl text-white font-serif font-normal">
-              Why Clients Trust Us
+              Why Choose Us for Stretch Ceiling Installation
             </h2>
           </div>
           <p className="text-sm text-[#8E94A0] max-w-xs font-light leading-relaxed shrink-0">
