@@ -3,7 +3,18 @@ import React, { useState } from "react";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { trackFormSubmission } from "@/lib/gtag";
 
-export default function LandingContactForm() {
+interface LandingContactFormProps {
+  formTrackingName?: string;
+  onSuccess?: () => void;
+}
+
+const DEFAULT_AUTOMATED_MESSAGE =
+  "I am interested in Stretch Ceiling installation and lighting consultation for my space.";
+
+export default function LandingContactForm({
+  formTrackingName = "landing_page_hero_form",
+  onSuccess,
+}: LandingContactFormProps) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -15,17 +26,30 @@ export default function LandingContactForm() {
     e.preventDefault();
     setStatus("loading");
     setErrorMsg("");
+
+    // Automated default message if user leaves the message box empty
+    const messageToSend = form.message.trim() || DEFAULT_AUTOMATED_MESSAGE;
+
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      message: messageToSend,
+    };
+
     try {
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Something went wrong.");
-      trackFormSubmission("landing_page_hero_form");
+
+      trackFormSubmission(formTrackingName);
       setStatus("success");
       setForm({ name: "", email: "", phone: "", message: "" });
+      if (onSuccess) onSuccess();
     } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Failed to submit. Please try again.");
@@ -58,36 +82,35 @@ export default function LandingContactForm() {
         { id: "phone", label: "Phone Number *", type: "tel" },
       ].map((field) => (
         <div key={field.id}>
-            <label htmlFor={field.id} className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-              {field.label}
-            </label>
-            <input
-              id={field.id}
-              type={field.type}
-              required
-              value={form[field.id as keyof typeof form]}
-              onChange={handleChange}
-              disabled={status === "loading"}
-              className="w-full px-3.5 py-2.5 bg-white border border-black/20 text-gray-900 text-sm focus:outline-none focus:border-[#A82F9D] transition-colors placeholder-gray-400"
-              placeholder={field.label.replace(" *", "")}
-            />
+          <label htmlFor={field.id} className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+            {field.label}
+          </label>
+          <input
+            id={field.id}
+            type={field.type}
+            required
+            value={form[field.id as keyof typeof form]}
+            onChange={handleChange}
+            disabled={status === "loading"}
+            className="w-full px-3.5 py-2.5 bg-white border border-black/20 text-gray-900 text-sm focus:outline-none focus:border-[#A82F9D] transition-colors placeholder-gray-400"
+            placeholder={field.label.replace(" *", "")}
+          />
         </div>
       ))}
 
       <div>
-          <label htmlFor="message" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-            Message / Requirement *
-          </label>
-          <textarea
-            id="message"
-            rows={3}
-            required
-            value={form.message}
-            onChange={handleChange}
-            disabled={status === "loading"}
-            className="w-full px-3.5 py-2.5 bg-white border border-black/20 text-gray-900 text-sm focus:outline-none focus:border-[#A82F9D] transition-colors resize-none placeholder-gray-400"
-            placeholder="Tell us about your project…"
-          />
+        <label htmlFor="message" className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
+          Message / Requirement
+        </label>
+        <textarea
+          id="message"
+          rows={3}
+          value={form.message}
+          onChange={handleChange}
+          disabled={status === "loading"}
+          className="w-full px-3.5 py-2.5 bg-white border border-black/20 text-gray-900 text-sm focus:outline-none focus:border-[#A82F9D] transition-colors resize-none placeholder-gray-400"
+          placeholder="Tell us about your project…"
+        />
       </div>
 
       {status === "error" && (

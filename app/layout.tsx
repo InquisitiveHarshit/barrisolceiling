@@ -102,7 +102,7 @@ const organizationSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={cn("dark", "font-sans", geist.variable)}>
+    <html lang="en" suppressHydrationWarning className={cn("dark", "font-sans", geist.variable)}>
       <head>
         <meta name="google-site-verification" content="k1vOl6gSCn1EBAG3SE7CLN1l9xE3NPMwEsXMNvUorXo" />
         {/* AI-readable site summary — lets Claude, ChatGPT, Perplexity etc. find content */}
@@ -117,23 +117,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
-
+      </head>
+      <body
+        suppressHydrationWarning
+        className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}
+      >
+        {/* ── Google Analytics & Google Ads gtag (afterInteractive) ── */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F8JDH2R0ML"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
-        <Script id="google-analytics-gtag" strategy="lazyOnload">
+        <Script id="google-analytics-gtag" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
           
-            gtag('config', 'G-F8JDH2R0ML');
+            gtag('config', 'G-F8JDH2R0ML', {
+              page_path: window.location.pathname,
+            });
             gtag('config', 'AW-18383636220');
           `}
         </Script>
-      </head>
-      <body className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}>
+
         {children}
         <WhatsAppButton />
       </body>

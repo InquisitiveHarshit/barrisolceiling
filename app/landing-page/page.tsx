@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import LandingNav from "@/components/landing/LandingNav";
 import LandingHero from "@/components/landing/LandingHero";
+import LandingQuoteSection from "@/components/landing/LandingQuoteSection";
 import LandingAbout from "@/components/landing/LandingAbout";
 import LandingServices from "@/components/landing/LandingServices";
 import LandingIndustries from "@/components/landing/LandingIndustries";
@@ -11,6 +12,7 @@ import LandingBlogs from "@/components/landing/LandingBlogs";
 import LandingTestimonials from "@/components/landing/LandingTestimonials";
 import LandingFaq from "@/components/landing/LandingFaq";
 import LandingFooter from "@/components/landing/LandingFooter";
+import LandingModal from "@/components/landing/LandingModal";
 import connectDB from "@/lib/db";
 import HomePageSettings from "@/models/HomePageSettings";
 import Service from "@/models/Service";
@@ -40,7 +42,7 @@ export default async function LandingPage() {
     : [];
 
   const services = JSON.parse(JSON.stringify(servicesRaw));
-  const blogs    = JSON.parse(JSON.stringify(blogsRaw));
+  const blogs = JSON.parse(JSON.stringify(blogsRaw));
 
   return (
     <main className="bg-white text-gray-900 min-h-screen selection:bg-[#A82F9D]/20 selection:text-[#A82F9D]">
@@ -50,7 +52,10 @@ export default async function LandingPage() {
       {/* Light-theme hero with embedded contact form */}
       <LandingHero />
 
-      {/* Light-theme & #A82F9D matching sections for landing page only */}
+      {/* Auto-scrollable Featured Projects Carousel with GET QUOTE button (under Hero, above About Us) */}
+      <LandingQuoteSection />
+
+      {/* Light-theme & #A82F9D matching sections */}
       <LandingAbout />
       <LandingServices services={services} />
       <LandingIndustries />
@@ -63,6 +68,9 @@ export default async function LandingPage() {
 
       {/* Light-theme footer */}
       <LandingFooter />
+
+      {/* Modal popup (opens 7s after page load OR on clicking GET QUOTE button) */}
+      <LandingModal />
     </main>
   );
 }
