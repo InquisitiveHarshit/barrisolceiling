@@ -3,7 +3,7 @@
  * to first-party Barrisol domain URLs (e.g. /media/... or https://barrisolceiling.com/media/...)
  */
 
-const CLOUDINARY_UPLOAD_REGEX = /^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//;
+const CLOUDINARY_UPLOAD_REGEX = /^https?:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/(?:f_auto,q_auto\/)?/;
 
 /**
  * Converts a raw Cloudinary URL into a first-party Barrisol domain URL.

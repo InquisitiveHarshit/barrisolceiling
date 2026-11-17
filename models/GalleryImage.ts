@@ -7,6 +7,7 @@ export interface IGalleryImage extends Document {
   alt?: string;
   location?: string;
   showInHero: boolean;
+  order?: number;
   // Spec row metadata
   material?: string;
   materialSpec?: string;
@@ -25,6 +26,7 @@ const GalleryImageSchema = new Schema<IGalleryImage>(
     alt:       { type: String, default: "" },
     location:  { type: String, default: "" },
     showInHero:{ type: Boolean, default: false },
+    order:     { type: Number, default: 0 },
     material:      { type: String, default: "" },
     materialSpec:  { type: String, default: "" },
     lightingCCT:   { type: String, default: "" },

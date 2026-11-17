@@ -2,7 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Upload, Loader2, Image as ImageIcon, Trash2, Pencil, Check, X, Star } from "lucide-react";
+import {
+  Upload,
+  Loader2,
+  Image as ImageIcon,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  Star,
+  ArrowLeft,
+  ArrowRight,
+  GripVertical,
+} from "lucide-react";
 import Image from "next/image";
 
 interface GalleryImg {
@@ -12,6 +24,7 @@ interface GalleryImg {
   alt?: string;
   location?: string;
   showInHero?: boolean;
+  order?: number;
   material?: string;
   materialSpec?: string;
   lightingCCT?: string;
@@ -25,11 +38,20 @@ export default function GalleryPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState({
-    title: "", alt: "", location: "", showInHero: false,
-    material: "", materialSpec: "",
-    lightingCCT: "", warranty: "",
+    title: "",
+    alt: "",
+    location: "",
+    showInHero: false,
+    order: 0 as number | string,
+    material: "",
+    materialSpec: "",
+    lightingCCT: "",
+    warranty: "",
   });
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
+  const [reorderFeedback, setReorderFeedback] = useState<string | null>(null);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
   const [blackAndWhite, setBlackAndWhite] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "hero">("all");
   const reduce = useReducedMotion();
@@ -99,333 +121,508 @@ export default function GalleryPage() {
     }
   };
 
-  const startEdit = (img: GalleryImg) => {
-    setEditingId(img._id);
-    setEditDraft({
-      title: img.title || "", alt: img.alt || "", location: img.location || "", showInHero: !!img.showInHero,
-      material: img.material || "", materialSpec: img.materialSpec || "",
-      lightingCCT: img.lightingCCT || "", warranty: img.warranty || "",
-    });
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditDraft({
-      title: "", alt: "", location: "", showInHero: false,
-      material: "", materialSpec: "",
-      lightingCCT: "", warranty: "",
-    });
-  };
-
-  const saveEdit = async (id: string) => {
-    setSavingId(id);
-    try {
-      const res = await fetch("/api/gallery", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, ...editDraft }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setImages((prev) =>
-          prev.map((img) => img._id === id ? { ...img, ...editDraft } : img)
-        );
-        setEditingId(null);
+    const saveReorder = async (reorderedList: GalleryImg[]) => {
+      setIsReordering(true);
+      try {
+        const payload = reorderedList.map((img, idx) => ({
+          id: img._id,
+          order: idx + 1,
+        }));
+        const res = await fetch("/api/gallery", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reorder: payload }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setReorderFeedback("Saved");
+          setTimeout(() => setReorderFeedback(null), 2500);
+        }
+      } catch (err) {
+        console.error("Failed to save reorder", err);
+      } finally {
+        setIsReordering(false);
       }
-    } catch (err) {
-      console.error("Save failed", err);
-    } finally {
-      setSavingId(null);
-    }
-  };
+    };
 
-  return (
-    <div className="p-8 max-w-[84rem] mx-auto w-full">
-      <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-medium tracking-tight text-zinc-900">Gallery</h2>
-          <p className="text-sm text-zinc-500 mt-1">Manage your image gallery assets. Hover an image to edit its label.</p>
-        </div>
+    const moveItem = (displayedIndex: number, direction: "prev" | "next") => {
+      const targetIndex = direction === "prev" ? displayedIndex - 1 : displayedIndex + 1;
+      const displayed = activeTab === "hero" ? images.filter((i) => i.showInHero) : images;
+      if (targetIndex < 0 || targetIndex >= displayed.length) return;
 
-        <div className="flex items-center gap-3">
-          {/* B&W Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <div
-              onClick={() => setBlackAndWhite((v) => !v)}
-              className={`relative w-9 h-5 rounded-full transition-colors ${blackAndWhite ? "bg-zinc-900" : "bg-zinc-200"}`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
-              />
-            </div>
-            <span className="text-sm font-medium text-zinc-700">
-              {blackAndWhite ? "B&W" : "Colour"}
-            </span>
-          </label>
+      const currentItem = displayed[displayedIndex];
+      const targetItem = displayed[targetIndex];
 
-          <label className="relative flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg cursor-pointer hover:bg-zinc-800 transition-colors">
-            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-            {isUploading ? "Uploading..." : "Upload Image"}
-            <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={isUploading} />
-          </label>
-        </div>
-      </header>
+      const globalCurrentIdx = images.findIndex((img) => img._id === currentItem._id);
+      const globalTargetIdx = images.findIndex((img) => img._id === targetItem._id);
 
-      {/* ── Tabs ── */}
-      {!loading && (
-        <div className="flex gap-0 mb-6 border-b-2 border-zinc-200">
-          {(["all", "hero"] as const).map((t) => {
-            const count = t === "all" ? images.length : images.filter((i) => i.showInHero).length;
-            return (
-              <button
-                key={t}
-                onClick={() => setActiveTab(t)}
-                className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-[2px]"
-                style={{
-                  fontFamily: "Georgia, serif",
-                  color: activeTab === t ? "#111827" : "#6b7280",
-                  borderBottomColor: activeTab === t ? "#111827" : "transparent",
-                  background: "transparent",
-                  border: "none",
-                  borderBottom: activeTab === t ? "2px solid #111827" : "2px solid transparent",
-                  cursor: "pointer",
-                }}
-              >
-                {t === "all" ? `All Images (${count})` : `★ Hero Carousel (${count})`}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      if (globalCurrentIdx === -1 || globalTargetIdx === -1) return;
 
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-zinc-300" />
-        </div>
-      ) : (() => {
-        const displayed = activeTab === "hero" ? images.filter((i) => i.showInHero) : images;
-        return displayed.length === 0 ? (
-          <div className="text-center py-20 bg-white border border-dashed border-zinc-300 rounded-2xl">
-            <ImageIcon className="w-10 h-10 mx-auto text-zinc-300 mb-4" />
-            {activeTab === "hero" ? (
-              <>
-                <p className="text-zinc-500 font-medium text-sm">No hero images selected yet</p>
-                <p className="text-zinc-400 text-xs mt-1">Click the edit (pencil) button on any image and toggle "Show in Hero Carousel"</p>
-              </>
-            ) : (
-              <>
-                <p className="text-zinc-500 font-medium text-sm">No images yet</p>
-                <p className="text-zinc-400 text-xs mt-1">Upload your first image to the gallery</p>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {displayed.map((img, i) => (
-            <motion.div
-              key={img._id}
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
-              className="relative aspect-square rounded-xl overflow-hidden bg-zinc-100 group border border-zinc-200"
-            >
-              <Image
-                src={img.url}
-                alt={img.alt || img.title || "Gallery image"}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, 25vw"
-              />
+      const newImages = [...images];
+      const temp = newImages[globalCurrentIdx];
+      newImages[globalCurrentIdx] = newImages[globalTargetIdx];
+      newImages[globalTargetIdx] = temp;
 
-              {/* Hero badge */}
-              {img.showInHero && (
-                <div className="absolute top-2 left-2 z-10 bg-amber-400 rounded px-1.5 py-0.5 flex items-center gap-1">
-                  <Star className="w-2.5 h-2.5 text-white fill-white" />
-                  <span className="text-[9px] font-bold text-white uppercase tracking-wide">Hero</span>
-                </div>
+      const updatedWithOrders = newImages.map((img, idx) => ({
+        ...img,
+        order: idx + 1,
+      }));
+
+      setImages(updatedWithOrders);
+      saveReorder(updatedWithOrders);
+    };
+
+    const handleDragStart = (id: string) => {
+      setDraggedId(id);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = (targetId: string) => {
+      if (!draggedId || draggedId === targetId) {
+        setDraggedId(null);
+        return;
+      }
+
+      const dragIdx = images.findIndex((img) => img._id === draggedId);
+      const dropIdx = images.findIndex((img) => img._id === targetId);
+
+      if (dragIdx === -1 || dropIdx === -1) {
+        setDraggedId(null);
+        return;
+      }
+
+      const newImages = [...images];
+      const [removed] = newImages.splice(dragIdx, 1);
+      newImages.splice(dropIdx, 0, removed);
+
+      const updatedWithOrders = newImages.map((img, idx) => ({
+        ...img,
+        order: idx + 1,
+      }));
+
+      setImages(updatedWithOrders);
+      setDraggedId(null);
+      saveReorder(updatedWithOrders);
+    };
+
+    const startEdit = (img: GalleryImg, index: number) => {
+      setEditingId(img._id);
+      setEditDraft({
+        title: img.title || "",
+        alt: img.alt || "",
+        location: img.location || "",
+        showInHero: !!img.showInHero,
+        order: img.order !== undefined && img.order > 0 ? img.order : index + 1,
+        material: img.material || "",
+        materialSpec: img.materialSpec || "",
+        lightingCCT: img.lightingCCT || "",
+        warranty: img.warranty || "",
+      });
+    };
+
+    const cancelEdit = () => {
+      setEditingId(null);
+      setEditDraft({
+        title: "",
+        alt: "",
+        location: "",
+        showInHero: false,
+        order: 0,
+        material: "",
+        materialSpec: "",
+        lightingCCT: "",
+        warranty: "",
+      });
+    };
+
+    const saveEdit = async (id: string) => {
+      setSavingId(id);
+      try {
+        const orderNum = Number(editDraft.order) || 0;
+        const res = await fetch("/api/gallery", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, ...editDraft, order: orderNum }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          await fetchImages();
+          setEditingId(null);
+        }
+      } catch (err) {
+        console.error("Save failed", err);
+      } finally {
+        setSavingId(null);
+      }
+    };
+
+    return (
+      <div className="p-8 max-w-[84rem] mx-auto w-full">
+        <header className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-medium tracking-tight text-zinc-900">Gallery</h2>
+            <div className="text-sm text-zinc-500 mt-1 flex flex-wrap items-center gap-2">
+              <span>Manage gallery assets &amp; define presentation order. Use ← / → arrows or drag &amp; drop to reorder.</span>
+              {isReordering && (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Saving order...
+                </span>
               )}
-
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-3">
-                {/* Top: action buttons */}
-                <div className="flex justify-end gap-1.5">
-                  <button
-                    onClick={() => startEdit(img)}
-                    className="bg-white/20 hover:bg-white/40 text-white p-1.5 rounded-lg transition-colors backdrop-blur-sm"
-                    title="Edit label"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(img._id)}
-                    disabled={deletingId === img._id}
-                    className="bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-lg transition-colors disabled:opacity-50"
-                    title="Delete image"
-                  >
-                    {deletingId === img._id
-                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      : <Trash2 className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-
-                {/* Bottom: title + location + alt */}
-                <div>
-                  <p className="text-white text-xs font-semibold truncate">{img.title || "Untitled"}</p>
-                  {img.location && (
-                    <p className="text-white/70 text-[10px] truncate">{img.location}</p>
-                  )}
-                  {img.alt && (
-                    <p className="text-amber-300/90 text-[9px] truncate mt-0.5" title={img.alt}>
-                      <span className="opacity-60">ALT:</span> {img.alt}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-          </div>
-        );
-      })()}
-
-      {/* Edit Modal */}
-      {editingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-          >
-            {/* Modal header */}
-            <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-zinc-100 z-10">
-              <h3 className="text-base font-semibold text-zinc-900">Edit Image Metadata</h3>
-              <p className="text-xs text-zinc-400 mt-0.5">Edit title, alt text for SEO/accessibility, and spec details</p>
+              {reorderFeedback && (
+                <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <Check className="w-3 h-3" /> Order saved
+                </span>
+              )}
             </div>
+          </div>
 
-            <div className="px-6 py-4 space-y-4">
-
-              {/* ── Basic info ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Basic Info &amp; SEO</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Title <span className="text-zinc-400">(Project Reference)</span></label>
-                  <input type="text" value={editDraft.title}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
-                    placeholder="e.g. Stretch Ceiling"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Location</label>
-                  <input type="text" value={editDraft.location}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, location: e.target.value }))}
-                    placeholder="e.g. Gurugram, India"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-500 mb-1">
-                  Alt Text <span className="text-zinc-400 font-normal">(Alternative text for screen readers &amp; image SEO)</span>
-                </label>
-                <input
-                  type="text"
-                  value={editDraft.alt}
-                  onChange={(e) => setEditDraft((d) => ({ ...d, alt: e.target.value }))}
-                  placeholder="e.g. Translucent backlit stretch ceiling installation in luxury residential dining room"
-                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+          <div className="flex items-center gap-3">
+            {/* B&W Toggle */}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <div
+                onClick={() => setBlackAndWhite((v) => !v)}
+                className={`relative w-9 h-5 rounded-full transition-colors ${blackAndWhite ? "bg-zinc-900" : "bg-zinc-200"}`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${blackAndWhite ? "translate-x-4" : "translate-x-0"}`}
                 />
               </div>
+              <span className="text-sm font-medium text-zinc-700">
+                {blackAndWhite ? "B&W" : "Colour"}
+              </span>
+            </label>
 
-              {/* ── Tension Material ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Tension Material</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Name</label>
-                  <input type="text" value={editDraft.material}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, material: e.target.value }))}
-                    placeholder="e.g. Barrisol"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Spec</label>
-                  <input type="text" value={editDraft.materialSpec}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, materialSpec: e.target.value }))}
-                    placeholder="e.g. Translucent 0.18mm"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-              </div>
+            <label className="relative flex items-center justify-center gap-2 px-4 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg cursor-pointer hover:bg-zinc-800 transition-colors">
+              {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {isUploading ? "Uploading..." : "Upload Image"}
+              <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={isUploading} />
+            </label>
+          </div>
+        </header>
 
-              {/* ── Lighting & Warranty ── */}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Lighting &amp; Warranty</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Lighting CCT</label>
-                  <input type="text" value={editDraft.lightingCCT}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, lightingCCT: e.target.value }))}
-                    placeholder="e.g. 2700K / 6000K"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-zinc-500 mb-1">Warranty</label>
-                  <input type="text" value={editDraft.warranty}
-                    onChange={(e) => setEditDraft((d) => ({ ...d, warranty: e.target.value }))}
-                    placeholder="e.g. 21 Years"
-                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                  />
-                </div>
-              </div>
-
-              {/* ── Show in Hero toggle ── */}
-              <div className="pt-2">
+        {/* ── Tabs ── */}
+        {!loading && (
+          <div className="flex gap-0 mb-6 border-b-2 border-zinc-200">
+            {(["all", "hero"] as const).map((t) => {
+              const count = t === "all" ? images.length : images.filter((i) => i.showInHero).length;
+              return (
                 <button
-                  type="button"
-                  onClick={() => setEditDraft((d) => ({ ...d, showInHero: !d.showInHero }))}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${
-                    editDraft.showInHero
-                      ? "bg-amber-50 border-amber-300 text-amber-800"
-                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300"
-                  }`}
+                  key={t}
+                  onClick={() => setActiveTab(t)}
+                  className="px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-[2px]"
+                  style={{
+                    fontFamily: "Georgia, serif",
+                    color: activeTab === t ? "#111827" : "#6b7280",
+                    borderBottomColor: activeTab === t ? "#111827" : "transparent",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: activeTab === t ? "2px solid #111827" : "2px solid transparent",
+                    cursor: "pointer",
+                  }}
                 >
-                  <div className="flex items-center gap-2">
-                    <Star className={`w-4 h-4 transition-colors ${editDraft.showInHero ? "text-amber-500 fill-amber-500" : "text-zinc-400"}`} />
-                    <span className="text-sm font-medium">Show in Hero Carousel</span>
-                  </div>
-                  <div className={`relative w-9 h-5 rounded-full transition-colors ${editDraft.showInHero ? "bg-amber-400" : "bg-zinc-300"}`}>
-                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${editDraft.showInHero ? "translate-x-4" : "translate-x-0"}`} />
-                  </div>
+                  {t === "all" ? `All Images (${count})` : `★ Hero Carousel (${count})`}
                 </button>
-              </div>
+              );
+            })}
+          </div>
+        )}
 
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-zinc-300" />
+          </div>
+        ) : (() => {
+          const displayed = activeTab === "hero" ? images.filter((i) => i.showInHero) : images;
+          return displayed.length === 0 ? (
+            <div className="text-center py-20 bg-white border border-dashed border-zinc-300 rounded-2xl">
+              <ImageIcon className="w-10 h-10 mx-auto text-zinc-300 mb-4" />
+              {activeTab === "hero" ? (
+                <>
+                  <p className="text-zinc-500 font-medium text-sm">No hero images selected yet</p>
+                  <p className="text-zinc-400 text-xs mt-1">Click the edit (pencil) button on any image and toggle "Show in Hero Carousel"</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-zinc-500 font-medium text-sm">No images yet</p>
+                  <p className="text-zinc-400 text-xs mt-1">Upload your first image to the gallery</p>
+                </>
+              )}
             </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {displayed.map((img, i) => (
+                <motion.div
+                  key={img._id}
+                  draggable
+                  onDragStart={() => handleDragStart(img._id)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(img._id)}
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.03, ease: [0.23, 1, 0.32, 1] }}
+                  className={`relative aspect-square rounded-xl overflow-hidden bg-zinc-100 group border transition-all cursor-grab active:cursor-grabbing ${draggedId === img._id
+                      ? "opacity-40 border-dashed border-zinc-500 scale-95"
+                      : "border-zinc-200 hover:shadow-md"
+                    }`}
+                >
+                  <Image
+                    src={img.url}
+                    alt={img.alt || img.title || "Gallery image"}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
 
-            {/* Footer buttons */}
-            <div className="sticky bottom-0 bg-white px-6 py-4 border-t border-zinc-100 flex gap-2">
-              <button
-                onClick={cancelEdit}
-                className="flex-1 flex items-center justify-center gap-1.5 border border-zinc-200 text-sm font-medium py-2.5 rounded-lg hover:bg-zinc-50 transition-colors"
-                style={{ color: "#4b5563", backgroundColor: "#f9fafb" }}
-              >
-                <X className="w-4 h-4" /> Cancel
-              </button>
-              <button
-                onClick={() => saveEdit(editingId)}
-                disabled={!!savingId}
-                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60"
-                style={{ color: "#ffffff", backgroundColor: "#111827", border: "none" }}
-              >
-                {savingId
-                  ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#ffffff" }} />
-                  : <Check className="w-4 h-4" style={{ color: "#ffffff" }} />}
-                <span style={{ color: "#ffffff" }}>Save Changes</span>
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </div>
-  );
+                  {/* Order number badge */}
+                  <div className="absolute top-2 left-2 z-10 bg-zinc-950/85 backdrop-blur-md text-white text-[11px] font-mono font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-0.5 border border-white/20 select-none">
+                    <span className="text-zinc-400 font-normal">#</span>
+                    <span>{i + 1}</span>
+                  </div>
+
+                  {/* Hero badge */}
+                  {img.showInHero && (
+                      <div className="absolute top-2 left-12 z-10 bg-amber-400 rounded px-1.5 py-0.5 flex items-center gap-1 shadow-sm select-none">
+                        <Star className="w-2.5 h-2.5 text-white fill-white" />
+                        <span className="text-[9px] font-bold text-white uppercase tracking-wide">Hero</span>
+                      </div>
+              )}
+
+                      {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-black/65 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-3">
+                            {/* Top: order arrows + action buttons */}
+                            <div className="flex justify-between items-center gap-1">
+                              {/* Move Left / Right buttons */}
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); moveItem(i, "prev"); }}
+                                  disabled={i === 0 || isReordering}
+                                  className="bg-white/25 hover:bg-white/45 disabled:opacity-25 disabled:pointer-events-none text-white p-1.5 rounded-lg transition-colors backdrop-blur-sm cursor-pointer"
+                                  title="Move Earlier (←)"
+                                >
+                                  <ArrowLeft className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); moveItem(i, "next"); }}
+                                  disabled={i === displayed.length - 1 || isReordering}
+                                  className="bg-white/25 hover:bg-white/45 disabled:opacity-25 disabled:pointer-events-none text-white p-1.5 rounded-lg transition-colors backdrop-blur-sm cursor-pointer"
+                                  title="Move Later (→)"
+                                >
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); startEdit(img, i); }}
+                                  className="bg-white/25 hover:bg-white/45 text-white p-1.5 rounded-lg transition-colors backdrop-blur-sm cursor-pointer"
+                                  title="Edit label & order"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); handleDelete(img._id); }}
+                                  disabled={deletingId === img._id}
+                                  className="bg-red-500/80 hover:bg-red-600 text-white p-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                                  title="Delete image"
+                                >
+                                  {deletingId === img._id
+                                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    : <Trash2 className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Center drag helper */}
+                            <div className="flex items-center justify-center text-white/50 text-[10px] font-mono tracking-wider gap-1 select-none pointer-events-none">
+                              <GripVertical className="w-3 h-3" />
+                              <span>DRAG TO REORDER</span>
+                            </div>
+
+                            {/* Bottom: title + location + alt */}
+                            <div>
+                              <p className="text-white text-xs font-semibold truncate">{img.title || "Untitled"}</p>
+                              {img.location && (
+                                <p className="text-white/70 text-[10px] truncate">{img.location}</p>
+                              )}
+                              {img.alt && (
+                                <p className="text-amber-300/90 text-[9px] truncate mt-0.5" title={img.alt}>
+                                  <span className="opacity-60">ALT:</span> {img.alt}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </motion.div>
+          ))}
+                      </div>
+                      );
+      })()}
+
+                      {/* Edit Modal */}
+                      {editingId && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+                          >
+                            {/* Modal header */}
+                            <div className="sticky top-0 bg-white px-6 pt-6 pb-4 border-b border-zinc-100 z-10">
+                              <h3 className="text-base font-semibold text-zinc-900">Edit Image Metadata &amp; Order</h3>
+                              <p className="text-xs text-zinc-400 mt-0.5">Edit title, display position, alt text for SEO/accessibility, and spec details</p>
+                            </div>
+
+                            <div className="px-6 py-4 space-y-4">
+
+                              {/* ── Basic info ── */}
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Basic Info &amp; SEO</p>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Title <span className="text-zinc-400">(Project Reference)</span></label>
+                                  <input type="text" value={editDraft.title}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, title: e.target.value }))}
+                                    placeholder="e.g. Stretch Ceiling"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Location</label>
+                                  <input type="text" value={editDraft.location}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, location: e.target.value }))}
+                                    placeholder="e.g. Gurugram, India"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-zinc-500 mb-1">
+                                  Alt Text <span className="text-zinc-400 font-normal">(Alternative text for screen readers &amp; image SEO)</span>
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editDraft.alt}
+                                  onChange={(e) => setEditDraft((d) => ({ ...d, alt: e.target.value }))}
+                                  placeholder="e.g. Translucent backlit stretch ceiling installation in luxury residential dining room"
+                                  className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                />
+                              </div>
+
+                              {/* ── Display Order Setting ── */}
+                              <div className="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200/80">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-2">Presentation Order</p>
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-700 mb-1">
+                                    Display Order / Position Number
+                                  </label>
+                                  <input
+                                    type="number"
+                                    min={1}
+                                    value={editDraft.order}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, order: e.target.value }))}
+                                    placeholder="e.g. 1"
+                                    className="w-full border border-zinc-300 bg-white rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                  <p className="text-[11px] text-zinc-500 mt-1.5 leading-relaxed">
+                                    Position <strong>1</strong> appears first in the gallery and carousels. Lower numbers appear earlier.
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* ── Tension Material ── */}
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Tension Material</p>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Name</label>
+                                  <input type="text" value={editDraft.material}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, material: e.target.value }))}
+                                    placeholder="e.g. Barrisol"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Material Spec</label>
+                                  <input type="text" value={editDraft.materialSpec}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, materialSpec: e.target.value }))}
+                                    placeholder="e.g. Translucent 0.18mm"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* ── Lighting & Warranty ── */}
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 pt-2">Lighting &amp; Warranty</p>
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Lighting CCT</label>
+                                  <input type="text" value={editDraft.lightingCCT}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, lightingCCT: e.target.value }))}
+                                    placeholder="e.g. 2700K / 6000K"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-xs font-medium text-zinc-500 mb-1">Warranty</label>
+                                  <input type="text" value={editDraft.warranty}
+                                    onChange={(e) => setEditDraft((d) => ({ ...d, warranty: e.target.value }))}
+                                    placeholder="e.g. 21 Years"
+                                    className="w-full border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* ── Show in Hero toggle ── */}
+                              <div className="pt-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditDraft((d) => ({ ...d, showInHero: !d.showInHero }))}
+                                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border transition-colors ${editDraft.showInHero
+                                      ? "bg-amber-50 border-amber-300 text-amber-800"
+                                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300"
+                                    }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Star className={`w-4 h-4 transition-colors ${editDraft.showInHero ? "text-amber-500 fill-amber-500" : "text-zinc-400"}`} />
+                                    <span className="text-sm font-medium">Show in Hero Carousel</span>
+                                  </div>
+                                  <div className={`relative w-9 h-5 rounded-full transition-colors ${editDraft.showInHero ? "bg-amber-400" : "bg-zinc-300"}`}>
+                                    <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${editDraft.showInHero ? "translate-x-4" : "translate-x-0"}`} />
+                                  </div>
+                                </button>
+                              </div>
+
+                            </div>
+
+                            {/* Footer buttons */}
+                            <div className="sticky bottom-0 bg-white px-6 py-4 border-t border-zinc-100 flex gap-2">
+                              <button
+                                onClick={cancelEdit}
+                                className="flex-1 flex items-center justify-center gap-1.5 border border-zinc-200 text-sm font-medium py-2.5 rounded-lg hover:bg-zinc-50 transition-colors"
+                                style={{ color: "#4b5563", backgroundColor: "#f9fafb" }}
+                              >
+                                <X className="w-4 h-4" /> Cancel
+                              </button>
+                              <button
+                                onClick={() => saveEdit(editingId)}
+                                disabled={!!savingId}
+                                className="flex-1 flex items-center justify-center gap-1.5 text-sm font-semibold py-2.5 rounded-lg transition-colors disabled:opacity-60"
+                                style={{ color: "#ffffff", backgroundColor: "#111827", border: "none" }}
+                              >
+                                {savingId
+                                  ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "#ffffff" }} />
+                                  : <Check className="w-4 h-4" style={{ color: "#ffffff" }} />}
+                                <span style={{ color: "#ffffff" }}>Save Changes</span>
+                              </button>
+                            </div>
+                          </motion.div>
+                        </div>
+                      )}
+                    </div>
+                  );
 }

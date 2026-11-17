@@ -10,6 +10,12 @@ export async function GET(req: NextRequest) {
   try {
     await connectDB();
     const docs = await GalleryImage.find().sort({ createdAt: -1 }).lean();
+    docs.sort((a: any, b: any) => {
+      const orderA = typeof a.order === "number" && a.order > 0 ? a.order : 999999;
+      const orderB = typeof b.order === "number" && b.order > 0 ? b.order : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
     const images = docs.map((img: any) => ({
       ...img,
       url: toBarrisolUrl(img.url),
@@ -52,6 +58,8 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     const title = formData.get("title") as string | null;
     const alt = formData.get("alt") as string | null;
+    const orderRaw = formData.get("order") as string | null;
+    const order = orderRaw !== null ? Number(orderRaw) || 0 : 0;
 
     if (!file) {
       return NextResponse.json(
@@ -82,13 +90,14 @@ export async function POST(req: NextRequest) {
     }) as any;
 
     await connectDB();
-    
+
     // Save metadata to MongoDB with first-party Barrisol URL
     const newImage = await GalleryImage.create({
       url: toBarrisolUrl(uploadResult.secure_url),
       publicId: uploadResult.public_id,
       title: title?.trim() || file.name.replace(/\.[^/.]+$/, ""),
       alt: alt ? alt.trim() : "",
+      order,
     });
 
     revalidatePath("/gallery");
@@ -174,7 +183,28 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { id, title, alt, location, showInHero, material, materialSpec, lightingCCT, lightingDimming, photometrics, warranty } = await req.json();
+    const body = await req.json();
+    await connectDB();
+
+    // Support bulk reordering: { reorder: [{ id: "...", order: 1 }, ...] }
+    if (Array.isArray(body.reorder)) {
+      const bulkOps = body.reorder.map((item: { id: string; order: number }) => ({
+        updateOne: {
+          filter: { _id: item.id },
+          update: { $set: { order: Number(item.order) || 0 } },
+        },
+      }));
+
+      if (bulkOps.length > 0) {
+        await GalleryImage.bulkWrite(bulkOps);
+      }
+
+      revalidatePath("/gallery");
+      revalidatePath("/");
+      return NextResponse.json({ success: true, message: "Order updated successfully" }, { status: 200 });
+    }
+
+    const { id, title, alt, location, showInHero, order, material, materialSpec, lightingCCT, lightingDimming, photometrics, warranty } = body;
     if (!id) {
       return NextResponse.json(
         { success: false, message: "Image ID is required." },
@@ -182,16 +212,16 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    await connectDB();
     const updateFields: Record<string, unknown> = { title, location };
-    if (alt           !== undefined) updateFields.alt           = alt;
+    if (alt !== undefined) updateFields.alt = alt;
     if (typeof showInHero === "boolean") updateFields.showInHero = showInHero;
-    if (material      !== undefined) updateFields.material      = material;
-    if (materialSpec  !== undefined) updateFields.materialSpec  = materialSpec;
-    if (lightingCCT   !== undefined) updateFields.lightingCCT   = lightingCCT;
+    if (order !== undefined) updateFields.order = Number(order) || 0;
+    if (material !== undefined) updateFields.material = material;
+    if (materialSpec !== undefined) updateFields.materialSpec = materialSpec;
+    if (lightingCCT !== undefined) updateFields.lightingCCT = lightingCCT;
     if (lightingDimming !== undefined) updateFields.lightingDimming = lightingDimming;
-    if (photometrics  !== undefined) updateFields.photometrics  = photometrics;
-    if (warranty      !== undefined) updateFields.warranty      = warranty;
+    if (photometrics !== undefined) updateFields.photometrics = photometrics;
+    if (warranty !== undefined) updateFields.warranty = warranty;
 
     const updated = await GalleryImage.findByIdAndUpdate(
       id,

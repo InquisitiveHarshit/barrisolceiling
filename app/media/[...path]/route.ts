@@ -16,7 +16,9 @@ export async function GET(
   const { path } = await params;
   const imagePath = (path || []).join("/");
   const cloudName = getCloudName();
-  const targetUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${imagePath}`;
+  // Ensure Cloudinary delivers automatically optimized format (AVIF/WebP) and quality
+  const cleanPath = imagePath.replace(/^f_auto,q_auto\//, "");
+  const targetUrl = `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto/${cleanPath}`;
 
   console.log(`\n----------------------------------------`);
   console.log(`[Media Proxy] 🖼️  Requested: /media/${imagePath}`);
