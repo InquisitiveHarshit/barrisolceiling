@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   serverExternalPackages: ["mongoose"],
   compress: true,
   poweredByHeader: false,
