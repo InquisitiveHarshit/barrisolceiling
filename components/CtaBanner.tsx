@@ -3,7 +3,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Phone, CheckCircle2, Shield, Ruler, Sparkles } from "lucide-react";
-import { trackPhoneClick } from "@/lib/gtag";
+import { trackPhoneClick, trackCtaClick } from "@/lib/gtag";
 
 export default function CtaBanner() {
   return (
@@ -76,6 +76,7 @@ export default function CtaBanner() {
                 <div className="space-y-3 pt-2">
                   <Link
                     href="#contact"
+                    onClick={() => trackCtaClick("Schedule Free Survey", "CtaBanner", "#contact")}
                     className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B33A6] hover:to-[#B82B90] text-white font-mono text-xs uppercase tracking-widest font-semibold transition-all shadow-lg hover:shadow-[#A62681]/25 hover:translate-y-[-1px]"
                   >
                     <span>Schedule Free Survey</span>

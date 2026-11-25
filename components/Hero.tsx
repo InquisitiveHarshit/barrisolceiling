@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Phone, ChevronLeft, ChevronRight } from "lucide-react";
-import { trackWhatsAppClick } from "@/lib/gtag";
+import { trackWhatsAppClick, trackCtaClick } from "@/lib/gtag";
 
 interface HeroImage {
   _id: string;
@@ -129,6 +129,7 @@ export default function Hero() {
             <div className="flex flex-wrap items-center gap-4 mb-10">
               <Link
                 href="/contact"
+                onClick={() => trackCtaClick("Commission Site Survey", "Hero", "/contact")}
                 className="px-6 sm:px-7 py-3.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.18em] font-semibold transition-all flex items-center gap-2.5 shadow-[0_0_24px_rgba(166,38,129,0.35)] hover:shadow-[0_0_32px_rgba(157,78,221,0.5)] rounded-xs"
               >
                 <span>Commission Site Survey</span>

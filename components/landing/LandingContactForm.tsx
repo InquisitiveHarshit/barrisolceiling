@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { trackFormSubmission } from "@/lib/gtag";
 
@@ -15,6 +16,7 @@ export default function LandingContactForm({
   formTrackingName = "landing_page_hero_form",
   onSuccess,
 }: LandingContactFormProps) {
+  const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -50,6 +52,9 @@ export default function LandingContactForm({
       setStatus("success");
       setForm({ name: "", email: "", phone: "", message: "" });
       if (onSuccess) onSuccess();
+
+      // Automatically navigate to /landing-page/thankyou
+      router.push("/landing-page/thankyou");
     } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Failed to submit. Please try again.");

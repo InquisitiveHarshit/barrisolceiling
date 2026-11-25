@@ -1,66 +1,32 @@
-declare global {
-  interface Window {
-    gtag?: (...args: any[]) => void;
-    dataLayer?: any[];
-  }
-}
-
 /**
- * Tracks lead form submissions in GA4
- * Event: generate_lead
+ * Backward compatibility layer for gtag imports.
+ * Routes all event calls to the centralized AnalyticsManager.
  */
+
+import { analytics, TRACKED_EVENTS, GA_MEASUREMENT_ID, GOOGLE_ADS_ID, WhatsAppEventParams } from "./analytics";
+
+export const GA_TRACKING_ID = GA_MEASUREMENT_ID;
+export { TRACKED_EVENTS, analytics, GOOGLE_ADS_ID };
+
 export const trackFormSubmission = (formName: string = "contact_form") => {
-  if (typeof window !== "undefined") {
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "generate_lead", {
-        form_name: formName,
-      });
-    } else {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "generate_lead",
-        form_name: formName,
-      });
-    }
-  }
+  analytics.trackLead({ formName });
 };
 
-/**
- * Tracks phone call button clicks in GA4
- * Event: phone_call_click
- */
 export const trackPhoneClick = (location: string = "unknown") => {
-  if (typeof window !== "undefined") {
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "phone_call_click", {
-        click_location: location,
-      });
-    } else {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "phone_call_click",
-        click_location: location,
-      });
-    }
-  }
+  analytics.trackPhoneClick({ location });
 };
 
-/**
- * Tracks WhatsApp button clicks in GA4
- * Event: whatsapp_click
- */
-export const trackWhatsAppClick = (location: string = "unknown") => {
-  if (typeof window !== "undefined") {
-    if (typeof window.gtag === "function") {
-      window.gtag("event", "whatsapp_click", {
-        click_location: location,
-      });
-    } else {
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: "whatsapp_click",
-        click_location: location,
-      });
-    }
-  }
+export const trackWhatsAppClick = (
+  location: string = "unknown",
+  extra?: Partial<WhatsAppEventParams>
+) => {
+  analytics.trackWhatsAppClick({ location, ...extra });
+};
+
+export const trackCtaClick = (
+  ctaText: string,
+  location: string = "unknown",
+  destinationUrl?: string
+) => {
+  analytics.trackCtaClick({ ctaText, location, destinationUrl });
 };

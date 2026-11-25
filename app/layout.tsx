@@ -4,8 +4,9 @@ import Script from "next/script";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ActivityTracker from "@/components/ActivityTracker";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -122,25 +123,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         suppressHydrationWarning
         className={`${montserrat.variable} ${playfair.variable} font-body-md text-body-md antialiased overflow-x-hidden selection:bg-brand-vibrancy selection:text-luminary-white min-h-full flex flex-col`}
       >
-        {/* ── Google Analytics & Google Ads gtag (afterInteractive) ── */}
+        {/* ── Google Analytics 4 (GA4) + Google Ads ── */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-F8JDH2R0ML"
           strategy="afterInteractive"
         />
-        <Script id="google-analytics-gtag" strategy="afterInteractive">
+        <Script id="google-analytics-ga4" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
+            function gtag(){window.dataLayer.push(arguments);}
+            window.gtag = gtag;
             gtag('js', new Date());
-          
+
             gtag('config', 'G-F8JDH2R0ML', {
               page_path: window.location.pathname,
             });
+
             gtag('config', 'AW-18383636220');
           `}
         </Script>
 
         {children}
+        <ActivityTracker />
         <WhatsAppButton />
       </body>
     </html>

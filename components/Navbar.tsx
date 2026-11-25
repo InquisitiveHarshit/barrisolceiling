@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ArrowUpRight, Phone } from "lucide-react";
 import LeadModal from "./LeadModal";
-import { trackPhoneClick } from "@/lib/gtag";
+import { trackPhoneClick, trackCtaClick } from "@/lib/gtag";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,6 +84,7 @@ export default function Navbar() {
             <div className="hidden sm:flex flex-col items-center gap-1">
               <Link
                 href="/contact"
+                onClick={() => trackCtaClick("Book Site Survey", "Navbar Desktop Header", "/contact")}
                 className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#6A2C91] to-[#A62681] hover:from-[#7B2CBF] hover:to-[#B52C94] text-white text-xs uppercase tracking-[0.15em] font-semibold transition-all shadow-[0_0_18px_rgba(166,38,129,0.4)] hover:shadow-[0_0_24px_rgba(157,78,221,0.6)] rounded-xs whitespace-nowrap"
               >
                 <span>Book Site Survey</span>
@@ -154,7 +155,10 @@ export default function Navbar() {
             >
               <Link
                 href="/contact"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  trackCtaClick("Book Site Survey", "Navbar Mobile Drawer", "/contact");
+                }}
                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#6A2C91] to-[#A62681] text-white px-6 py-4 font-mono text-sm uppercase tracking-[0.15em] font-semibold shadow-[0_0_18px_rgba(166,38,129,0.4)] rounded-xs"
               >
                 <span>Book Site Survey</span>

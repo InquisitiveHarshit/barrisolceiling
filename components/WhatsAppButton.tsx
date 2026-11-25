@@ -23,7 +23,10 @@ export default function WhatsAppButton() {
   }
 
   const handleWaClick = () => {
-    trackWhatsAppClick("WhatsApp Floating Button");
+    trackWhatsAppClick("WhatsApp Floating Button", {
+      pagePath: pathname,
+      targetUrl: WA_URL,
+    });
   };
 
   return (

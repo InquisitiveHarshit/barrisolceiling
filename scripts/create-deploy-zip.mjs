@@ -127,7 +127,9 @@ archive.glob("**/*", {
     "hostinger-deploy.zip",
     "borocelling-hostinger-deploy.zip",
     "deploy.zip",
-    ".impeccable/**"
+    ".impeccable/**",
+    ".worktrees/**",
+    "*.tsbuildinfo"
   ],
 });
 

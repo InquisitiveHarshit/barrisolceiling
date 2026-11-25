@@ -1,5 +1,6 @@
 import Image from "next/image";
 import LandingContactForm from "./LandingContactForm";
+import LandingThankYouCard from "./LandingThankYouCard";
 
 const stats = [
   { value: "1,000+", label: "Projects Delivered" },
@@ -8,7 +9,11 @@ const stats = [
   { value: "100%", label: "Warranty Assured" },
 ];
 
-export default function LandingHero() {
+interface LandingHeroProps {
+  showThankYou?: boolean;
+}
+
+export default function LandingHero({ showThankYou = false }: LandingHeroProps) {
   return (
       <section className="relative overflow-hidden border-b border-black/10 min-h-[640px] flex items-center bg-gray-50">
         {/* ── Complete Background Image ── */}
@@ -66,23 +71,29 @@ export default function LandingHero() {
 
                 </div>
 
-                {/* Right Column: Embedded Contact Form Card (5 cols) */}
+                {/* Right Column: Embedded Contact Form Card / Thank You (5 cols) */}
                 <div
                   id="contact"
                   className="lg:col-span-5 bg-white border border-black/15 p-6 sm:p-8 shadow-xl rounded-xs"
                 >
-                  <div className="mb-6 pb-4 border-b border-black/10">
-                    <p className="text-xs font-mono uppercase tracking-[0.2em] text-[#A82F9D] font-semibold mb-1">
-                      Free Consultation
-                    </p>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      Book a Free Site Survey
-                    </h2>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Our architectural lighting engineer visits your site — no obligation.
-                    </p>
-                  </div>
-                  <LandingContactForm />
+                  {showThankYou ? (
+                    <LandingThankYouCard />
+                  ) : (
+                    <>
+                      <div className="mb-6 pb-4 border-b border-black/10">
+                        <p className="text-xs font-mono uppercase tracking-[0.2em] text-[#A82F9D] font-semibold mb-1">
+                          Free Consultation
+                        </p>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          Book a Free Site Survey
+                        </h2>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Our architectural lighting engineer visits your site — no obligation.
+                        </p>
+                      </div>
+                      <LandingContactForm />
+                    </>
+                  )}
                 </div>
 
         </div>
