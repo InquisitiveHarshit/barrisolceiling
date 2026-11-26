@@ -12,6 +12,7 @@ import LandingBlogs from "@/components/landing/LandingBlogs";
 import LandingTestimonials from "@/components/landing/LandingTestimonials";
 import LandingFaq from "@/components/landing/LandingFaq";
 import LandingFooter from "@/components/landing/LandingFooter";
+import ConversionFirer from "@/components/landing/ConversionFirer";
 import connectDB from "@/lib/db";
 import HomePageSettings from "@/models/HomePageSettings";
 import Service from "@/models/Service";
@@ -42,7 +43,9 @@ export default async function LandingThankYouPage() {
   const blogs = JSON.parse(JSON.stringify(blogsRaw));
 
   return (
-    <main className="bg-white text-gray-900 min-h-screen selection:bg-[#A82F9D]/20 selection:text-[#A82F9D]">
+    <main className="bg-white text-gray-900 min-h-screen selection:bg-[#A82F9D]/20 selection:text-[#A82F9D] animate-page-slide-in">
+      {/* Fires GA4 generate_lead + Google Ads conversion the moment this page loads */}
+      <ConversionFirer />
       <LandingNav />
 
       {/* Hero section with the thank you card in place of the form */}

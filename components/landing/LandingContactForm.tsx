@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { trackFormSubmission } from "@/lib/gtag";
+import PageTransitionCurtain from "./PageTransitionCurtain";
+
 
 interface LandingContactFormProps {
   formTrackingName?: string;
@@ -20,6 +21,7 @@ export default function LandingContactForm({
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -48,13 +50,17 @@ export default function LandingContactForm({
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.message || "Something went wrong.");
 
-      trackFormSubmission(formTrackingName);
       setStatus("success");
       setForm({ name: "", email: "", phone: "", message: "" });
       if (onSuccess) onSuccess();
 
-      // Automatically navigate to /landing-page/thankyou
-      router.push("/landing-page/thankyou");
+      // Trigger full-screen slide transition up
+      setIsTransitioning(true);
+
+      // Smooth handoff to /landing-page/thankyou matching the slide duration
+      setTimeout(() => {
+        router.push("/landing-page/thankyou");
+      }, 700);
     } catch (err: unknown) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Failed to submit. Please try again.");
@@ -63,24 +69,43 @@ export default function LandingContactForm({
 
   if (status === "success") {
     return (
-      <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
-        <CheckCircle className="text-[#A82F9D]" size={44} strokeWidth={1.5} />
-        <p className="text-xl font-semibold text-gray-900">Thank you!</p>
-        <p className="text-sm text-gray-500 max-w-xs">
-          We&apos;ve received your inquiry. Our team will reach out shortly.
-        </p>
-        <button
-          onClick={() => setStatus("idle")}
-          className="mt-3 text-[#A82F9D] text-xs uppercase tracking-wider underline underline-offset-2 hover:opacity-75 transition-opacity"
-        >
-          Submit another request
-        </button>
-      </div>
+      <>
+        {/* Full-screen cinematic slide-up curtain */}
+        <PageTransitionCurtain active={isTransitioning} />
+
+        <div className="flex flex-col items-center justify-center py-12 px-4 text-center gap-4 animate-in fade-in zoom-in-95 duration-500 ease-out">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-20 h-20 bg-[#A82F9D]/15 rounded-full animate-ping duration-1000 opacity-75" />
+            <div className="relative w-16 h-16 rounded-full bg-[#A82F9D]/10 border border-[#A82F9D]/20 flex items-center justify-center shadow-inner">
+              <CheckCircle className="text-[#A82F9D] animate-in zoom-in-75 duration-300" size={36} strokeWidth={2} />
+            </div>
+          </div>
+
+          <div className="space-y-1.5 animate-in slide-in-from-bottom-2 duration-500">
+            <p className="text-xs font-mono uppercase tracking-[0.2em] text-[#A82F9D] font-semibold">
+              Inquiry Sent
+            </p>
+            <h3 className="text-xl font-bold text-gray-900 tracking-tight">
+              Thank you! Redirecting...
+            </h3>
+            <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+              Taking you to the confirmation page...
+            </p>
+          </div>
+
+          {/* Micro progress indicator */}
+          <div className="w-28 h-1 bg-gray-100 rounded-full overflow-hidden mt-1">
+            <div className="h-full bg-[#A82F9D] rounded-full animate-pulse transition-all duration-700 w-full" />
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <>
+      <PageTransitionCurtain active={isTransitioning} />
+      <form onSubmit={handleSubmit} className="space-y-4">
       {[
         { id: "name", label: "Full Name *", type: "text" },
         { id: "email", label: "Email Address *", type: "email" },
@@ -137,5 +162,6 @@ export default function LandingContactForm({
         )}
       </button>
     </form>
+    </>
   );
 }

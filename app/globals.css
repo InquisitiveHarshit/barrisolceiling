@@ -425,3 +425,45 @@ textarea::placeholder {
 .dark .border-outline\/20 {
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
+
+/* ── Fullscreen Cinematic Slide Transition (Thank You Page) ── */
+@keyframes slideUpCurtain {
+  0% {
+    transform: translate3d(0, 100%, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideDownReveal {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+@keyframes pageSlideInFromBottom {
+  0% {
+    transform: translate3d(0, 60px, 0);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.animate-curtain-up {
+  animation: slideUpCurtain 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-curtain-reveal {
+  animation: slideDownReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+.animate-page-slide-in {
+  animation: pageSlideInFromBottom 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
